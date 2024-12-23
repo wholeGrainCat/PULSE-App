@@ -27,9 +27,9 @@ class SelfHelpTools extends StatelessWidget {
               const SizedBox(height: 16),
               CarouselSlider(
                 items: [
-                  Image.asset('images/slider1.png', fit: BoxFit.cover),
-                  Image.asset('images/slider1.png', fit: BoxFit.cover),
-                  Image.asset('images/slider1.png', fit: BoxFit.cover),
+                  Image.asset('assets/images/slider1.png', fit: BoxFit.cover),
+                  Image.asset('assets/images/slider1.png', fit: BoxFit.cover),
+                  Image.asset('assets/images/slider1.png', fit: BoxFit.cover),
                 ],
                 options: CarouselOptions(
                   height: 200,
@@ -44,7 +44,7 @@ class SelfHelpTools extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               ToolCard(
-                imagePath: 'images/breathing.png',
+                imagePath: 'assets/images/breathing.png',
                 title: 'Breathing',
                 description:
                     'Follow guided breathing exercises to calm your mind and reduce stress in just a few minutes.',
@@ -62,7 +62,7 @@ class SelfHelpTools extends StatelessWidget {
                 },
               ),
               ToolCard(
-                imagePath: 'images/meditation.png',
+                imagePath: 'assets/images/meditation.png',
                 title: 'Meditation',
                 description:
                     'Practice mindfulness with guided meditations to help you relax and focus on the present moment.',
@@ -80,7 +80,7 @@ class SelfHelpTools extends StatelessWidget {
                 },
               ),
               ToolCard(
-                imagePath: 'images/cbt.png',
+                imagePath: 'assets/images/cbt.png',
                 title: 'CBT Exercise',
                 description:
                     'Learn to identify and reframe negative thoughts with interactive Cognitive Behavioral Therapy techniques.',
