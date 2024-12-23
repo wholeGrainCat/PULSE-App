@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:fluentui_emoji_icon/fluentui_emoji_icon.dart';
 import 'package:student/components/app_colour.dart';
 import 'package:student/components/bottom_navigation.dart';
+import 'package:student/pages/mood_done_check_in.dart';
 
 class MoodCheckInPage extends StatefulWidget {
   final String selectedMood;
   final dynamic selectedEmoji;
 
-  const MoodCheckInPage({
-    super.key,
+  MoodCheckInPage({
     required this.selectedEmoji,
     required this.selectedMood,
   });
@@ -44,7 +44,7 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xfffafafa),
+      backgroundColor: Color(0xfffafafa),
       // Navigation Bar
       bottomNavigationBar: BottomNavigation(
         currentIndex: _currentIndex,
@@ -110,7 +110,7 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
                             ),
                             // Mood
                             Text(
-                              widget.selectedMood,
+                              '${widget.selectedMood}',
                               style: const TextStyle(
                                 fontSize: 20,
                                 color: Colors.black,
@@ -119,7 +119,7 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
                             // Timestamp
                             Text(
                               timestamp,
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.black,
                                   fontWeight: FontWeight.w300),
@@ -128,7 +128,7 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
                               height: 9,
                             ),
                             // Mood check-in message
-                            const Text(
+                            Text(
                               'Check-in Completed!',
                               textAlign: TextAlign.center,
                               style: TextStyle(
@@ -140,22 +140,6 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
                           ],
                         ),
                       ),
-                      Positioned(
-                          right: 10,
-                          top: 10,
-                          child: CircleAvatar(
-                            radius: 20,
-                            backgroundColor: AppColors.pri_greenYellow,
-                            child: IconButton(
-                              icon: const Icon(
-                                Icons.edit,
-                                color: Colors.black,
-                              ),
-                              onPressed: () {
-                                print("Edit button clicked");
-                              },
-                            ),
-                          ))
                     ],
                   ),
                 ),
@@ -167,13 +151,12 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
               margin: const EdgeInsets.symmetric(horizontal: 28),
               child: Column(
                 children: [
-                  const Text(
+                  Text(
                     '-Journal Entry-',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 10),
                   SizedBox(
-                    height: 38,
                     child: TextField(
                       controller: _titleController,
                       decoration: InputDecoration(
@@ -185,8 +168,8 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                              color: AppColors.pri_purple, width: 2),
+                          borderSide:
+                              BorderSide(color: AppColors.pri_purple, width: 2),
                         ),
                       ),
                     ),
@@ -194,7 +177,7 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
                   const SizedBox(
                     height: 17,
                   ),
-                  const Text(
+                  Text(
                     'Write a few words to keep you on track:',
                     style: TextStyle(fontSize: 16),
                   ),
@@ -213,8 +196,8 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                            color: AppColors.pri_purple, width: 2),
+                        borderSide:
+                            BorderSide(color: AppColors.pri_purple, width: 2),
                       ),
                     ),
                     maxLines: 8,
@@ -232,7 +215,13 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
                           height: 50,
                           child: ElevatedButton(
                             onPressed: () {
-                              Navigator.pop(context);
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => MoodDoneCheckIn(
+                                            selectedMood: widget.selectedMood,
+                                            selectedEmoji: widget.selectedEmoji,
+                                          )));
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.black,
@@ -260,6 +249,13 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
                               print('Journal Title: $title');
                               print('Journal Description: $description');
                               print('Timestamp: $timestamp');
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => MoodDoneCheckIn(
+                                            selectedMood: widget.selectedMood,
+                                            selectedEmoji: widget.selectedEmoji,
+                                          )));
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF613EEA),
