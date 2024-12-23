@@ -5,6 +5,17 @@ class Depression extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Depression'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(
+                context); // This will navigate back to the previous screen
+          },
+        ),
+      ),
+    );
   }
 }
