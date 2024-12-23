@@ -46,10 +46,13 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
         backgroundColor: Colors.white,
         elevation: 1,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
+        // Wrap the body in a SingleChildScrollView
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment
+              .spaceBetween, // Ensure the button stays at the bottom
           children: [
             // Calendar Section
             const SizedBox(height: 20),
@@ -102,13 +105,12 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
             else
               GridView.builder(
                 shrinkWrap: true,
-                physics:
-                    const NeverScrollableScrollPhysics(), // Prevent grid scrolling
+                physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3, // 3 columns for time slots
+                  crossAxisCount: 3,
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 12,
-                  childAspectRatio: 2.5, // Adjust ratio for button height/width
+                  childAspectRatio: 2.5,
                 ),
                 itemCount: availableTimes.length,
                 itemBuilder: (context, index) {
@@ -176,9 +178,6 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
                     .toList(),
               ),
             ],
-
-            // Spacer to push button to bottom
-            const Spacer(),
 
             // Confirm Button
             Padding(
