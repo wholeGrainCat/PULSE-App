@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:student/pages/RL_sidePages/anxiety.dart';
 import 'package:student/pages/RL_sidePages/depression.dart';
@@ -13,8 +14,23 @@ import 'package:student/pages/resource_library.dart';
 import 'package:student/pages/self_help_tools.dart';
 import 'package:student/pages/student_dashboard.dart';
 import 'package:student/onboarding/onboardingscreen.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+        options: const FirebaseOptions(
+            apiKey: "AIzaSyAnkMJToiEBeR3ph3Yi2KaL3wrAS_c-HKw",
+            authDomain: "pulse-student.firebaseapp.com",
+            projectId: "pulse-student",
+            storageBucket: "pulse-student.firebasestorage.app",
+            messagingSenderId: "346012969160",
+            appId: "1:346012969160:web:1403a7cd4e80450c545dfd"));
+  } else {
+    await Firebase.initializeApp();
+  }
+
   runApp(const MyApp());
 }
 
