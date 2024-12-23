@@ -5,8 +5,6 @@ import 'package:student/components/text_field.dart';
 import 'package:student/components/app_colour.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
-  const ForgotPasswordPage({super.key});
-
   @override
   _ForgotPasswordPageState createState() => _ForgotPasswordPageState();
 }
@@ -37,7 +35,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       });
 
       // Simulate sending a reset link
-      Future.delayed(const Duration(seconds: 2), () {
+      Future.delayed(Duration(seconds: 2), () {
         setState(() {
           _isProcessing = false;
         });
@@ -62,7 +60,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Forgot Password',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
         ),
@@ -98,23 +96,23 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
+                        Text(
                           'Reset your password',
                           style: TextStyle(
                               fontSize: 24, fontWeight: FontWeight.w500),
                         ),
-                        const SizedBox(height: 16),
-                        const Text(
+                        SizedBox(height: 16),
+                        Text(
                           'Enter your email address and we\'ll send you a link to reset your password.',
                           style: TextStyle(fontSize: 14),
                         ),
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20),
                         CustomTextField(
                           label: "Email",
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                         ),
-                        const SizedBox(height: 24),
+                        SizedBox(height: 24),
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
@@ -125,16 +123,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                   : Navigator.pushNamed(
                                       context, '/resetpassword');
                             },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: isButtonEnabled
-                                  ? AppColors.pri_purple
-                                  : Colors.grey[300],
-                              minimumSize: const Size(double.infinity, 50),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                            ),
                             child: _isProcessing
                                 ? CircularProgressIndicator(
                                     valueColor: AlwaysStoppedAnimation<Color>(
@@ -145,6 +133,16 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                     style: TextStyle(
                                         color: Colors.white, fontSize: 16),
                                   ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: isButtonEnabled
+                                  ? AppColors.pri_purple
+                                  : Colors.grey[300],
+                              minimumSize: const Size(double.infinity, 50),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                            ),
                           ),
                         ),
                       ],
