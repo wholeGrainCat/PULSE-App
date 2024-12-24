@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "871713665921",
-    "project_id": "pulse-20fa8",
-    "storage_bucket": "pulse-20fa8.firebasestorage.app"
+    "project_number": "346012969160",
+    "project_id": "pulse-student",
+    "storage_bucket": "pulse-student.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:871713665921:android:28b75318e464641ccc2e80",
+        "mobilesdk_app_id": "1:346012969160:android:5175c83e86cf6883545dfd",
         "android_client_info": {
           "package_name": "com.example.pulse"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCAQqXeqwFJ_I4PFs7io0Bm74VJFZhrlKQ"
+          "current_key": "AIzaSyCWEx9uYQpyyozYJfWXzqCd2vFH3L4vxNg"
         }
       ],
       "services": {

@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyAbBJWhv_kyas16sqwyfyY0KHB0l2WkWTg</string>
+	<string>AIzaSyDSzYKgZ8DNwCjgyJDblcgE5nkz9mvV2qw</string>
 	<key>GCM_SENDER_ID</key>
-	<string>871713665921</string>
+	<string>346012969160</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.example.pulse</string>
 	<key>PROJECT_ID</key>
-	<string>pulse-20fa8</string>
+	<string>pulse-student</string>
 	<key>STORAGE_BUCKET</key>
-	<string>pulse-20fa8.firebasestorage.app</string>
+	<string>pulse-student.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:871713665921:ios:8186919b8ef0e099cc2e80</string>
+	<string>1:346012969160:ios:c741b9ea3198cca2545dfd</string>
 </dict>
 </plist>
