@@ -7,7 +7,7 @@ class Videos extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Videos'),
+        title: const Text('Videos'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {

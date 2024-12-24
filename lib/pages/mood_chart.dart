@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:student/components/app_colour.dart'; // For formatting dates
 
 class MoodChartPage extends StatefulWidget {
+  const MoodChartPage({super.key});
+
   @override
   _MoodChartPageState createState() => _MoodChartPageState();
 }
@@ -123,7 +125,7 @@ class _MoodChartPageState extends State<MoodChartPage> {
           },
           child: LineChart(
             LineChartData(
-              gridData: FlGridData(show: true),
+              gridData: const FlGridData(show: true),
               titlesData: FlTitlesData(
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(

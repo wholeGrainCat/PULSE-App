@@ -7,7 +7,7 @@ class Anxiety extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Anxiety'),
+        title: const Text('Anxiety'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {

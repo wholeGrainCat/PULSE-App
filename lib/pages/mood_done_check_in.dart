@@ -8,7 +8,7 @@ class MoodDoneCheckIn extends StatefulWidget {
   final String selectedMood;
   final dynamic selectedEmoji;
 
-  MoodDoneCheckIn({
+  const MoodDoneCheckIn({super.key, 
     required this.selectedEmoji,
     required this.selectedMood,
   });
@@ -112,13 +112,13 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Text(
+                                  const Text(
                                     'Mood of the day:',
                                     style: TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 13,
                                   ),
                                   // Emoji
@@ -129,7 +129,7 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
                                   ),
                                   // Mood
                                   Text(
-                                    '${widget.selectedMood}',
+                                    widget.selectedMood,
                                     style: const TextStyle(
                                       fontSize: 16,
                                       color: Colors.black,
@@ -138,7 +138,7 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
                                   ),
                                   Text(
                                     timestamp,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 14,
                                         color: Colors.black,
                                         fontWeight: FontWeight.w300),
@@ -146,7 +146,7 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
                                   const SizedBox(
                                     height: 9,
                                   ),
-                                  Text(
+                                  const Text(
                                     'Awesome! You\'re one step closer to understanding your emotions.',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
@@ -186,7 +186,7 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
                           TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(height: 10),
-                    Container(
+                    SizedBox(
                       height: constraints.maxHeight * 0.28, // Responsive height
                       child: _buildMoodGraph(),
                     ),
@@ -241,12 +241,12 @@ class NavigationButton extends StatelessWidget {
   final Color backgroundColor;
 
   const NavigationButton({
-    Key? key,
+    super.key,
     required this.label,
     required this.icon,
     required this.onPressed,
     required this.backgroundColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

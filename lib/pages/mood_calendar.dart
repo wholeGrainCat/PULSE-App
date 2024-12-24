@@ -3,6 +3,8 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:student/components/background_style_three.dart';
 
 class MoodCalendarPage extends StatefulWidget {
+  const MoodCalendarPage({super.key});
+
   @override
   _MoodCalendarPageState createState() => _MoodCalendarPageState();
 }
@@ -38,7 +40,7 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Mood Calendar',
           style: TextStyle(
             fontSize: 24,
@@ -75,7 +77,7 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
                     lastDay: DateTime(2030),
                     focusedDay: _focusedDay,
                     selectedDayPredicate: (day) => isSameDay(day, _selectedDay),
-                    calendarStyle: CalendarStyle(
+                    calendarStyle: const CalendarStyle(
                       defaultDecoration: BoxDecoration(
                         shape: BoxShape.circle,
                       ),
@@ -96,7 +98,7 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
                             alignment: Alignment.center,
                             child: Text(
                               day.day.toString(),
-                              style: TextStyle(color: Colors.white),
+                              style: const TextStyle(color: Colors.white),
                             ),
                           );
                         }
@@ -112,7 +114,7 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
                     availableCalendarFormats: const {
                       CalendarFormat.month: 'Month', // Only show month view
                     },
-                    headerStyle: HeaderStyle(
+                    headerStyle: const HeaderStyle(
                       formatButtonVisible: false, // Hide the format button
                       titleCentered: true, // Center the title
                       leftChevronIcon:

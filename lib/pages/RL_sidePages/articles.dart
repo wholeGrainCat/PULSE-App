@@ -7,7 +7,7 @@ class Articles extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Articles'),
+        title: const Text('Articles'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {

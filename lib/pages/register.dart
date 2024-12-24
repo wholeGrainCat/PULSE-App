@@ -1,5 +1,7 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:student/components/app_colour.dart';
+import 'package:student/pages/auth_service.dart';
 import 'login.dart';
 import 'package:student/components/text_field.dart';
 import 'package:student/components/background_with_emojis.dart';
@@ -17,7 +19,10 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
+  final AuthService _auth = AuthService();
   bool isButtonEnabled = false;
+  String? emailError;
+  List<String> passwordErrors = [];
 
   @override
   void initState() {
@@ -46,6 +51,89 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 
+  bool _validateInputs() {
+    setState(() {
+      emailError = null;
+      passwordErrors.clear();
+    });
+
+    final email = emailController.text.trim();
+    final password = passwordController.text;
+
+    // Email Validation
+    final emailRegex =
+        RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}");
+    if (!emailRegex.hasMatch(email)) {
+      setState(() {
+        emailError = "Please enter a valid email address.";
+      });
+    }
+
+    // Password Validation
+    if (password.length < 12) {
+      passwordErrors.add("Password must be at least 12 characters long.");
+    }
+    if (!RegExp(r'[A-Z]').hasMatch(password)) {
+      passwordErrors
+          .add("Password must contain at least one uppercase letter.");
+    }
+    if (!RegExp(r'[a-z]').hasMatch(password)) {
+      passwordErrors
+          .add("Password must contain at least one lowercase letter.");
+    }
+    if (!RegExp(r'[0-9]').hasMatch(password)) {
+      passwordErrors.add("Password must contain at least one number.");
+    }
+    if (!RegExp(r'[!@#\\$%^&*(),.?":{}|<>]').hasMatch(password)) {
+      passwordErrors
+          .add("Password must contain at least one special character.");
+    }
+
+    setState(() {}); // Update UI to show errors
+    return emailError == null && passwordErrors.isEmpty;
+  }
+
+  Future<void> _signup() async {
+    if (!_validateInputs()) {
+      return;
+    }
+
+    if (passwordController.text != confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+
+    final user = await _auth.createUserWithEmailAndPassword(
+      emailController.text,
+      passwordController.text,
+    );
+
+    if (user != null) {
+      log("Sign up successful");
+
+      // Show the success SnackBar
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Sign up successful! Redirecting to login...')),
+      );
+
+      // Delay to allow SnackBar to appear
+      await Future.delayed(const Duration(seconds: 2));
+
+      // Redirect to the login page
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Sign up failed. Please try again.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,7 +160,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget _buildRegistrationForm(BuildContext context) {
     return Center(
       child: SizedBox(
-        height: 590,
+        height: 630,
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 20),
           padding: const EdgeInsets.all(20),
@@ -92,10 +180,31 @@ class _RegisterPageState extends State<RegisterPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _buildTextField("Email", emailController),
+              if (emailError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 5, bottom: 10),
+                  child: Text(
+                    emailError!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
               _buildTextField("Password", passwordController,
                   obscureText: true),
               _buildTextField("Confirm Password", confirmPasswordController,
                   obscureText: true),
+              if (passwordErrors.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 5, bottom: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: passwordErrors
+                        .map((error) => Text(
+                              error,
+                              style: const TextStyle(color: Colors.red),
+                            ))
+                        .toList(),
+                  ),
+                ),
               const SizedBox(height: 30),
               _buildSignUpButton(context),
               const SizedBox(height: 40),
@@ -137,19 +246,7 @@ class _RegisterPageState extends State<RegisterPage> {
             borderRadius: BorderRadius.circular(15),
           ),
         ),
-        onPressed: isButtonEnabled
-            ? () {
-                if (passwordController.text == confirmPasswordController.text) {
-                  // Navigate to the mood tracker or another page
-                  Navigator.pushNamed(context, '/studentdashboard');
-                } else {
-                  // Show a snackbar for mismatched passwords
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Passwords do not match')),
-                  );
-                }
-              }
-            : null,
+        onPressed: isButtonEnabled ? _signup : null, // Call _signup here
         child: const Text(
           "SIGN UP",
           style: TextStyle(color: Colors.white, fontSize: 16),
@@ -200,7 +297,7 @@ class _RegisterPageState extends State<RegisterPage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => LoginPage()),
+                MaterialPageRoute(builder: (context) => const LoginPage()),
               );
             },
             child: const Text.rich(TextSpan(
