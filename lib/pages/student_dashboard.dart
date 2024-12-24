@@ -283,9 +283,9 @@ class _StudentDashboardState extends State<StudentDashboard> {
   void _navigateToSection(int index) {
     // Map index to respective screen
     final screens = [
-      SelfHelpTools(), // Screen for Self-Help Tools
-      CrisisSupport(), // Screen for Crisis Support
-      CounsellorInfoScreen(), // Screen for UNIMAS Support
+      const SelfHelpTools(), // Screen for Self-Help Tools
+      const CrisisSupport(), // Screen for Crisis Support
+      const CounsellorInfoScreen(), // Screen for UNIMAS Support
       AppointmentScreen(), // Screen for Counselling Appointment
     ];
 

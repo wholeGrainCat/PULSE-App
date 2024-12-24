@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:student/components/app_colour.dart';
+import 'package:student/pages/auth_service.dart';
 import 'register.dart';
 import 'package:student/components/text_field.dart';
 import 'package:student/components/background_with_emojis.dart';
@@ -13,9 +14,12 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _auth = AuthService();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool isButtonEnabled = false;
+  String? emailError;
+  List<String> passwordErrors = [];
 
   @override
   void initState() {
@@ -56,66 +60,73 @@ class _LoginPageState extends State<LoginPage> {
         child: Stack(
           children: [
             const BackgroundWithEmojis(),
-            SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 180),
-                  Center(
-                    child: SizedBox(
-                      height: 590,
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 20),
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(30),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xffD9D9D9).withOpacity(.7),
-                              blurRadius: 20,
-                              offset: const Offset(0, 4),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 180),
+                Center(
+                  child: SizedBox(
+                    height: 590,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xffD9D9D9).withOpacity(.7),
+                            blurRadius: 20,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CustomTextField(
+                            label: "Email",
+                            controller: emailController,
+                            keyboardType: TextInputType.emailAddress,
+                          ),
+                          if (emailError != null)
+                            Text(
+                              emailError!,
+                              style: const TextStyle(
+                                  color: Colors.red, fontSize: 12),
                             ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CustomTextField(
-                              label: "Email",
-                              controller: emailController,
-                              keyboardType: TextInputType.emailAddress,
+                          const SizedBox(height: 5),
+                          CustomTextField(
+                            label: "Password",
+                            obscureText: true,
+                            controller: passwordController,
+                          ),
+                          if (passwordErrors.isNotEmpty)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: passwordErrors
+                                  .map((error) => Text(
+                                        error,
+                                        style: const TextStyle(
+                                            color: Colors.red, fontSize: 12),
+                                      ))
+                                  .toList(),
                             ),
-                            const SizedBox(height: 5),
-                            CustomTextField(
-                              label: "Password",
-                              obscureText: true,
-                              controller: passwordController,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "Password cannot be empty";
-                                } else if (value.length < 6) {
-                                  return "Password must be at least 6 characters";
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 30),
-                            _buildSignInButton(context),
-                            const SizedBox(height: 40),
-                            _buildContinueWithText(),
-                            const SizedBox(height: 14),
-                            _buildGoogleSignIn(),
-                            const SizedBox(height: 28),
-                            _buildSignUpAndForgotPasswordLinks(context),
-                          ],
-                        ),
+                          const SizedBox(height: 30),
+                          _buildSignInButton(context),
+                          const SizedBox(height: 40),
+                          _buildContinueWithText(),
+                          const SizedBox(height: 14),
+                          _buildGoogleSignIn(),
+                          const SizedBox(height: 28),
+                          _buildSignUpAndForgotPasswordLinks(context),
+                        ],
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
             const Positioned(
               left: 0,
@@ -150,11 +161,7 @@ class _LoginPageState extends State<LoginPage> {
             borderRadius: BorderRadius.circular(15),
           ),
         ),
-        onPressed: isButtonEnabled
-            ? () {
-                Navigator.pushNamed(context, '/studentdashboard');
-              }
-            : null, // Disable the button when not enabled
+        onPressed: isButtonEnabled ? _login : null,
         child: const Text(
           "SIGN IN",
           style: TextStyle(
@@ -164,6 +171,49 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  // Input Validation
+  bool _validateInputs() {
+    final email = emailController.text.trim();
+    final password = passwordController.text;
+
+    // Reset error messages
+    emailError = null;
+    passwordErrors = [];
+
+    // Email Validation
+    final emailRegex =
+        RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}");
+    if (!emailRegex.hasMatch(email)) {
+      setState(() {
+        emailError = "Please enter a valid email address.";
+      });
+      return false;
+    }
+
+    // Password Validation
+    if (password.length < 12) {
+      passwordErrors.add("Password must be at least 12 characters long.");
+    }
+    if (!RegExp(r'[A-Z]').hasMatch(password)) {
+      passwordErrors
+          .add("Password must contain at least one uppercase letter.");
+    }
+    if (!RegExp(r'[a-z]').hasMatch(password)) {
+      passwordErrors
+          .add("Password must contain at least one lowercase letter.");
+    }
+    if (!RegExp(r'[0-9]').hasMatch(password)) {
+      passwordErrors.add("Password must contain at least one number.");
+    }
+    if (!RegExp(r'[!@#\\$%^&*(),.?":{}|<>]').hasMatch(password)) {
+      passwordErrors
+          .add("Password must contain at least one special character.");
+    }
+
+    setState(() {}); // Update UI to show errors
+    return passwordErrors.isEmpty; // Return true if no errors
   }
 
   // Continue with text
@@ -208,7 +258,7 @@ class _LoginPageState extends State<LoginPage> {
       child: Column(
         children: [
           GestureDetector(
-            onTap: () => _navigateToPage(context, RegisterPage()),
+            onTap: () => _navigateToPage(context, const RegisterPage()),
             child: const Text.rich(
               TextSpan(
                 text: "Don't have an account? ",
@@ -235,7 +285,7 @@ class _LoginPageState extends State<LoginPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ForgotPasswordPage(),
+                  builder: (context) => const ForgotPasswordPage(),
                 ),
               );
             },
@@ -252,5 +302,21 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ),
     );
+  }
+
+  _login() async {
+    final user = await _auth.loginWithEmailAndPassword(
+        emailController.text, passwordController.text);
+
+    if (user != null) {
+      //log("Login successful");
+      Navigator.pushNamed(context, '/studentdashboard');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Invalid email or password'),
+        ),
+      );
+    }
   }
 }

@@ -36,7 +36,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -50,8 +50,21 @@ class MyApp extends StatelessWidget {
       // home: MoodTrackerPage(),
       // home: StudentDashboard(),
       // home: ResourcePage(),
-      home: OnboardingScreen(), // Set OnboardingPage as the first page
+      home: const OnboardingScreen(), // Set OnboardingPage as the first page
       routes: {
+        '/login': (context) => const LoginPage(),
+        '/forgotpassword': (context) => const ForgotPasswordPage(),
+        '/resetpassword': (context) => const ResetPasswordPage(),
+        '/studentdashboard': (context) => const StudentDashboard(),
+        '/moodtracker': (context) => const MoodTrackerPage(),
+        '/mooddiary': (context) => const DiaryPage(),
+        '/moodcalendar': (context) => const MoodCalendarPage(),
+        '/resource': (context) => const ResourceLibraryPage(),
+        '/stress': (context) => const Stress(),
+        '/depression': (context) => const Depression(),
+        '/selfcare': (context) => const SelfCare(),
+        '/anxiety': (context) => const Anxiety(),
+        '/selfhelptools': (context) => const SelfHelpTools(),
         '/login': (context) => LoginPage(),
         '/forgotpassword': (context) => ForgotPasswordPage(),
         '/resetpassword': (context) => ResetPasswordPage(),

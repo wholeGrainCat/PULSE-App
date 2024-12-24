@@ -7,7 +7,7 @@ class SelfCare extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Self-care'),
+        title: const Text('Self-care'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {

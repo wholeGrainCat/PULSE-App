@@ -8,7 +8,7 @@ class MoodCheckInPage extends StatefulWidget {
   final String selectedMood;
   final dynamic selectedEmoji;
 
-  MoodCheckInPage({
+  const MoodCheckInPage({super.key, 
     required this.selectedEmoji,
     required this.selectedMood,
   });
@@ -74,7 +74,7 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xfffafafa),
+      backgroundColor: const Color(0xfffafafa),
       // Navigation Bar
       bottomNavigationBar: BottomNavigation(
         currentIndex: _currentIndex,
@@ -140,7 +140,7 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
                             ),
                             // Mood
                             Text(
-                              '${widget.selectedMood}',
+                              widget.selectedMood,
                               style: const TextStyle(
                                 fontSize: 20,
                                 color: Colors.black,
@@ -149,7 +149,7 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
                             // Timestamp
                             Text(
                               timestamp,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 14,
                                   color: Colors.black,
                                   fontWeight: FontWeight.w300),
@@ -158,7 +158,7 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
                               height: 9,
                             ),
                             // Mood check-in message
-                            Text(
+                            const Text(
                               'Check-in Completed!',
                               textAlign: TextAlign.center,
                               style: TextStyle(
@@ -181,7 +181,7 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
               margin: const EdgeInsets.symmetric(horizontal: 28),
               child: Column(
                 children: [
-                  Text(
+                  const Text(
                     '-Journal Entry-',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
@@ -199,7 +199,7 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide:
-                              BorderSide(color: AppColors.pri_purple, width: 2),
+                              const BorderSide(color: AppColors.pri_purple, width: 2),
                         ),
                       ),
                     ),
@@ -207,7 +207,7 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
                   const SizedBox(
                     height: 17,
                   ),
-                  Text(
+                  const Text(
                     'Write a few words to keep you on track:',
                     style: TextStyle(fontSize: 16),
                   ),
@@ -227,7 +227,7 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide:
-                            BorderSide(color: AppColors.pri_purple, width: 2),
+                            const BorderSide(color: AppColors.pri_purple, width: 2),
                       ),
                     ),
                     maxLines: 8,

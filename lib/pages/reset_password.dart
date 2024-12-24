@@ -5,6 +5,8 @@ import 'package:student/components/background_with_emojis.dart';
 import 'package:student/components/text_field.dart';
 
 class ResetPasswordPage extends StatefulWidget {
+  const ResetPasswordPage({super.key});
+
   @override
   _ResetPasswordPageState createState() => _ResetPasswordPageState();
 }
@@ -45,7 +47,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Reset Password',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
         ),
@@ -81,12 +83,12 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(
+                        const Text(
                           'Set your new password',
                           style: TextStyle(
                               fontSize: 24, fontWeight: FontWeight.w500),
                         ),
-                        SizedBox(height: 20.0),
+                        const SizedBox(height: 20.0),
                         CustomTextField(
                           label: "New Password",
                           obscureText: true,
@@ -100,7 +102,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                             return null;
                           },
                         ),
-                        SizedBox(height: 20.0),
+                        const SizedBox(height: 20.0),
                         CustomTextField(
                           label: "Confirm Password",
                           obscureText: true,
@@ -114,14 +116,14 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                             return null;
                           },
                         ),
-                        SizedBox(height: 20.0),
+                        const SizedBox(height: 20.0),
                         ElevatedButton(
                           onPressed: isButtonEnabled
                               ? () {
                                   if (_formKey.currentState!.validate()) {
                                     // Handle password reset logic
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
+                                      const SnackBar(
                                         content:
                                             Text('Password reset successful!'),
                                       ),
@@ -131,10 +133,6 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                                   }
                                 }
                               : null,
-                          child: Text(
-                            'Reset Password',
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: isButtonEnabled
                                 ? AppColors.pri_purple
@@ -143,6 +141,10 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
+                          ),
+                          child: const Text(
+                            'Reset Password',
+                            style: TextStyle(color: Colors.white, fontSize: 16),
                           ),
                         ),
                       ],
