@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fluentui_emoji_icon/fluentui_emoji_icon.dart';
 import 'package:student/components/bottom_navigation.dart';
 import 'mood_check_in.dart';
+import 'mood_done_check_in.dart';
 
 class MoodTrackerPage extends StatefulWidget {
   const MoodTrackerPage({super.key});
@@ -12,6 +14,7 @@ class MoodTrackerPage extends StatefulWidget {
 }
 
 class _MoodTrackerPageState extends State<MoodTrackerPage> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String selectedMood = "";
   int _currentIndex = 1;
 
@@ -23,11 +26,73 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
     {"icon": Fluents.flSlightlyFrowningFace, "label": "Not Great"},
     {"icon": Fluents.flFrowningFace, "label": "Bad"},
   ];
+  @override
+  void initState() {
+    super.initState();
+    _checkMoodStatus();
+  }
+
+  // Check if the user has already logged their mood for today
+  Future<bool> hasLoggedMoodToday() async {
+    final today = DateTime.now();
+    final formattedDate = DateFormat('yyyy-MM-dd').format(today);
+
+    QuerySnapshot snapshot = await _firestore
+        .collection('moods')
+        .where('date', isEqualTo: formattedDate)
+        .get();
+
+    return snapshot.docs.isNotEmpty;
+  }
+
+  void _checkMoodStatus() async {
+    bool hasLogged = await hasLoggedMoodToday();
+    if (hasLogged) {
+      // Navigate to MoodDoneCheckInPage if a mood log exists
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MoodDoneCheckIn()),
+      );
+    }
+  }
 
   void handleMoodSelection(String mood) {
     setState(() {
       selectedMood = mood;
     });
+  }
+
+//Save Mood data to database
+  Future<void> saveMood(String mood) async {
+    try {
+      await FirebaseFirestore.instance.collection('moods').add({
+        'mood': mood,
+        'date': DateTime.now().toIso8601String().split('T').first,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+      print("Mood saved successfully!");
+    } catch (e) {
+      print("Failed to save mood: $e");
+    }
+  }
+
+//Fetch Mood data from Database
+  Future<List<Map<String, dynamic>>> fetchMoodData() async {
+    try {
+      QuerySnapshot snapshot = await _firestore
+          .collection('moods')
+          .orderBy('timestamp', descending: true)
+          .get();
+      return snapshot.docs
+          .map((doc) => {
+                'mood': doc['mood'],
+                'date': doc['date'],
+              })
+          .toList();
+    } catch (e) {
+      print("Failed to fetch mood data: $e");
+      return [];
+    }
   }
 
   void navigateTo(String page) {
@@ -98,26 +163,20 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
                     ),
                     const SizedBox(height: 20),
                     CheckInButton(
-                      onPressed: selectedMood.isEmpty
-                          ? null // Disable button if no mood is selected
-                          : () {
-                              //Find the selected emoji
-                              final selectedEmoji = moods.firstWhere(
-                                (mood) => mood['label'] == selectedMood,
-                              )['icon'];
-
-                              // Navigate to Mood Check-In Page
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => MoodCheckInPage(
-                                    selectedMood: selectedMood,
-                                    selectedEmoji: selectedEmoji,
-                                  ),
-                                ),
-                              );
-                            },
-                    ),
+                        onPressed: selectedMood.isEmpty
+                            ? null // Disable button if no mood is selected
+                            : () async {
+                                await saveMood(selectedMood);
+                                final selectedEmoji = moods.firstWhere(
+                                  (mood) => mood['label'] == selectedMood,
+                                )['icon'];
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => MoodCheckInPage(
+                                            selectedEmoji: selectedEmoji,
+                                            selectedMood: selectedMood)));
+                              }),
 
                     const SizedBox(height: 28),
                     const Text(
@@ -126,6 +185,7 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
                           TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(height: 10),
+
                     SizedBox(
                       height: constraints.maxHeight * 0.28, // Responsive height
                       child: _buildMoodGraph(),

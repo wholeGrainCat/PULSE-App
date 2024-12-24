@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fluentui_emoji_icon/fluentui_emoji_icon.dart';
@@ -5,21 +6,25 @@ import 'package:student/components/bottom_navigation.dart';
 import 'package:student/components/app_colour.dart';
 
 class MoodDoneCheckIn extends StatefulWidget {
-  final String selectedMood;
-  final dynamic selectedEmoji;
-
-  const MoodDoneCheckIn({super.key, 
-    required this.selectedEmoji,
-    required this.selectedMood,
-  });
-
   @override
   _MoodDoneCheckInState createState() => _MoodDoneCheckInState();
 }
 
 class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
   String timestamp = '';
+  String selectedMood = '';
+  dynamic selectedEmoji;
+  bool isLoading = true; // For loading state
   int _currentIndex = 1;
+
+  // List of mood options
+  final List<Map<String, dynamic>> moods = [
+    {"icon": Fluents.flSmilingFace, "label": "Great"},
+    {"icon": Fluents.flSlightlySmilingFace, "label": "Good"},
+    {"icon": Fluents.flNeutralFace, "label": "Okay"},
+    {"icon": Fluents.flSlightlyFrowningFace, "label": "Not Great"},
+    {"icon": Fluents.flFrowningFace, "label": "Bad"},
+  ];
 
   void navigateTo(String page) {
     print("Navigating to $page"); // Replace with actual navigation logic
@@ -28,15 +33,41 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
   @override
   void initState() {
     super.initState();
-    // Set the timestamp after widget is initialized using Future.delayed to ensure context is available
-    Future.delayed(Duration.zero, () {
-      if (mounted) {
+    // Fetch the mood data and timestamp when the widget is initialized
+    fetchMoodData();
+  }
+
+  /// Fetch the latest mood data for the current user from Firestore
+  Future<void> fetchMoodData() async {
+    try {
+      //final userId = 'currentUserId';
+      final moodCollection = FirebaseFirestore.instance
+          .collection('mood_entries')
+          // .where('userId', isEqualTo: userId)
+          .orderBy('timestamp', descending: true)
+          .limit(1);
+
+      final querySnapshot = await moodCollection.get();
+      if (querySnapshot.docs.isNotEmpty) {
+        final moodData = querySnapshot.docs.first.data();
         setState(() {
-          timestamp =
-              "Today, ${TimeOfDay.now().format(context)}"; // Get the current time
+          selectedMood = moodData['mood'] ?? 'Unknown';
+          timestamp = DateFormat('d MMM yyyy, h:mm a').format(
+            (moodData['timestamp'] as Timestamp).toDate(),
+          );
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false; // No mood data found
         });
       }
-    });
+    } catch (e) {
+      print('Error fetching mood data: $e');
+      setState(() {
+        isLoading = false; // Stop loading even if an error occurs
+      });
+    }
   }
 
   @override
@@ -122,27 +153,37 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
                                     height: 13,
                                   ),
                                   // Emoji
-                                  FluentUiEmojiIcon(
-                                    fl: widget.selectedEmoji,
-                                    w: 47,
-                                    h: 47,
-                                  ),
+                                  isLoading
+                                      ? CircularProgressIndicator()
+                                      : FluentUiEmojiIcon(
+                                          fl: moods.firstWhere(
+                                            (mood) =>
+                                                mood['label'] == selectedMood,
+                                          )['icon'],
+                                          w: 47,
+                                          h: 47,
+                                        ),
                                   // Mood
-                                  Text(
-                                    widget.selectedMood,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    timestamp,
-                                    style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.w300),
-                                  ),
+                                  isLoading
+                                      ? SizedBox()
+                                      : Text(
+                                          '$selectedMood',
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                  // Timestamp
+                                  isLoading
+                                      ? SizedBox()
+                                      : Text(
+                                          timestamp,
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.w300),
+                                        ),
                                   const SizedBox(
                                     height: 9,
                                   ),
@@ -170,7 +211,8 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
                                         color: Colors.black,
                                       ),
                                       onPressed: () {
-                                        print("Edit button clicked");
+                                        _showEditDialog(
+                                            context); // Open edit dialog
                                       },
                                     ),
                                   ))
@@ -228,6 +270,84 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
       color: Colors.grey[200],
       child: const Center(
         child: Text('Mood Graph Here'),
+      ),
+    );
+  }
+
+  void _showEditDialog(BuildContext context) {
+    String newMood = selectedMood; // Initialize with the current selected mood
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Mood'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Mood selection options (like the emoji picker)
+            ...moods.map((mood) {
+              return RadioListTile<String>(
+                title: Text(mood['label']),
+                value: mood['label'],
+                groupValue: newMood,
+                onChanged: (value) {
+                  setState(() {
+                    newMood = value ?? '';
+                  });
+                },
+              );
+            }).toList(),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Close the dialog without making changes
+            },
+            child: const Text('Back'),
+          ),
+          TextButton(
+            onPressed: () async {
+              // Update mood in Firestore if it has changed
+              if (newMood != selectedMood) {
+                try {
+                  //final userId = 'currentUserId'; // Get the current user's ID
+                  final moodCollection =
+                      FirebaseFirestore.instance.collection('mood_entries');
+
+                  // Update the mood document for the current user
+                  await moodCollection
+                      //.where('userId', isEqualTo: userId)
+                      .orderBy('timestamp', descending: true)
+                      .limit(1)
+                      .get()
+                      .then((snapshot) {
+                    if (snapshot.docs.isNotEmpty) {
+                      snapshot.docs.first.reference.update({
+                        'mood': newMood,
+                        'timestamp': FieldValue.serverTimestamp(),
+                      });
+                    }
+                  });
+
+                  // Update the selectedMood state variable
+                  setState(() {
+                    selectedMood = newMood;
+                  });
+
+                  Navigator.pop(
+                      context); // Close the dialog after saving changes
+                } catch (e) {
+                  print('Error updating mood: $e');
+                }
+              } else {
+                Navigator.pop(
+                    context); // Close the dialog without making changes if mood is the same
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
       ),
     );
   }
