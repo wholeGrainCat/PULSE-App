@@ -1,48 +1,76 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:intl/intl.dart';
 import 'package:student/components/app_colour.dart';
+import 'package:fluentui_emoji_icon/fluentui_emoji_icon.dart';
 
 class DiaryPage extends StatefulWidget {
   const DiaryPage({super.key});
+
   @override
   State<DiaryPage> createState() => _DiaryPageState();
 }
 
 class _DiaryPageState extends State<DiaryPage> {
-  DateTime _focusedDate = DateTime.now(); // Current week
-  DateTime? _selectedDate; // Selected date
+  DateTime _focusedDate = DateTime.now();
+  DateTime? _selectedDate;
 
-  Map<DateTime, List<Map<String, String>>> moodHistory = {
-    DateTime(2024, 12, 9): [
-      {
-        'emoji': '😊',
-        'mood': 'Good',
-        'description': 'Great Day',
-        'details': 'Had a productive day and enjoyed it.'
-      }
-    ],
-    DateTime(2024, 12, 10): [
-      {
-        'emoji': '😟',
-        'mood': 'Not Great',
-        'description': 'Feeling stressed',
-        'details': 'Too many assignments due next week.'
-      },
-      {
-        'emoji': '😐',
-        'mood': 'Okay',
-        'description': 'Mediocre',
-        'details': 'Just an average day, nothing exciting.'
-      }
-    ],
-  };
+  // Initialize Firestore instance
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Get mood history for the selected date
-  List<Map<String, String>> getMoodHistoryForSelectedDate() {
-    return moodHistory[_selectedDate ?? _focusedDate] ?? [];
+  String formatTimestamp(Timestamp timestamp) {
+    if (timestamp == false) {
+      return ''; // Return an empty string if no timestamp exists
+    }
+    DateTime date = timestamp.toDate(); // Convert Timestamp to DateTime (UTC)
+    DateTime localDate = date.toLocal(); // Convert DateTime to local time
+    return DateFormat('h:mm a').format(localDate); // Format the local time
   }
 
-  // Show a month picker dialog
+  // Fetch mood history for the selected date from Firestore
+  Future<List<Map<String, dynamic>>> getMoodHistoryForSelectedDate() async {
+    // Ensure the selected date is correctly set
+    String formattedDate =
+        (_selectedDate ?? _focusedDate).toIso8601String().split('T').first;
+
+    // Print the formatted date to ensure it's correct
+    print('Fetching data for date: $formattedDate');
+    try {
+      QuerySnapshot snapshot = await _firestore
+          .collection('mood_entries')
+          .where('date', isEqualTo: formattedDate)
+          .get();
+      print(snapshot.docs.map((doc) => doc.data()));
+
+      return snapshot.docs.map((doc) {
+        return {
+          'mood': doc['mood'],
+          'title': doc['journalTitle'],
+          'description': doc['journalDescription'],
+          'date': doc['date'],
+          'timestamp': doc['timestamp'],
+        };
+      }).toList();
+    } catch (e) {
+      print('Error fetching mood history: $e');
+      return [];
+    }
+  }
+
+  Future<void> addMoodEntry(
+      String emoji, String mood, String description, String details) async {
+    await _firestore.collection('moodHistory').add({
+      'date':
+          _selectedDate?.toIso8601String() ?? _focusedDate.toIso8601String(),
+      'emoji': emoji,
+      'mood': mood,
+      'description': description,
+      'details': details,
+    });
+    setState(() {}); // Refresh the page after adding a mood entry
+  }
+
   Future<void> _pickMonth() async {
     DateTime? picked = await showDatePicker(
       context: context,
@@ -55,22 +83,16 @@ class _DiaryPageState extends State<DiaryPage> {
 
     if (picked != null) {
       setState(() {
-        _focusedDate = picked; // Focus the calendar on the selected date
-        _selectedDate = picked; // Highlight the selected date
+        _focusedDate = picked;
+        _selectedDate = picked;
       });
     }
   }
 
-  // void _clearDateSelection() {
-  //   setState(() {
-  //     _selectedDate = null; // Clears the selected date
-  //   });
-  // }
-
   void _goToToday() {
     setState(() {
-      _focusedDate = DateTime.now(); // Updates focused date to today
-      _selectedDate = DateTime.now(); // Updates selected date to today
+      _focusedDate = DateTime.now();
+      _selectedDate = DateTime.now();
     });
   }
 
@@ -97,342 +119,247 @@ class _DiaryPageState extends State<DiaryPage> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-// Month Picker Button
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 30.0, vertical: 0.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Go to Today Button
-                TextButton.icon(
-                  onPressed: _goToToday,
-                  icon: const Icon(Icons.today, color: Colors.black),
-                  label: const Text(
-                    'Today',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8), // Adjust padding for balance
-                    shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(12), // Rounded corners
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30.0, vertical: 0.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton.icon(
+                      onPressed: _goToToday,
+                      icon: const Icon(Icons.today, color: Colors.black),
+                      label: const Text(
+                        'Today',
+                        style: TextStyle(color: Colors.black),
+                      ),
                     ),
-                    side: const BorderSide(
-                        color: AppColors.pri_purple,
-                        width: 1.5), // Border for the button
-                    backgroundColor:
-                        Colors.transparent, // Transparent background
-                    splashFactory:
-                        InkRipple.splashFactory, // Custom splash effect
-                  ),
+                    TextButton.icon(
+                      onPressed: _pickMonth,
+                      icon: const Icon(Icons.calendar_today,
+                          color: AppColors.pri_purple),
+                      label: const Text(
+                        'Select Date',
+                        style: TextStyle(color: AppColors.pri_purple),
+                      ),
+                    ),
+                  ],
                 ),
-                // Clear Selection Button
-                // TextButton.icon(
-                //   onPressed: _clearDateSelection,
-                //   icon: const Icon(Icons.clear, color: AppColors.pri_purple),
-                //   label: const Text(
-                //     'Clear',
-                //     style: TextStyle(color: AppColors.pri_purple),
-                //   ),
-                // ),
-                //Select date button
-                TextButton.icon(
-                  onPressed: _pickMonth,
-                  icon: const Icon(Icons.calendar_today,
-                      color: AppColors.pri_purple),
-                  label: const Text(
-                    'Select Date',
-                    style: TextStyle(color: AppColors.pri_purple),
-                  ),
+              ),
+              const SizedBox(height: 20),
+              // Weekly Calendar Section
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 32),
+                padding: const EdgeInsets.all(0),
+                decoration: BoxDecoration(
+                  color: const Color(0XFFFAFAFA),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(.1),
+                      blurRadius: 4,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-
-          const SizedBox(
-            height: 20,
-          ),
-
-// Weekly Calendar Section
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 32),
-            padding: const EdgeInsets.all(0),
-            decoration: BoxDecoration(
-              color: const Color(0XFFFAFAFA),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(.1),
-                  blurRadius: 4,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: TableCalendar(
-                firstDay: DateTime.utc(2020, 1, 1),
-                lastDay: DateTime.utc(2030, 12, 31),
-                focusedDay: _focusedDate,
-                selectedDayPredicate: (day) => isSameDay(_selectedDate, day),
-                calendarFormat: CalendarFormat.week, // Show only one week
-                onDaySelected: (selectedDay, focusedDay) {
-                  setState(() {
-                    _selectedDate = selectedDay;
-                    _focusedDate = focusedDay; // Updates the visible week
-                  });
-                },
-                onPageChanged: (focusedDay) {
-                  _focusedDate = focusedDay;
-                },
-
-                calendarStyle: const CalendarStyle(
-                  todayTextStyle:
-                      TextStyle(color: Colors.white), // Black text for today
-                  selectedTextStyle: TextStyle(
-                      color: Colors.black), // Black text for selected date
-                  todayDecoration: BoxDecoration(
-                    color: Colors.black,
-                    shape: BoxShape.circle,
-                  ),
-                  selectedDecoration: BoxDecoration(
-                    color: AppColors.pri_greenYellow,
-                    shape: BoxShape.circle,
-                  ),
-                  // weekendTextStyle: TextStyle(color: Colors.red),
-                ),
-
-                headerStyle: const HeaderStyle(
-                  formatButtonVisible: false,
-                  titleCentered: true,
-                  titleTextStyle: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: TableCalendar(
+                    firstDay: DateTime.utc(2020, 1, 1),
+                    lastDay: DateTime.utc(2030, 12, 31),
+                    focusedDay: _focusedDate,
+                    selectedDayPredicate: (day) =>
+                        isSameDay(_selectedDate, day),
+                    calendarFormat: CalendarFormat.week,
+                    onDaySelected: (selectedDay, focusedDay) {
+                      setState(() {
+                        _selectedDate = selectedDay;
+                        _focusedDate = focusedDay;
+                      });
+                    },
+                    onPageChanged: (focusedDay) {
+                      _focusedDate = focusedDay;
+                    },
+                    calendarStyle: const CalendarStyle(
+                      todayTextStyle: TextStyle(color: Colors.white),
+                      selectedTextStyle: TextStyle(color: Colors.black),
+                      todayDecoration: BoxDecoration(
+                        color: Colors.black,
+                        shape: BoxShape.circle,
+                      ),
+                      selectedDecoration: BoxDecoration(
+                        color: AppColors.pri_greenYellow,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    headerStyle: const HeaderStyle(
+                      formatButtonVisible: false,
+                      titleCentered: true,
+                      titleTextStyle: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-
-          const SizedBox(
-            height: 20,
-          ),
-          Text(
-            'Current Month: ${_focusedDate.month}/${_focusedDate.year}',
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-          ),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 28),
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppColors.sec_cyan,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Icon(Icons.emoji_emotions),
-                SizedBox(
-                  width: 10,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(height: 20),
+              Text(
+                'Current Month: ${_focusedDate.month}/${_focusedDate.year}',
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+              // Mood History Section
+              FutureBuilder<List<Map<String, dynamic>>>(
+                future: getMoodHistoryForSelectedDate(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(
+                        child: Text('No mood history for this day.'));
+                  } else {
+                    final moodHistory = snapshot.data!;
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: moodHistory.length,
+                      itemBuilder: (context, index) {
+                        final entry = moodHistory[index];
+                        return DiaryEntryCard(
+                          mood: entry['mood'] ?? '',
+                          time: formatTimestamp(entry['timestamp']),
+                          description: entry['description'] ?? '',
+                          title: entry['title'] ?? '',
+                        );
+                      },
+                    );
+                  }
+                },
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Text(
-                      'Not great',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    SizedBox(
+                      width: 128,
+                      height: 50,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 32, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context, '/moodtracker');
+                        },
+                        child: const Text(
+                          'Back',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
                     ),
                     SizedBox(
-                      height: 4,
-                    ),
-                    Text(
-                      'Today, 4:00pm',
-                      style:
-                          TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
+                      width: 128,
+                      height: 50,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.pri_purple,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 22, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                        ),
+                        onPressed: () {
+                          // Navigate to Add Mood Page
+                        },
+                        child: const Text(
+                          'Add Mood',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                SizedBox(
-                  height: 60,
-                  child: VerticalDivider(
-                    width: 50,
-                    thickness: 1,
-                    color: Colors.black,
-                  ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'I feel stressed',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                    ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      'blablablablablabla',
-                      style: TextStyle(
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-          // // Mood History Section
-          // Expanded(
-          //   child: ListView(
-          //     padding: EdgeInsets.all(16),
-          //     children: getMoodHistoryForSelectedDate()
-          //         .map(
-          //           (entry) => DiaryEntryCard(
-          //             emoji: entry['emoji'] ?? '',
-          //             mood: entry['mood'] ?? '',
-          //             time: '', // Adjust if time tracking is required
-          //             description: entry['description'] ?? '',
-          //             details: entry['details'] ?? '',
-          //             color: Colors.lightBlue[100]!,
-          //           ),
-          //         )
-          //         .toList(),
-          //   ),
-          // ),
-
-          // Check if there's mood history for the selected date
-          // Expanded(
-          //   child: getMoodHistoryForSelectedDate().isEmpty
-          //       ? Center(
-          //           child: Text(
-          //             'No mood history for this day.',
-          //             style: TextStyle(fontSize: 16, color: Colors.grey),
-          //           ),
-          //         )
-          //       : ListView(
-          //           padding: EdgeInsets.all(16),
-          //           children: getMoodHistoryForSelectedDate()
-          //               .map(
-          //                 (entry) => DiaryEntryCard(
-          //                   emoji: entry['emoji'] ?? '',
-          //                   mood: entry['mood'] ?? '',
-          //                   time: '',
-          //                   description: entry['description'] ?? '',
-          //                   details: entry['details'] ?? '',
-          //                   color: Colors.lightBlue[100]!,
-          //                 ),
-          //               )
-          //               .toList(),
-          //         ),
-          // ),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                SizedBox(
-                  width: 128,
-                  height: 50,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 32, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context, '/moodtracker');
-                    },
-                    child: const Text(
-                      'Back',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 128,
-                  height: 50,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.pri_purple,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 22, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                    ),
-                    onPressed: () {
-                      // Navigate to Add Mood Page
-                    },
-                    child: const Text(
-                      'Add Mood',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
 class DiaryEntryCard extends StatelessWidget {
-  final String emoji;
   final String mood;
   final String time;
+  final String title;
   final String description;
-  final String details;
-  final Color color;
 
-  const DiaryEntryCard({
+  DiaryEntryCard({
     super.key,
-    required this.emoji,
     required this.mood,
     required this.time,
+    required this.title,
     required this.description,
-    required this.details,
-    required this.color,
   });
+  // List of mood options
+  final List<Map<String, dynamic>> moods = [
+    {"icon": Fluents.flSmilingFace, "label": "Great"},
+    {"icon": Fluents.flSlightlySmilingFace, "label": "Good"},
+    {"icon": Fluents.flNeutralFace, "label": "Okay"},
+    {"icon": Fluents.flSlightlyFrowningFace, "label": "Not Great"},
+    {"icon": Fluents.flFrowningFace, "label": "Bad"},
+  ];
+// Method to get emoji based on the mood
+  dynamic getEmojiForMood(String mood) {
+    final moodEntry = moods.firstWhere(
+      (entry) => entry['label'] == mood,
+    );
+    return moodEntry['icon'];
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Get the corresponding emoji for the mood
+    dynamic emoji = getEmojiForMood(mood);
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: color,
+        color: Colors.lightBlue[100],
+        // color: AppColors.pri_greenYellow,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            emoji,
-            style: const TextStyle(fontSize: 32),
+          FluentUiEmojiIcon(
+            fl: emoji,
+            w: 47,
+            h: 47,
           ),
           const SizedBox(width: 16),
-          Expanded(
+          Flexible(
+            fit: FlexFit.loose,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -443,18 +370,26 @@ class DiaryEntryCard extends StatelessWidget {
                     fontSize: 18,
                   ),
                 ),
-                const SizedBox(height: 8),
                 Text(
-                  description,
+                  time, // Display the time here
+                  style: const TextStyle(
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  title,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
+                    color: Colors.black,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  details,
-                  style: TextStyle(color: Colors.grey[700]),
+                  description,
+                  style: TextStyle(color: Colors.black),
+                  textAlign: TextAlign.justify,
                 ),
               ],
             ),

@@ -1,8 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluentui_emoji_icon/fluentui_emoji_icon.dart';
 import 'package:student/components/app_colour.dart';
 import 'package:student/components/bottom_navigation.dart';
-import 'package:student/pages/mood_done_check_in.dart';
 
 class MoodCheckInPage extends StatefulWidget {
   final String selectedMood;
@@ -22,6 +22,8 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
   final TextEditingController _descriptionController = TextEditingController();
   String timestamp = '';
   int _currentIndex = 2;
+  // Reference to Firestore
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   void initState() {
@@ -35,6 +37,34 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
         });
       }
     });
+  }
+
+// Function to save mood and journal to Firestore
+  void _saveMoodAndJournal() async {
+    String title = _titleController.text;
+    String description = _descriptionController.text;
+
+    try {
+      // Add data to Firestore under the 'mood_entries' collection
+      await _firestore.collection('mood_entries').add({
+        'mood': widget.selectedMood,
+        'journalTitle': title,
+        'journalDescription': description,
+        'timestamp': FieldValue.serverTimestamp(),
+        'date': DateTime.now()
+            .toIso8601String()
+            .split('T')
+            .first, // Only the date part
+      });
+      print('Mood and journal saved successfully!');
+
+      // Navigate to MoodDoneCheckInPage
+      Navigator.pushNamed(context, '/mooddonecheckin');
+    } catch (e) {
+      print('Failed to save mood and journal: $e');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Failed to save mood and journal. Please try again.')));
+    }
   }
 
   void navigateTo(String page) {
@@ -215,13 +245,7 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
                           height: 50,
                           child: ElevatedButton(
                             onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => MoodDoneCheckIn(
-                                            selectedMood: widget.selectedMood,
-                                            selectedEmoji: widget.selectedEmoji,
-                                          )));
+                              _saveMoodAndJournal();
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.black,
@@ -242,21 +266,7 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
                           width: 128,
                           height: 50,
                           child: ElevatedButton(
-                            onPressed: () {
-                              String title = _titleController.text;
-                              String description = _descriptionController.text;
-                              // Save mood and journal
-                              print('Journal Title: $title');
-                              print('Journal Description: $description');
-                              print('Timestamp: $timestamp');
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => MoodDoneCheckIn(
-                                            selectedMood: widget.selectedMood,
-                                            selectedEmoji: widget.selectedEmoji,
-                                          )));
-                            },
+                            onPressed: _saveMoodAndJournal,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF613EEA),
                               foregroundColor: Colors.white,
