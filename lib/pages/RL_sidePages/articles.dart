@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class Articles extends StatelessWidget {
-  const Articles({super.key});
+  final String url;
+  const Articles({super.key, required this.url});
 
   @override
   Widget build(BuildContext context) {

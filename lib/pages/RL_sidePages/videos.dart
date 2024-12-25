@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
 class Videos extends StatelessWidget {
-  const Videos({super.key});
+  final String url;
+  const Videos({super.key, required this.url});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Videos'),
+        title: const Text('Videos: '),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
