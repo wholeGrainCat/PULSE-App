@@ -143,12 +143,14 @@ class _RegisterPageState extends State<RegisterPage> {
         child: Stack(
           children: [
             const BackgroundWithEmojis(),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 180),
-                _buildRegistrationForm(context),
-              ],
+            SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 180),
+                  _buildRegistrationForm(context),
+                ],
+              ),
             ),
             _buildTitle(),
           ],
@@ -160,9 +162,9 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget _buildRegistrationForm(BuildContext context) {
     return Center(
       child: SizedBox(
-        height: 630,
+        height: 600,
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white,

@@ -60,73 +60,76 @@ class _LoginPageState extends State<LoginPage> {
         child: Stack(
           children: [
             const BackgroundWithEmojis(),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 180),
-                Center(
-                  child: SizedBox(
-                    height: 590,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 20),
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xffD9D9D9).withOpacity(.7),
-                            blurRadius: 20,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CustomTextField(
-                            label: "Email",
-                            controller: emailController,
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                          if (emailError != null)
-                            Text(
-                              emailError!,
-                              style: const TextStyle(
-                                  color: Colors.red, fontSize: 12),
+            SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 180),
+                  Center(
+                    child: SizedBox(
+                      height: 600,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 10),
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xffD9D9D9).withOpacity(.7),
+                              blurRadius: 20,
+                              offset: const Offset(0, 4),
                             ),
-                          const SizedBox(height: 5),
-                          CustomTextField(
-                            label: "Password",
-                            obscureText: true,
-                            controller: passwordController,
-                          ),
-                          if (passwordErrors.isNotEmpty)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: passwordErrors
-                                  .map((error) => Text(
-                                        error,
-                                        style: const TextStyle(
-                                            color: Colors.red, fontSize: 12),
-                                      ))
-                                  .toList(),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CustomTextField(
+                              label: "Email",
+                              controller: emailController,
+                              keyboardType: TextInputType.emailAddress,
                             ),
-                          const SizedBox(height: 30),
-                          _buildSignInButton(context),
-                          const SizedBox(height: 40),
-                          _buildContinueWithText(),
-                          const SizedBox(height: 14),
-                          _buildGoogleSignIn(),
-                          const SizedBox(height: 28),
-                          _buildSignUpAndForgotPasswordLinks(context),
-                        ],
+                            if (emailError != null)
+                              Text(
+                                emailError!,
+                                style: const TextStyle(
+                                    color: Colors.red, fontSize: 12),
+                              ),
+                            const SizedBox(height: 5),
+                            CustomTextField(
+                              label: "Password",
+                              obscureText: true,
+                              controller: passwordController,
+                            ),
+                            if (passwordErrors.isNotEmpty)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: passwordErrors
+                                    .map((error) => Text(
+                                          error,
+                                          style: const TextStyle(
+                                              color: Colors.red, fontSize: 12),
+                                        ))
+                                    .toList(),
+                              ),
+                            const SizedBox(height: 30),
+                            _buildSignInButton(context),
+                            const SizedBox(height: 40),
+                            _buildContinueWithText(),
+                            const SizedBox(height: 14),
+                            _buildGoogleSignIn(),
+                            const SizedBox(height: 28),
+                            _buildSignUpAndForgotPasswordLinks(context),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const Positioned(
               left: 0,

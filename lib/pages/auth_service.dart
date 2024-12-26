@@ -30,7 +30,7 @@ class AuthService {
       }
       final googleAuth = await googleUser.authentication;
       final cred = GoogleAuthProvider.credential(
-          idToken: googleAuth?.idToken, accessToken: googleAuth?.accessToken);
+          idToken: googleAuth.idToken, accessToken: googleAuth.accessToken);
       return await _auth.signInWithCredential(cred);
     } catch (e) {
       print('Google sign-in error: $e');

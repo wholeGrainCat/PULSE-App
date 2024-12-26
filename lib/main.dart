@@ -7,6 +7,7 @@ import 'package:student/pages/RL_sidePages/stress.dart';
 import 'package:student/pages/forgot_password.dart';
 import 'package:student/pages/mood_diary.dart';
 import 'package:student/pages/login.dart';
+import 'package:student/pages/mood_done_check_in.dart';
 import 'package:student/pages/mood_tracker.dart';
 import 'package:student/pages/mood_calendar.dart';
 import 'package:student/pages/resource_library.dart';

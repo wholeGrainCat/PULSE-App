@@ -170,6 +170,7 @@ class _ResourceLibraryPageState extends State<ResourceLibraryPage> {
 
   Widget _buildCard(Map<String, dynamic> resource) {
     final url = resource['url'];
+    final isVideo = resource['contentType'] == 'Videos';
     return GestureDetector(
       onTap: () async {
         if (url != null && Uri.tryParse(url) != null) {
@@ -194,13 +195,35 @@ class _ResourceLibraryPageState extends State<ResourceLibraryPage> {
               width: double
                   .infinity, // Ensures the image takes up the full width of the container
               child: ClipRRect(
-                child:
-                    resource['image'] != null || resource['thumbnail'] != null
-                        ? Image.network(
-                            resource['image'] ?? resource['thumbnail'],
-                            fit: BoxFit.cover,
-                          )
-                        : Container(height: 120, color: Colors.grey[200]),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    if (resource['image'] != null ||
+                        resource['thumbnail'] != null)
+                      Image.network(
+                        resource['image'] ?? resource['thumbnail'],
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: 120,
+                      )
+                    else
+                      Container(height: 120, color: Colors.grey[200]),
+                    if (isVideo)
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        child: Center(
+                          child: Icon(
+                            Icons.play_circle_filled,
+                            color: Colors.white,
+                            size: 48, // Make the icon larger if necessary
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ), // Fallback if no image
             ),
             Padding(
@@ -215,7 +238,7 @@ class _ResourceLibraryPageState extends State<ResourceLibraryPage> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    resource['description'] ?? 'No description available',
+                    resource['description'] ?? '',
                     style: const TextStyle(fontSize: 12, color: Colors.grey),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -311,7 +334,29 @@ class _ResourceLibraryPageState extends State<ResourceLibraryPage> {
                       fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    // Navigate to Articles or Videos page based on the type
+                    if (type == "Articles") {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Articles(),
+                        ),
+                      );
+                    } else if (type == "Videos") {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Videos(),
+                        ),
+                      );
+                    } else {
+                      // Handle other types or show an error
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Page not available for $type')),
+                      );
+                    }
+                  },
                   child: const Text(
                     'More >',
                     style: TextStyle(color: Colors.black),
