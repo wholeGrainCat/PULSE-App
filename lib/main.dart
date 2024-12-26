@@ -14,7 +14,6 @@ import 'package:student/pages/resource_library.dart';
 import 'package:student/pages/self_help_tools.dart';
 import 'package:student/pages/student_dashboard.dart';
 import 'package:student/onboarding/onboardingscreen.dart';
-import 'package:student/pages/mood_done_check_in.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:url_launcher/url_launcher.dart';
 

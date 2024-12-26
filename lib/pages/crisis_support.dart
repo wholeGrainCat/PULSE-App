@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:student/pages/resource_library.dart';
 import 'package:student/pages/mood_tracker.dart';
 import 'package:student/pages/student_dashboard.dart';
@@ -164,6 +165,7 @@ class MentalHealthHotline extends StatelessWidget {
             iconColor: Colors.black,
             backgroundColor: Color(0xFFD9F65C),
             textColor: Colors.black,
+            phoneNumber: '082242800',
           ),
         ],
       ),
@@ -193,21 +195,25 @@ class EmergencyHotline extends StatelessWidget {
             title: 'Polis Bantuan UNIMAS +6017-212 7464',
             icon: Icons.local_police,
             backgroundColor: Colors.red,
+            phoneNumber: '+60172127464',
           ),
           HotlineButton(
             title: 'Rescue 991',
             icon: Icons.fire_truck,
             backgroundColor: Colors.red,
+            phoneNumber: '991',
           ),
           HotlineButton(
             title: 'Hotline 082-244444',
             icon: Icons.support_agent,
             backgroundColor: Colors.red,
+            phoneNumber: '082244444',
           ),
           HotlineButton(
             title: '082-230689',
             icon: Icons.local_hospital,
             backgroundColor: Colors.red,
+            phoneNumber: '082230689',
           ),
         ],
       ),
@@ -221,12 +227,14 @@ class HotlineButton extends StatelessWidget {
   final Color backgroundColor;
   final Color textColor;
   final Color iconColor;
+  final String phoneNumber;
 
   const HotlineButton({
     super.key,
     required this.title,
     required this.icon,
     required this.backgroundColor,
+    required this.phoneNumber,
     this.textColor = Colors.white,
     this.iconColor = Colors.white,
   });
@@ -243,8 +251,9 @@ class HotlineButton extends StatelessWidget {
           ),
           padding: const EdgeInsets.symmetric(vertical: 16),
         ),
-        onPressed: () {
-          // Add functionality here
+        onPressed: () async {
+          // Call the phone number asynchronously
+          await FlutterPhoneDirectCaller.callNumber(phoneNumber);
         },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
