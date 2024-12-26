@@ -7,7 +7,6 @@ import 'package:student/pages/RL_sidePages/stress.dart';
 import 'package:student/pages/forgot_password.dart';
 import 'package:student/pages/mood_diary.dart';
 import 'package:student/pages/login.dart';
-import 'package:student/pages/mood_done_check_in.dart';
 import 'package:student/pages/mood_tracker.dart';
 import 'package:student/pages/mood_calendar.dart';
 import 'package:student/pages/resource_library.dart';
@@ -15,6 +14,14 @@ import 'package:student/pages/self_help_tools.dart';
 import 'package:student/pages/student_dashboard.dart';
 import 'package:student/onboarding/onboardingscreen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+final Uri _url = Uri.parse('https://flutter.dev');
+Future<void> _launchUrl() async {
+  if (!await launchUrl(_url)) {
+    throw Exception('Could not launch $_url');
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
