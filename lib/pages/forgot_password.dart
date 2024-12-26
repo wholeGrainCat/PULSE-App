@@ -3,6 +3,7 @@ import 'package:student/components/background_style_three.dart';
 import 'package:student/components/background_with_emojis.dart';
 import 'package:student/components/text_field.dart';
 import 'package:student/components/app_colour.dart';
+import 'package:student/pages/auth_service.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -12,45 +13,69 @@ class ForgotPasswordPage extends StatefulWidget {
 }
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
+  final _auth = AuthService();
   final _emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isProcessing = false;
   bool isButtonEnabled = false;
+
   @override
   void initState() {
     super.initState();
-    // Add listeners to the controllers to update the button state
     _emailController.addListener(_updateButtonState);
   }
 
   @override
   void dispose() {
-    // Clean up controllers to avoid memory leaks
     _emailController.dispose();
     super.dispose();
   }
 
-  void _sendResetLink() {
+  // Send password reset link to the user's email
+  void _sendResetLink() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isProcessing = true;
       });
 
-      // Simulate sending a reset link
-      Future.delayed(const Duration(seconds: 2), () {
+      try {
+        await _auth.sendPasswordResetLink(_emailController.text, context);
         setState(() {
           _isProcessing = false;
         });
+
+        // Show success SnackBar
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Reset link sent to ${_emailController.text}'),
+            backgroundColor: Colors.green,
           ),
         );
+
+        // Clear the email field
         _emailController.clear();
-      });
+
+        // Delay and then navigate back to the login page
+        Future.delayed(const Duration(seconds: 5), () {
+          Navigator.pop(context); // Go back to login screen
+        });
+      } catch (e) {
+        setState(() {
+          _isProcessing = false;
+        });
+
+        // Show error SnackBar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
+  // Update the button state based on email input
   void _updateButtonState() {
     setState(() {
       isButtonEnabled = _emailController.text.isNotEmpty;
@@ -113,18 +138,25 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           label: "Email",
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your email address';
+                            }
+                            // Email regex validation
+                            final emailRegex = RegExp(
+                              r"^[a-zA-Z0-9.a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$",
+                            );
+                            if (!emailRegex.hasMatch(value)) {
+                              return 'Please enter a valid email address';
+                            }
+                            return null;
+                          },
                         ),
                         const SizedBox(height: 24),
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            // onPressed: _isProcessing ? null : _sendResetLink,
-                            onPressed: () {
-                              _isProcessing
-                                  ? null
-                                  : Navigator.pushNamed(
-                                      context, '/resetpassword');
-                            },
+                            onPressed: isButtonEnabled ? _sendResetLink : null,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: isButtonEnabled
                                   ? AppColors.pri_purple

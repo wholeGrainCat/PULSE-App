@@ -230,8 +230,20 @@ class _LoginPageState extends State<LoginPage> {
   Widget _buildGoogleSignIn() {
     return Center(
       child: GestureDetector(
-        onTap: () {
-          // Handle Google Sign-In
+        onTap: () async {
+          final user = await _auth
+              .loginWithGoogle(); // Assuming this returns a user or null
+          if (user != null) {
+            // If Google Sign-In is successful, navigate to the Student Dashboard
+            Navigator.pushNamed(context, '/studentdashboard');
+          } else {
+            // Handle the error if Google Sign-In fails
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Google Sign-In failed. Please try again.'),
+              ),
+            );
+          }
         },
         child: Container(
           padding: const EdgeInsets.all(10.0),

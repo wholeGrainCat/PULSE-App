@@ -10,7 +10,6 @@ import 'package:student/pages/login.dart';
 import 'package:student/pages/mood_done_check_in.dart';
 import 'package:student/pages/mood_tracker.dart';
 import 'package:student/pages/mood_calendar.dart';
-import 'package:student/pages/reset_password.dart';
 import 'package:student/pages/resource_library.dart';
 import 'package:student/pages/self_help_tools.dart';
 import 'package:student/pages/student_dashboard.dart';
@@ -52,22 +51,8 @@ class MyApp extends StatelessWidget {
       // home: ResourcePage(),
       home: const OnboardingScreen(), // Set OnboardingPage as the first page
       routes: {
-        '/login': (context) => const LoginPage(),
-        '/forgotpassword': (context) => const ForgotPasswordPage(),
-        '/resetpassword': (context) => const ResetPasswordPage(),
-        '/studentdashboard': (context) => const StudentDashboard(),
-        '/moodtracker': (context) => const MoodTrackerPage(),
-        '/mooddiary': (context) => const DiaryPage(),
-        '/moodcalendar': (context) => const MoodCalendarPage(),
-        '/resource': (context) => const ResourceLibraryPage(),
-        '/stress': (context) => const Stress(),
-        '/depression': (context) => const Depression(),
-        '/selfcare': (context) => const SelfCare(),
-        '/anxiety': (context) => const Anxiety(),
-        '/selfhelptools': (context) => const SelfHelpTools(),
         '/login': (context) => LoginPage(),
         '/forgotpassword': (context) => ForgotPasswordPage(),
-        '/resetpassword': (context) => ResetPasswordPage(),
         '/studentdashboard': (context) => StudentDashboard(),
         '/moodtracker': (context) => MoodTrackerPage(),
         '/mooddonecheckin': (context) => MoodDoneCheckIn(),

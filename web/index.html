@@ -31,8 +31,23 @@
 
   <title>login</title>
   <link rel="manifest" href="manifest.json">
+
+  <meta name="google-signin-client_id" content="346012969160-b7irh1qvaah67dptkof35fd33dfk710t.apps.googleusercontent.com">
+
+  <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+      // Load the Google API client library
+      gapi.load('client', () => {
+        console.log('Google API client loaded.');
+      });
+    </script>
+
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
+
+  <script defer src="main.dart.js"></script>
+  
+
 </body>
 </html>
