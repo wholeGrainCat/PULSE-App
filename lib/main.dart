@@ -16,6 +16,7 @@ import 'package:student/pages/student_dashboard.dart';
 import 'package:student/onboarding/onboardingscreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final Uri _url = Uri.parse('https://flutter.dev');
 Future<void> _launchUrl() async {
@@ -37,6 +38,7 @@ void main() async {
             appId: "1:346012969160:web:1403a7cd4e80450c545dfd"));
   } else {
     await Firebase.initializeApp();
+    // await SharedPreferences.getInstance();
   }
 
   runApp(const MyApp());
@@ -54,9 +56,6 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         fontFamily: 'Roboto',
       ),
-      // home: MoodTrackerPage(),
-      // home: StudentDashboard(),
-      // home: ResourcePage(),
       home: const OnboardingScreen(), // Set OnboardingPage as the first page
       routes: {
         '/login': (context) => LoginPage(),

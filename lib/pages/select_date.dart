@@ -5,16 +5,19 @@ import 'package:student/components/app_colour.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 
-class EditMoodPage extends StatefulWidget {
-  const EditMoodPage({
+class SelectDate extends StatefulWidget {
+  final selectedDate;
+
+  const SelectDate({
+    required this.selectedDate,
     super.key,
   });
 
   @override
-  State<EditMoodPage> createState() => _EditMoodPageState();
+  State<SelectDate> createState() => _SelectDateState();
 }
 
-class _EditMoodPageState extends State<EditMoodPage> {
+class _SelectDateState extends State<SelectDate> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -22,6 +25,7 @@ class _EditMoodPageState extends State<EditMoodPage> {
   String selectedMood = '';
   dynamic selectedEmoji;
   bool isLoading = true; // For loading state
+  late DateTime selectedDate;
 
   // List of mood options
   final List<Map<String, dynamic>> moods = [
@@ -35,7 +39,9 @@ class _EditMoodPageState extends State<EditMoodPage> {
   @override
   void initState() {
     super.initState();
-    fetchMoodData();
+    selectedDate =
+        widget.selectedDate; // Initialize selectedDate from the parent widget
+    fetchMoodDataForSelectedDate();
   }
 
 //Set State
@@ -46,15 +52,15 @@ class _EditMoodPageState extends State<EditMoodPage> {
   }
 
 //Fetch mood and journal from database
-  Future<void> fetchMoodData() async {
+  Future<void> fetchMoodDataForSelectedDate() async {
     try {
       final String? userId = FirebaseAuth.instance.currentUser?.uid;
-      String todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      final String selectedDateString =
+          DateFormat('yyyy-MM-dd').format(selectedDate);
       final moodCollection = FirebaseFirestore.instance
           .collection('mood_entries')
           .where('userId', isEqualTo: userId)
-          .where('date', isEqualTo: todayDate)
-          .orderBy('timestamp', descending: true)
+          .where('date', isEqualTo: selectedDateString)
           .limit(1);
 
       final querySnapshot = await moodCollection.get();
@@ -88,13 +94,13 @@ class _EditMoodPageState extends State<EditMoodPage> {
     String description = _descriptionController.text.trim();
     final User? user = FirebaseAuth.instance.currentUser;
     String uid = user?.uid ?? 'unknown';
-    String currentDate = DateTime.now().toIso8601String().split('T').first;
     try {
+      String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
       // Query the database for an existing entry for the same date and user
       final moodCollection = _firestore
           .collection('mood_entries')
           .where('userId', isEqualTo: uid)
-          .where('date', isEqualTo: currentDate)
+          .where('date', isEqualTo: formattedDate)
           .limit(1);
 
       final querySnapshot = await moodCollection.get();

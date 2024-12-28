@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+// import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:student/pages/resource_library.dart';
 import 'package:student/pages/mood_tracker.dart';
 import 'package:student/pages/student_dashboard.dart';
@@ -253,7 +253,7 @@ class HotlineButton extends StatelessWidget {
         ),
         onPressed: () async {
           // Call the phone number asynchronously
-          await FlutterPhoneDirectCaller.callNumber(phoneNumber);
+          // await FlutterPhoneDirectCaller.callNumber(phoneNumber);
         },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

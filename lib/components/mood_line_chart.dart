@@ -1,19 +1,19 @@
+// mood_line_chart.dart
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:student/components/app_colour.dart';
 import 'package:fluentui_emoji_icon/fluentui_emoji_icon.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class MoodChartPage extends StatefulWidget {
-  const MoodChartPage({super.key});
-
+class MoodLineChart extends StatefulWidget {
+  const MoodLineChart({super.key});
   @override
-  _MoodChartPageState createState() => _MoodChartPageState();
+  _MoodLineChartState createState() => _MoodLineChartState();
 }
 
-class _MoodChartPageState extends State<MoodChartPage> {
+class _MoodLineChartState extends State<MoodLineChart> {
   List<double> moodData = [];
   List<DateTime> dates = [];
   List<Color> gradientColors = [
@@ -131,60 +131,10 @@ class _MoodChartPageState extends State<MoodChartPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text("Mood Chart",
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500)),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              "- Mood Trend Over Time -",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
-            Expanded(child: _buildScrollableLineChart()),
-            const SizedBox(height: 30),
-            const Text(
-              "- Mood Distribution -",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              dates.isNotEmpty
-                  ? "Period: ${_formatDate(dates.first)} - ${_formatDate(dates.last)}"
-                  : "No mood data available.",
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-              textAlign: TextAlign.left,
-            ),
-            const SizedBox(height: 5),
-            Text(
-              "Total Mood Entries: ${moodData.length}",
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
-              textAlign: TextAlign.left,
-            ),
-            const SizedBox(height: 20),
-            Expanded(child: _buildPieChartWithLegend()),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildScrollableLineChart() {
     if (moodData.isEmpty || dates.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    // Ensure only the most recent `visibleDataRange` data points are shown.
     final int startIndex = moodData.length > visibleDataRange
         ? moodData.length - visibleDataRange.toInt()
         : 0;
@@ -199,7 +149,9 @@ class _MoodChartPageState extends State<MoodChartPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: List.generate(5, (index) {
-              final mood = moods[index]; // Get the mood from the list
+              final mood = index < 5
+                  ? moods[index]
+                  : moods[0]; // Define `moods` here if needed
               return FluentUiEmojiIcon(
                 fl: mood["icon"], // Use the Fluent UI icon
                 w: 24, // You can adjust the size
@@ -291,89 +243,5 @@ class _MoodChartPageState extends State<MoodChartPage> {
         ),
       ],
     );
-  }
-
-  String _formatDate(DateTime date) {
-    return DateFormat('MMM d, yyyy').format(date);
-  }
-
-  Widget _buildPieChartWithLegend() {
-    if (moodCounts.values.every((count) => count == 0)) {
-      return Center(
-        child: Text(
-          "No mood data available.",
-          style: TextStyle(fontSize: 16, color: Colors.grey),
-        ),
-      );
-    }
-
-    final totalMoods = moodCounts.values.reduce((a, b) => a + b);
-    final List<PieChartSectionData> pieSections =
-        moodCounts.entries.map((entry) {
-      final mood = entry.key;
-      final count = entry.value;
-      final percentage = count / totalMoods * 100;
-
-      return PieChartSectionData(
-        color: _getMoodColor(mood),
-        value: percentage,
-        title: '${percentage.toStringAsFixed(1)}%',
-        radius: 60,
-        titleStyle: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          color:
-              (mood == "Great" || mood == "Good") ? Colors.white : Colors.black,
-        ),
-      );
-    }).toList();
-
-    return Column(
-      children: [
-        Expanded(
-          child: PieChart(
-            PieChartData(
-              sections: pieSections,
-              centerSpaceRadius: 40,
-              sectionsSpace: 0,
-            ),
-          ),
-        ),
-        Wrap(
-          spacing: 8.0,
-          children: moodCounts.keys.map((mood) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  color: _getMoodColor(mood),
-                ),
-                const SizedBox(width: 6),
-                Text(mood, style: const TextStyle(fontSize: 14)),
-              ],
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-
-  Color _getMoodColor(String mood) {
-    switch (mood) {
-      case "Great":
-        return Color(0XFF9747FF);
-      case "Good":
-        return AppColors.sec_purple;
-      case "Okay":
-        return AppColors.pri_greenYellow;
-      case "Not Great":
-        return AppColors.pri_cyan;
-      case "Bad":
-        return AppColors.sec_cyan;
-      default:
-        return Colors.grey;
-    }
   }
 }

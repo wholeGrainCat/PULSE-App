@@ -4,6 +4,8 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 import 'package:student/components/app_colour.dart';
 import 'package:fluentui_emoji_icon/fluentui_emoji_icon.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'select_date.dart';
 
 class DiaryPage extends StatefulWidget {
   const DiaryPage({super.key});
@@ -15,8 +17,6 @@ class DiaryPage extends StatefulWidget {
 class _DiaryPageState extends State<DiaryPage> {
   DateTime _focusedDate = DateTime.now();
   DateTime? _selectedDate;
-
-  // Initialize Firestore instance
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   String formatTimestamp(Timestamp timestamp) {
@@ -28,20 +28,37 @@ class _DiaryPageState extends State<DiaryPage> {
     return DateFormat('h:mm a').format(localDate); // Format the local time
   }
 
-  // Fetch mood history for the selected date from Firestore
+  void _goToToday() {
+    setState(() {
+      _focusedDate = DateTime.now();
+      _selectedDate = DateTime.now();
+    });
+  }
+
+// Fetch mood history for the selected date and user from Firestore
   Future<List<Map<String, dynamic>>> getMoodHistoryForSelectedDate() async {
     // Ensure the selected date is correctly set
     String formattedDate =
         (_selectedDate ?? _focusedDate).toIso8601String().split('T').first;
+    // Get the current user's ID
+    final String? userId = FirebaseAuth.instance.currentUser?.uid;
 
+    if (userId == null) {
+      print("Error: User is not logged in");
+      return [];
+    }
     // Print the formatted date to ensure it's correct
-    print('Fetching data for date: $formattedDate');
+    print('Fetching data for date: $formattedDate, User ID: $userId');
+
     try {
       QuerySnapshot snapshot = await _firestore
           .collection('mood_entries')
+          .where('userId', isEqualTo: userId)
           .where('date', isEqualTo: formattedDate)
           .get();
-      print(snapshot.docs.map((doc) => doc.data()));
+      snapshot.docs.forEach((doc) {
+        print(doc.data());
+      });
 
       return snapshot.docs.map((doc) {
         return {
@@ -58,6 +75,7 @@ class _DiaryPageState extends State<DiaryPage> {
     }
   }
 
+// Add new mood entry
   Future<void> addMoodEntry(
       String emoji, String mood, String description, String details) async {
     await _firestore.collection('moodHistory').add({
@@ -87,13 +105,6 @@ class _DiaryPageState extends State<DiaryPage> {
         _selectedDate = picked;
       });
     }
-  }
-
-  void _goToToday() {
-    setState(() {
-      _focusedDate = DateTime.now();
-      _selectedDate = DateTime.now();
-    });
   }
 
   @override
@@ -150,7 +161,7 @@ class _DiaryPageState extends State<DiaryPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              // Weekly Calendar Section
+// Weekly Calendar Section
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 32),
                 padding: const EdgeInsets.all(0),
@@ -212,7 +223,7 @@ class _DiaryPageState extends State<DiaryPage> {
                 style:
                     const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               ),
-              // Mood History Section
+// Mood History Section
               FutureBuilder<List<Map<String, dynamic>>>(
                 future: getMoodHistoryForSelectedDate(),
                 builder: (context, snapshot) {
@@ -236,6 +247,9 @@ class _DiaryPageState extends State<DiaryPage> {
                           time: formatTimestamp(entry['timestamp']),
                           description: entry['description'] ?? '',
                           title: entry['title'] ?? '',
+                          selectedDate: _selectedDate ??
+                              DateTime
+                                  .now(), // Use the current date if _selectedDate is null
                         );
                       },
                     );
@@ -247,6 +261,7 @@ class _DiaryPageState extends State<DiaryPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
+// Back button
                     SizedBox(
                       width: 128,
                       height: 50,
@@ -272,6 +287,7 @@ class _DiaryPageState extends State<DiaryPage> {
                         ),
                       ),
                     ),
+//Add button
                     SizedBox(
                       width: 128,
                       height: 50,
@@ -313,6 +329,7 @@ class DiaryEntryCard extends StatelessWidget {
   final String time;
   final String title;
   final String description;
+  final DateTime selectedDate;
 
   DiaryEntryCard({
     super.key,
@@ -320,6 +337,7 @@ class DiaryEntryCard extends StatelessWidget {
     required this.time,
     required this.title,
     required this.description,
+    required this.selectedDate,
   });
   // List of mood options
   final List<Map<String, dynamic>> moods = [
@@ -341,60 +359,69 @@ class DiaryEntryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // Get the corresponding emoji for the mood
     dynamic emoji = getEmojiForMood(mood);
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.lightBlue[100],
-        // color: AppColors.pri_greenYellow,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          FluentUiEmojiIcon(
-            fl: emoji,
-            w: 47,
-            h: 47,
-          ),
-          const SizedBox(width: 16),
-          Flexible(
-            fit: FlexFit.loose,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  mood,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-                Text(
-                  time, // Display the time here
-                  style: const TextStyle(
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: TextStyle(color: Colors.black),
-                  textAlign: TextAlign.justify,
-                ),
-              ],
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => SelectDate(
+                      selectedDate: selectedDate,
+                    )));
+      },
+      child: Container(
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.lightBlue[100],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FluentUiEmojiIcon(
+              fl: emoji,
+              w: 47,
+              h: 47,
             ),
-          ),
-        ],
+            const SizedBox(width: 16),
+            Flexible(
+              fit: FlexFit.loose,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    mood,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  Text(
+                    time, // Display the time here
+                    style: const TextStyle(
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    description,
+                    style: TextStyle(color: Colors.black),
+                    textAlign: TextAlign.justify,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

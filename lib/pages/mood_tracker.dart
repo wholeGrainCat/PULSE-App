@@ -1,10 +1,12 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fluentui_emoji_icon/fluentui_emoji_icon.dart';
 import 'package:student/components/bottom_navigation.dart';
 import 'mood_check_in.dart';
-import 'mood_done_check_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'mood_chart.dart';
+import 'package:student/components/mood_line_chart.dart';
 
 class MoodTrackerPage extends StatefulWidget {
   const MoodTrackerPage({super.key});
@@ -14,9 +16,9 @@ class MoodTrackerPage extends StatefulWidget {
 }
 
 class _MoodTrackerPageState extends State<MoodTrackerPage> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String selectedMood = "";
   int _currentIndex = 1;
+  bool hasLoggedMood = false;
 
   // List of mood options
   final List<Map<String, dynamic>> moods = [
@@ -26,33 +28,56 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
     {"icon": Fluents.flSlightlyFrowningFace, "label": "Not Great"},
     {"icon": Fluents.flFrowningFace, "label": "Bad"},
   ];
+
   @override
   void initState() {
     super.initState();
-    _checkMoodStatus();
+    checkMoodStatus();
   }
 
-  // Check if the user has already logged their mood for today
-  Future<bool> hasLoggedMoodToday() async {
-    final today = DateTime.now();
-    final formattedDate = DateFormat('yyyy-MM-dd').format(today);
+  // SET*Save whether the user has completed their mood logging for the day
+  Future<void> saveMoodStatus(bool hasLoggedMood) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = FirebaseAuth.instance.currentUser?.uid;
 
-    QuerySnapshot snapshot = await _firestore
-        .collection('moods')
-        .where('date', isEqualTo: formattedDate)
-        .get();
-
-    return snapshot.docs.isNotEmpty;
+    if (userId != null) {
+      DateTime today = DateTime.now();
+      String todayString = "${today.year}-${today.month}-${today.day}";
+      // Save the status for the current user
+      await prefs.setBool('hasLoggedMood_$userId', hasLoggedMood);
+      await prefs.setString('lastLoggedDate_$userId', todayString);
+      print(
+          "Mood status saved for user: $userId, hasLoggedMood: $hasLoggedMood, Date: $todayString");
+    }
   }
 
-  void _checkMoodStatus() async {
-    bool hasLogged = await hasLoggedMoodToday();
-    if (hasLogged) {
-      // Navigate to MoodDoneCheckInPage if a mood log exists
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => MoodDoneCheckIn()),
-      );
+// GET*Check if the user has logged their mood
+  Future<void> checkMoodStatus() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = FirebaseAuth.instance.currentUser?.uid;
+
+    if (userId != null) {
+// Retrieve the last logged date and mood status
+      String? lastLoggedDate = prefs.getString('lastLoggedDate_$userId');
+      DateTime today = DateTime.now();
+      String todayString = "${today.year}-${today.month}-${today.day}";
+
+      // Check if the last logged date matches today's date
+      bool hasLoggedMood = (lastLoggedDate == todayString);
+      print("User ID: $userId");
+      print("Last Logged Date: $lastLoggedDate");
+      print("Has logged mood today: $hasLoggedMood");
+
+      setState(() {
+        this.hasLoggedMood = hasLoggedMood;
+      });
+
+      if (hasLoggedMood) {
+        // Navigate to the mood done page (only once)
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pushReplacementNamed(context, '/mooddonecheckin');
+        });
+      }
     }
   }
 
@@ -62,41 +87,18 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
     });
   }
 
-//Save Mood data to database
-  Future<void> saveMood(String mood) async {
-    try {
-      await FirebaseFirestore.instance.collection('moods').add({
-        'mood': mood,
-        'date': DateTime.now().toIso8601String().split('T').first,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
-      print("Mood saved successfully!");
-    } catch (e) {
-      print("Failed to save mood: $e");
-    }
-  }
-
-//Fetch Mood data from Database
-  Future<List<Map<String, dynamic>>> fetchMoodData() async {
-    try {
-      QuerySnapshot snapshot = await _firestore
-          .collection('moods')
-          .orderBy('timestamp', descending: true)
-          .get();
-      return snapshot.docs
-          .map((doc) => {
-                'mood': doc['mood'],
-                'date': doc['date'],
-              })
-          .toList();
-    } catch (e) {
-      print("Failed to fetch mood data: $e");
-      return [];
-    }
-  }
-
   void navigateTo(String page) {
-    print("Navigating to $page"); // Replace with actual navigation logic
+    print("Navigating to $page");
+    // Handle other navigation cases
+    if (page == 'Resource') {
+      Navigator.pushNamed(context, '/resource');
+    } else if (page == 'Dashboard') {
+      Navigator.pushNamed(context, '/studentdashboard');
+    } else if (page == 'Chat') {
+      Navigator.pushNamed(context, '/chat');
+    } else if (page == 'Profile') {
+      Navigator.pushNamed(context, '/profile');
+    }
   }
 
   @override
@@ -113,21 +115,22 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
           setState(() {
             _currentIndex = index;
           });
+
           switch (index) {
             case 0:
-              navigateTo("Resource");
+              navigateTo('Resource');
               break;
             case 1:
-              navigateTo("Mood");
+              checkMoodStatus();
               break;
             case 2:
-              Navigator.pushNamed(context, '/studentdashboard');
+              navigateTo('Dashboard');
               break;
             case 3:
-              navigateTo("Chat");
+              Navigator.pushNamed(context, '/chat');
               break;
             case 4:
-              navigateTo("Profile");
+              Navigator.pushNamed(context, '/profile');
               break;
           }
         },
@@ -159,17 +162,18 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
                     MoodSelectionSection(
                       moods: moods,
                       selectedMood: selectedMood,
-                      onMoodSelect: handleMoodSelection,
+                      onMoodSelect:
+                          handleMoodSelection, //callback function: inform the parent widget when a new mood is selected
                     ),
                     const SizedBox(height: 20),
                     CheckInButton(
                         onPressed: selectedMood.isEmpty
                             ? null // Disable button if no mood is selected
                             : () async {
-                                await saveMood(selectedMood);
                                 final selectedEmoji = moods.firstWhere(
                                   (mood) => mood['label'] == selectedMood,
                                 )['icon'];
+                                await saveMoodStatus(true);
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -179,18 +183,39 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
                               }),
 
                     const SizedBox(height: 28),
-                    const Text(
-                      'Mood Analysis',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                    TextButton(
+                      onPressed: () {
+                        // Navigate to Mood Chart Page
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MoodChartPage()),
+                        );
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'Mood Analysis',
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black),
+                          ),
+                          const SizedBox(
+                              width:
+                                  8.0), // Adds spacing between text and arrow
+                          const Icon(Icons.arrow_forward_ios,
+                              size: 20,
+                              color: Colors.black), // Right arrow icon
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 10),
-
                     SizedBox(
                       height: constraints.maxHeight * 0.28, // Responsive height
-                      child: _buildMoodGraph(),
+                      child: MoodLineChart(),
                     ),
-                    const SizedBox(height: 26),
+                    const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
@@ -218,16 +243,6 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
             );
           },
         ),
-      ),
-    );
-  }
-
-  Widget _buildMoodGraph() {
-    // Placeholder for the mood graph
-    return Container(
-      color: Colors.grey[200],
-      child: const Center(
-        child: Text('Mood Graph Here'),
       ),
     );
   }

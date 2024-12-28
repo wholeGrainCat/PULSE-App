@@ -4,6 +4,11 @@ import 'package:intl/intl.dart';
 import 'package:fluentui_emoji_icon/fluentui_emoji_icon.dart';
 import 'package:student/components/bottom_navigation.dart';
 import 'package:student/components/app_colour.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:student/pages/edit_mood.dart';
+import 'mood_chart.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:student/components/mood_line_chart.dart';
 
 class MoodDoneCheckIn extends StatefulWidget {
   @override
@@ -26,10 +31,6 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
     {"icon": Fluents.flFrowningFace, "label": "Bad"},
   ];
 
-  void navigateTo(String page) {
-    print("Navigating to $page"); // Replace with actual navigation logic
-  }
-
   @override
   void initState() {
     super.initState();
@@ -37,13 +38,58 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
     fetchMoodData();
   }
 
-  /// Fetch the latest mood data for the current user from Firestore
+  void navigateTo(String page) {
+    print("Navigating to $page");
+    // Handle other navigation cases
+    if (page == 'Resource') {
+      Navigator.pushNamed(context, '/resource');
+    } else if (page == 'Dashboard') {
+      Navigator.pushNamed(context, '/studentdashboard');
+    } else if (page == 'Chat') {
+      Navigator.pushNamed(context, '/chat');
+    } else if (page == 'Profile') {
+      Navigator.pushNamed(context, '/profile');
+    }
+  }
+
+//Check whether user already log in their mood today
+  Future<void> checkMoodStatus() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      // Retrieve the last logged date and mood status
+      String? lastLoggedDate = prefs.getString('lastLoggedDate_$userId');
+      DateTime today = DateTime.now();
+      String todayString = "${today.year}-${today.month}-${today.day}";
+
+      // Check if the last logged date matches today's date
+      bool hasLoggedMood = (lastLoggedDate == todayString);
+      print("User ID: $userId");
+      print("Last Logged Date: $lastLoggedDate");
+      print("Has logged mood today: $hasLoggedMood");
+
+      if (hasLoggedMood) {
+        // Navigate to the mood done page (only once)
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pushReplacementNamed(context, '/mooddonecheckin');
+        });
+      } else {
+        // Navigate to the mood tracker page if not logged
+        Navigator.pushReplacementNamed(context, '/moodtracker');
+      }
+    }
+  }
+
+// Fetch the latest mood data for the current user from Firestore
   Future<void> fetchMoodData() async {
     try {
-      //final userId = 'currentUserId';
+      final String? userId = FirebaseAuth.instance.currentUser?.uid;
+      // Get today's date in 'yyyy-MM-dd' format
+      String todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
       final moodCollection = FirebaseFirestore.instance
           .collection('mood_entries')
-          // .where('userId', isEqualTo: userId)
+          .where('userId', isEqualTo: userId)
+          .where('date', isEqualTo: todayDate)
           .orderBy('timestamp', descending: true)
           .limit(1);
 
@@ -84,21 +130,22 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
           setState(() {
             _currentIndex = index;
           });
+
           switch (index) {
             case 0:
-              navigateTo("Resource");
+              navigateTo('Resource');
               break;
             case 1:
-              navigateTo("Mood");
+              checkMoodStatus();
               break;
             case 2:
-              Navigator.pushNamed(context, '/studentdashboard');
+              navigateTo('Dashboard');
               break;
             case 3:
-              navigateTo("Chat");
+              Navigator.pushNamed(context, '/chat');
               break;
             case 4:
-              navigateTo("Profile");
+              Navigator.pushNamed(context, '/profile');
               break;
           }
         },
@@ -211,8 +258,11 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
                                         color: Colors.black,
                                       ),
                                       onPressed: () {
-                                        _showEditDialog(
-                                            context); // Open edit dialog
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    EditMoodPage()));
                                       },
                                     ),
                                   ))
@@ -221,18 +271,40 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 14),
-                    const Text(
-                      'Mood Analysis',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                    TextButton(
+                      onPressed: () {
+                        // Navigate to Mood Chart Page
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MoodChartPage()),
+                        );
+                      },
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Mood Analysis',
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black),
+                          ),
+                          SizedBox(
+                              width:
+                                  8.0), // Adds spacing between text and arrow
+                          Icon(Icons.arrow_forward_ios,
+                              size: 20,
+                              color: Colors.black), // Right arrow icon
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 10),
                     SizedBox(
                       height: constraints.maxHeight * 0.28, // Responsive height
-                      child: _buildMoodGraph(),
+                      child: MoodLineChart(),
                     ),
-                    const SizedBox(height: 26),
+                    const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
@@ -260,94 +332,6 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
             );
           },
         ),
-      ),
-    );
-  }
-
-  Widget _buildMoodGraph() {
-    // Placeholder for the mood graph
-    return Container(
-      color: Colors.grey[200],
-      child: const Center(
-        child: Text('Mood Graph Here'),
-      ),
-    );
-  }
-
-  void _showEditDialog(BuildContext context) {
-    String newMood = selectedMood; // Initialize with the current selected mood
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Mood'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Mood selection options (like the emoji picker)
-            ...moods.map((mood) {
-              return RadioListTile<String>(
-                title: Text(mood['label']),
-                value: mood['label'],
-                groupValue: newMood,
-                onChanged: (value) {
-                  setState(() {
-                    newMood = value ?? '';
-                  });
-                },
-              );
-            }).toList(),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context); // Close the dialog without making changes
-            },
-            child: const Text('Back'),
-          ),
-          TextButton(
-            onPressed: () async {
-              // Update mood in Firestore if it has changed
-              if (newMood != selectedMood) {
-                try {
-                  //final userId = 'currentUserId'; // Get the current user's ID
-                  final moodCollection =
-                      FirebaseFirestore.instance.collection('mood_entries');
-
-                  // Update the mood document for the current user
-                  await moodCollection
-                      //.where('userId', isEqualTo: userId)
-                      .orderBy('timestamp', descending: true)
-                      .limit(1)
-                      .get()
-                      .then((snapshot) {
-                    if (snapshot.docs.isNotEmpty) {
-                      snapshot.docs.first.reference.update({
-                        'mood': newMood,
-                        'timestamp': FieldValue.serverTimestamp(),
-                      });
-                    }
-                  });
-
-                  // Update the selectedMood state variable
-                  setState(() {
-                    selectedMood = newMood;
-                  });
-
-                  Navigator.pop(
-                      context); // Close the dialog after saving changes
-                } catch (e) {
-                  print('Error updating mood: $e');
-                }
-              } else {
-                Navigator.pop(
-                    context); // Close the dialog without making changes if mood is the same
-              }
-            },
-            child: const Text('Save'),
-          ),
-        ],
       ),
     );
   }
