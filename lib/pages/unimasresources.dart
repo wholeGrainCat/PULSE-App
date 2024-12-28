@@ -82,31 +82,31 @@ Friday:
   List<Widget> _buildCounsellorCards() {
     return [
       const _CounsellorCard(
-        imageUrl: 'assets/images/mdm_fauziah.jpg',
+        imageUrl: 'assets/images/fauziah.jpg',
         name: 'Mdm Fauziah Bee Bt Mohd Salleh',
         phone: '082-581861',
         email: 'msfauziah@unimas.my',
       ),
       const _CounsellorCard(
-        imageUrl: 'assets/images/puan_saptuyah.jpg',
+        imageUrl: 'assets/images/saptuyah.jpg',
         name: 'Puan Saptuyah Bt Barahim',
         phone: '082-581835',
         email: 'bsaptuyah@unimas.my',
       ),
       const _CounsellorCard(
-        imageUrl: 'assets/images/puan_debra.jpg',
+        imageUrl: 'assets/images/debra.jpg',
         name: 'Puan Debra Adrian',
         phone: '082-581804',
         email: 'adebra@unimas.my',
       ),
       const _CounsellorCard(
-        imageUrl: 'assets/images/en_lawrence.jpg',
+        imageUrl: 'assets/images/lawrence.jpg',
         name: 'En. Lawrence Sengkuai Anak Henry',
         phone: '082-581904',
         email: 'shlawrence@unimas.my',
       ),
       const _CounsellorCard(
-        imageUrl: 'assets/images/cik_ummikhairah.jpg',
+        imageUrl: 'assets/images/ummikhaira.jpg',
         name: 'Cik Ummikhairah Sofea Bt Ja\'afar',
         phone: '082-581869',
         email: 'jusofea@unimas.my',

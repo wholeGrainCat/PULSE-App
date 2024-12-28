@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SelfHelpTools extends StatelessWidget {
   const SelfHelpTools({super.key});
@@ -28,8 +30,8 @@ class SelfHelpTools extends StatelessWidget {
               CarouselSlider(
                 items: [
                   Image.asset('assets/images/slider1.png', fit: BoxFit.cover),
-                  Image.asset('assets/images/slider1.png', fit: BoxFit.cover),
-                  Image.asset('assets/images/slider1.png', fit: BoxFit.cover),
+                  Image.asset('assets/images/slider2.png', fit: BoxFit.cover),
+                  Image.asset('assets/images/slider3.png', fit: BoxFit.cover),
                 ],
                 options: CarouselOptions(
                   height: 200,
@@ -43,57 +45,43 @@ class SelfHelpTools extends StatelessWidget {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
-              ToolCard(
-                imagePath: 'assets/images/breathing.png',
-                title: 'Breathing',
-                description:
-                    'Follow guided breathing exercises to calm your mind and reduce stress in just a few minutes.',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const DetailScreen(
-                        title: 'Breathing',
-                        details:
-                            'Guided breathing exercises can help slow down your heart rate and relax your mind. Focus on inhaling deeply through your nose and exhaling through your mouth for a few minutes.',
-                      ),
-                    ),
-                  );
-                },
-              ),
-              ToolCard(
-                imagePath: 'assets/images/meditation.png',
-                title: 'Meditation',
-                description:
-                    'Practice mindfulness with guided meditations to help you relax and focus on the present moment.',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const DetailScreen(
-                        title: 'Meditation',
-                        details:
-                            'Meditation helps you center your thoughts and focus on the present. Start with 5-minute guided meditations and gradually increase the duration.',
-                      ),
-                    ),
-                  );
-                },
-              ),
-              ToolCard(
-                imagePath: 'assets/images/cbt.png',
-                title: 'CBT Exercise',
-                description:
-                    'Learn to identify and reframe negative thoughts with interactive Cognitive Behavioral Therapy techniques.',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const DetailScreen(
-                        title: 'CBT Exercise',
-                        details:
-                            'Cognitive Behavioral Therapy (CBT) exercises teach you how to recognize negative thinking patterns and replace them with healthier thoughts.',
-                      ),
-                    ),
+              // Fetch tools dynamically
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('self_help_tools')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(
+                      child: Text('No tools available.'),
+                    );
+                  }
+
+                  final tools = snapshot.data!.docs;
+
+                  return Column(
+                    children: tools.map((doc) {
+                      final data = doc.data() as Map<String, dynamic>;
+                      return ToolCard(
+                        imagePath: data['image'] ?? '',
+                        title: data['title'] ?? '',
+                        description: data['description'] ?? '',
+                        onTap: () {
+                          final url = data['url'] ?? '';
+                          if (url.isNotEmpty) {
+                            launchUrl(Uri.parse(url));
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('No URL provided')),
+                            );
+                          }
+                        },
+                      );
+                    }).toList(),
                   );
                 },
               ),
@@ -128,8 +116,7 @@ class ToolCard extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Row(
           children: [
-            // Image on the left
-            Image.asset(
+            Image.network(
               imagePath,
               width: 64,
               height: 64,
@@ -139,8 +126,7 @@ class ToolCard extends StatelessWidget {
                     size: 64, color: Colors.grey);
               },
             ),
-            const SizedBox(width: 16), // Space between image and text
-            // Title and description on the right
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,7 +144,6 @@ class ToolCard extends StatelessWidget {
                 ],
               ),
             ),
-            // Arrow icon for navigation
             GestureDetector(
               onTap: onTap,
               child: const Icon(
@@ -168,29 +153,6 @@ class ToolCard extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class DetailScreen extends StatelessWidget {
-  final String title;
-  final String details;
-
-  const DetailScreen({super.key, required this.title, required this.details});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Text(
-          details,
-          style: const TextStyle(fontSize: 16),
         ),
       ),
     );
