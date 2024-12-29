@@ -109,22 +109,6 @@ class AppointmentHistory extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 8),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors
-                                .pri_greenYellow, // Use backgroundColor instead of primary
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          onPressed: () async {
-                            // Call the counselor's number asynchronously
-                            /*await FlutterPhoneDirectCaller.callNumber(appointment
-                                .userId); */ // You can customize this with the correct number
-                          },
-                          child: const Text('Call Counselor'),
-                        ),
-                        const SizedBox(height: 8),
                         Text(
                           'Created at: ${createdAt.toLocal().toString()}',
                           style: const TextStyle(
