@@ -51,14 +51,6 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
     }
   }
 
-  void _checkMoodStatus() async {
-    bool hasLogged = await hasLoggedMoodToday();
-    if (hasLogged) {
-      // Navigate to MoodDoneCheckInPage if a mood log exists
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MoodDoneCheckIn()),
-      );
 // GET*Check if the user has logged their mood
   Future<void> checkMoodStatus() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -404,4 +396,3 @@ class NavigationButton extends StatelessWidget {
     );
   }
 }
-  }

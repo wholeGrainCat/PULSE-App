@@ -19,7 +19,7 @@ import 'package:student/pages/appoinment_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:url_launcher/url_launcher.dart';
 //import 'package:student/pages/cloud_messageing.dart'; // Import your CloudMessaging class
-import 'package:shared_preferences/shared_preferences.dart';
+//import 'package:shared_preferences/shared_preferences.dart';
 
 final Uri _url = Uri.parse('https://flutter.dev');
 Future<void> _launchUrl() async {
