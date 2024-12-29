@@ -4,6 +4,8 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 import 'package:student/components/app_colour.dart';
 import 'package:fluentui_emoji_icon/fluentui_emoji_icon.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'select_date.dart';
 
 class DiaryPage extends StatefulWidget {
   const DiaryPage({super.key});
@@ -15,8 +17,6 @@ class DiaryPage extends StatefulWidget {
 class _DiaryPageState extends State<DiaryPage> {
   DateTime _focusedDate = DateTime.now();
   DateTime? _selectedDate;
-
-  // Initialize Firestore instance
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   String formatTimestamp(Timestamp timestamp) {
@@ -28,20 +28,37 @@ class _DiaryPageState extends State<DiaryPage> {
     return DateFormat('h:mm a').format(localDate); // Format the local time
   }
 
-  // Fetch mood history for the selected date from Firestore
+  void _goToToday() {
+    setState(() {
+      _focusedDate = DateTime.now();
+      _selectedDate = DateTime.now();
+    });
+  }
+
+// Fetch mood history for the selected date and user from Firestore
   Future<List<Map<String, dynamic>>> getMoodHistoryForSelectedDate() async {
     // Ensure the selected date is correctly set
     String formattedDate =
         (_selectedDate ?? _focusedDate).toIso8601String().split('T').first;
+    // Get the current user's ID
+    final String? userId = FirebaseAuth.instance.currentUser?.uid;
 
+    if (userId == null) {
+      print("Error: User is not logged in");
+      return [];
+    }
     // Print the formatted date to ensure it's correct
-    print('Fetching data for date: $formattedDate');
+    print('Fetching data for date: $formattedDate, User ID: $userId');
+
     try {
       QuerySnapshot snapshot = await _firestore
           .collection('mood_entries')
+          .where('userId', isEqualTo: userId)
           .where('date', isEqualTo: formattedDate)
           .get();
-      print(snapshot.docs.map((doc) => doc.data()));
+      snapshot.docs.forEach((doc) {
+        print(doc.data());
+      });
 
       return snapshot.docs.map((doc) {
         return {
@@ -56,19 +73,6 @@ class _DiaryPageState extends State<DiaryPage> {
       print('Error fetching mood history: $e');
       return [];
     }
-  }
-
-  Future<void> addMoodEntry(
-      String emoji, String mood, String description, String details) async {
-    await _firestore.collection('moodHistory').add({
-      'date':
-          _selectedDate?.toIso8601String() ?? _focusedDate.toIso8601String(),
-      'emoji': emoji,
-      'mood': mood,
-      'description': description,
-      'details': details,
-    });
-    setState(() {}); // Refresh the page after adding a mood entry
   }
 
   Future<void> _pickMonth() async {
@@ -87,13 +91,6 @@ class _DiaryPageState extends State<DiaryPage> {
         _selectedDate = picked;
       });
     }
-  }
-
-  void _goToToday() {
-    setState(() {
-      _focusedDate = DateTime.now();
-      _selectedDate = DateTime.now();
-    });
   }
 
   @override
@@ -150,7 +147,7 @@ class _DiaryPageState extends State<DiaryPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              // Weekly Calendar Section
+// Weekly Calendar Section
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 32),
                 padding: const EdgeInsets.all(0),
@@ -183,15 +180,15 @@ class _DiaryPageState extends State<DiaryPage> {
                     onPageChanged: (focusedDay) {
                       _focusedDate = focusedDay;
                     },
-                    calendarStyle: const CalendarStyle(
-                      todayTextStyle: TextStyle(color: Colors.white),
+                    calendarStyle: CalendarStyle(
+                      todayTextStyle: TextStyle(color: Colors.black),
                       selectedTextStyle: TextStyle(color: Colors.black),
                       todayDecoration: BoxDecoration(
-                        color: Colors.black,
                         shape: BoxShape.circle,
+                        color: AppColors.pri_greenYellow,
                       ),
                       selectedDecoration: BoxDecoration(
-                        color: AppColors.pri_greenYellow,
+                        border: Border.all(color: Colors.black, width: 2),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -212,7 +209,7 @@ class _DiaryPageState extends State<DiaryPage> {
                 style:
                     const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               ),
-              // Mood History Section
+// Mood History Section
               FutureBuilder<List<Map<String, dynamic>>>(
                 future: getMoodHistoryForSelectedDate(),
                 builder: (context, snapshot) {
@@ -236,6 +233,9 @@ class _DiaryPageState extends State<DiaryPage> {
                           time: formatTimestamp(entry['timestamp']),
                           description: entry['description'] ?? '',
                           title: entry['title'] ?? '',
+                          selectedDate: _selectedDate ??
+                              DateTime
+                                  .now(), // Use the current date if _selectedDate is null
                         );
                       },
                     );
@@ -244,60 +244,76 @@ class _DiaryPageState extends State<DiaryPage> {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    SizedBox(
-                      width: 128,
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 32, vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18),
+                child: FutureBuilder<List<Map<String, dynamic>>>(
+                  future: getMoodHistoryForSelectedDate(),
+                  builder: (context, snapshot) {
+                    final bool moodExists =
+                        snapshot.data != null && snapshot.data!.isNotEmpty;
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        // Back button
+                        SizedBox(
+                          width: 128,
+                          height: 50,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 32, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context, '/moodtracker');
+                            },
+                            child: const Text(
+                              'Back',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ),
                         ),
-                        onPressed: () {
-                          Navigator.pop(context, '/moodtracker');
-                        },
-                        child: const Text(
-                          'Back',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
+                        //Add button
+                        SizedBox(
+                          width: 128,
+                          height: 50,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.pri_purple,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 22, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                            ),
+                            onPressed: moodExists
+                                ? () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => SelectDate(
+                                                  selectedDate: _selectedDate,
+                                                )));
+                                  }
+                                : null,
+                            child: const Text(
+                              'Edit Diary',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 128,
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.pri_purple,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 22, vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                        ),
-                        onPressed: () {
-                          // Navigate to Add Mood Page
-                        },
-                        child: const Text(
-                          'Add Mood',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                      ],
+                    );
+                  },
                 ),
               ),
             ],
@@ -313,6 +329,7 @@ class DiaryEntryCard extends StatelessWidget {
   final String time;
   final String title;
   final String description;
+  final DateTime selectedDate;
 
   DiaryEntryCard({
     super.key,
@@ -320,6 +337,7 @@ class DiaryEntryCard extends StatelessWidget {
     required this.time,
     required this.title,
     required this.description,
+    required this.selectedDate,
   });
   // List of mood options
   final List<Map<String, dynamic>> moods = [
@@ -346,7 +364,6 @@ class DiaryEntryCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.lightBlue[100],
-        // color: AppColors.pri_greenYellow,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

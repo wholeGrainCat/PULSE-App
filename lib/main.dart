@@ -19,6 +19,7 @@ import 'package:student/pages/appoinment_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:url_launcher/url_launcher.dart';
 //import 'package:student/pages/cloud_messageing.dart'; // Import your CloudMessaging class
+import 'package:shared_preferences/shared_preferences.dart';
 
 final Uri _url = Uri.parse('https://flutter.dev');
 Future<void> _launchUrl() async {
@@ -42,6 +43,7 @@ void main() async {
             appId: "1:346012969160:web:1403a7cd4e80450c545dfd"));
   } else {
     await Firebase.initializeApp();
+    // await SharedPreferences.getInstance();
   }
 
   // Initialize notifications and get token

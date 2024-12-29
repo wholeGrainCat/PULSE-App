@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluentui_emoji_icon/fluentui_emoji_icon.dart';
 import 'package:student/components/app_colour.dart';
-import 'package:student/components/bottom_navigation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class MoodCheckInPage extends StatefulWidget {
   final String selectedMood;
@@ -22,8 +22,6 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   String timestamp = '';
-  int _currentIndex = 2;
-  // Reference to Firestore
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
@@ -40,25 +38,22 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
     });
   }
 
-// Function to save mood and journal to Firestore
-  void _saveMoodAndJournal() async {
+  Future<void> _saveMoodAndJournal() async {
     String title = _titleController.text;
     String description = _descriptionController.text;
-
+    final User? user = FirebaseAuth.instance.currentUser;
+    String uid =
+        user?.uid ?? 'unknown'; // This retrieves the logged-in user's uid.
     try {
-      // Add data to Firestore under the 'mood_entries' collection
       await _firestore.collection('mood_entries').add({
         'mood': widget.selectedMood,
+        'date': DateTime.now().toIso8601String().split('T').first,
         'journalTitle': title,
         'journalDescription': description,
         'timestamp': FieldValue.serverTimestamp(),
-        'date': DateTime.now()
-            .toIso8601String()
-            .split('T')
-            .first, // Only the date part
+        'userId': uid, // Store user ID with the mood
       });
       print('Mood and journal saved successfully!');
-
       // Navigate to MoodDoneCheckInPage
       Navigator.pushNamed(context, '/mooddonecheckin');
     } catch (e) {
@@ -68,40 +63,10 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
     }
   }
 
-  void navigateTo(String page) {
-    print("Navigating to $page");
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xfffafafa),
-      // Navigation Bar
-      bottomNavigationBar: BottomNavigation(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          switch (index) {
-            case 0:
-              navigateTo("Resource");
-              break;
-            case 1:
-              navigateTo("Mood");
-              break;
-            case 2:
-              Navigator.pushNamed(context, '/studentdashboard');
-              break;
-            case 3:
-              navigateTo("Chat");
-              break;
-            case 4:
-              navigateTo("Profile");
-              break;
-          }
-        },
-      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,7 +232,9 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
                           width: 128,
                           height: 50,
                           child: ElevatedButton(
-                            onPressed: _saveMoodAndJournal,
+                            onPressed: () async {
+                              await _saveMoodAndJournal();
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF613EEA),
                               foregroundColor: Colors.white,

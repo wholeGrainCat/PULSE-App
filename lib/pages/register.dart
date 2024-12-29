@@ -260,7 +260,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget _buildContinueWithText() {
     return const Center(
       child: Text(
-        "or continue with",
+        "or sign up with",
         style: TextStyle(color: Colors.black),
       ),
     );

@@ -10,6 +10,7 @@ import 'package:student/pages/self_help_tools.dart';
 import 'package:student/pages/unimasresources.dart';
 import 'package:student/pages/crisis_support.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class StudentDashboard extends StatefulWidget {
@@ -40,6 +41,33 @@ class _StudentDashboardState extends State<StudentDashboard> {
     {"icon": Fluents.flFrowningFace, "label": "Bad"},
   ];
 
+  Future<void> checkMoodStatus() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      // Retrieve the last logged date and mood status
+      String? lastLoggedDate = prefs.getString('lastLoggedDate_$userId');
+      DateTime today = DateTime.now();
+      String todayString = "${today.year}-${today.month}-${today.day}";
+
+      // Check if the last logged date matches today's date
+      bool hasLoggedMood = (lastLoggedDate == todayString);
+      print("User ID: $userId");
+      print("Last Logged Date: $lastLoggedDate");
+      print("Has logged mood today: $hasLoggedMood");
+
+      if (hasLoggedMood) {
+        // Navigate to the mood done page (only once)
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pushReplacementNamed(context, '/mooddonecheckin');
+        });
+      } else {
+        // Navigate to the mood tracker page if not logged
+        Navigator.pushReplacementNamed(context, '/moodtracker');
+      }
+    }
+  }
+
   void handleMoodSelection(String mood) {
     setState(() {
       selectedMood = mood;
@@ -47,7 +75,17 @@ class _StudentDashboardState extends State<StudentDashboard> {
   }
 
   void navigateTo(String page) {
-    // Replace with actual navigation logic
+    print("Navigating to $page");
+    // Handle other navigation cases
+    if (page == 'Resource') {
+      Navigator.pushNamed(context, '/resource');
+    } else if (page == 'Dashboard') {
+      Navigator.pushNamed(context, '/studentdashboard');
+    } else if (page == 'Chat') {
+      Navigator.pushNamed(context, '/chat');
+    } else if (page == 'Profile') {
+      Navigator.pushNamed(context, '/profile');
+    }
   }
 
   @override
@@ -155,18 +193,19 @@ class _StudentDashboardState extends State<StudentDashboard> {
           setState(() {
             _currentIndex = index;
           });
+
           switch (index) {
             case 0:
-              Navigator.pushNamed(context, '/resource');
+              navigateTo('Resource');
               break;
             case 1:
-              Navigator.pushNamed(context, '/moodtracker');
+              checkMoodStatus();
               break;
             case 2:
               Navigator.pushNamed(context, '/studentdashboard');
               break;
             case 3:
-              navigateTo("Chat");
+              Navigator.pushNamed(context, '/chat');
               break;
             case 4:
               Navigator.pushNamed(context, '/profile');
