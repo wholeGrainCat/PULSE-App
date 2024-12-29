@@ -75,20 +75,6 @@ class _DiaryPageState extends State<DiaryPage> {
     }
   }
 
-// Add new mood entry
-  Future<void> addMoodEntry(
-      String emoji, String mood, String description, String details) async {
-    await _firestore.collection('moodHistory').add({
-      'date':
-          _selectedDate?.toIso8601String() ?? _focusedDate.toIso8601String(),
-      'emoji': emoji,
-      'mood': mood,
-      'description': description,
-      'details': details,
-    });
-    setState(() {}); // Refresh the page after adding a mood entry
-  }
-
   Future<void> _pickMonth() async {
     DateTime? picked = await showDatePicker(
       context: context,
@@ -194,15 +180,15 @@ class _DiaryPageState extends State<DiaryPage> {
                     onPageChanged: (focusedDay) {
                       _focusedDate = focusedDay;
                     },
-                    calendarStyle: const CalendarStyle(
-                      todayTextStyle: TextStyle(color: Colors.white),
+                    calendarStyle: CalendarStyle(
+                      todayTextStyle: TextStyle(color: Colors.black),
                       selectedTextStyle: TextStyle(color: Colors.black),
                       todayDecoration: BoxDecoration(
-                        color: Colors.black,
                         shape: BoxShape.circle,
+                        color: AppColors.pri_greenYellow,
                       ),
                       selectedDecoration: BoxDecoration(
-                        color: AppColors.pri_greenYellow,
+                        border: Border.all(color: Colors.black, width: 2),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -258,62 +244,76 @@ class _DiaryPageState extends State<DiaryPage> {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-// Back button
-                    SizedBox(
-                      width: 128,
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 32, vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18),
+                child: FutureBuilder<List<Map<String, dynamic>>>(
+                  future: getMoodHistoryForSelectedDate(),
+                  builder: (context, snapshot) {
+                    final bool moodExists =
+                        snapshot.data != null && snapshot.data!.isNotEmpty;
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        // Back button
+                        SizedBox(
+                          width: 128,
+                          height: 50,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 32, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context, '/moodtracker');
+                            },
+                            child: const Text(
+                              'Back',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ),
                         ),
-                        onPressed: () {
-                          Navigator.pop(context, '/moodtracker');
-                        },
-                        child: const Text(
-                          'Back',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
+                        //Add button
+                        SizedBox(
+                          width: 128,
+                          height: 50,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.pri_purple,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 22, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                            ),
+                            onPressed: moodExists
+                                ? () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => SelectDate(
+                                                  selectedDate: _selectedDate,
+                                                )));
+                                  }
+                                : null,
+                            child: const Text(
+                              'Edit Diary',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-//Add button
-                    SizedBox(
-                      width: 128,
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.pri_purple,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 22, vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                        ),
-                        onPressed: () {
-                          // Navigate to Add Mood Page
-                        },
-                        child: const Text(
-                          'Add Mood',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                      ],
+                    );
+                  },
                 ),
               ),
             ],
@@ -359,69 +359,59 @@ class DiaryEntryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // Get the corresponding emoji for the mood
     dynamic emoji = getEmojiForMood(mood);
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => SelectDate(
-                      selectedDate: selectedDate,
-                    )));
-      },
-      child: Container(
-        margin: const EdgeInsets.all(16),
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.lightBlue[100],
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            FluentUiEmojiIcon(
-              fl: emoji,
-              w: 47,
-              h: 47,
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.lightBlue[100],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FluentUiEmojiIcon(
+            fl: emoji,
+            w: 47,
+            h: 47,
+          ),
+          const SizedBox(width: 16),
+          Flexible(
+            fit: FlexFit.loose,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  mood,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+                Text(
+                  time, // Display the time here
+                  style: const TextStyle(
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: TextStyle(color: Colors.black),
+                  textAlign: TextAlign.justify,
+                ),
+              ],
             ),
-            const SizedBox(width: 16),
-            Flexible(
-              fit: FlexFit.loose,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    mood,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                  Text(
-                    time, // Display the time here
-                    style: const TextStyle(
-                      fontSize: 12,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    description,
-                    style: TextStyle(color: Colors.black),
-                    textAlign: TextAlign.justify,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

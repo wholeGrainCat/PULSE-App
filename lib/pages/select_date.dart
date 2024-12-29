@@ -39,8 +39,8 @@ class _SelectDateState extends State<SelectDate> {
   @override
   void initState() {
     super.initState();
-    selectedDate =
-        widget.selectedDate; // Initialize selectedDate from the parent widget
+    selectedDate = widget.selectedDate ?? DateTime.now();
+    // Initialize selectedDate from the parent widget
     fetchMoodDataForSelectedDate();
   }
 
