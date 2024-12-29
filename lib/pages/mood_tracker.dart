@@ -51,7 +51,7 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
       // Navigate to MoodDoneCheckInPage if a mood log exists
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MoodDoneCheckIn()),
+        MaterialPageRoute(builder: (context) => const MoodDoneCheckIn()),
       );
     }
   }

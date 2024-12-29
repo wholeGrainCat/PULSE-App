@@ -8,7 +8,8 @@ class MoodCheckInPage extends StatefulWidget {
   final String selectedMood;
   final dynamic selectedEmoji;
 
-  const MoodCheckInPage({super.key, 
+  const MoodCheckInPage({
+    super.key,
     required this.selectedEmoji,
     required this.selectedMood,
   });
@@ -62,7 +63,7 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
       Navigator.pushNamed(context, '/mooddonecheckin');
     } catch (e) {
       print('Failed to save mood and journal: $e');
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Failed to save mood and journal. Please try again.')));
     }
   }
@@ -198,8 +199,8 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide:
-                              const BorderSide(color: AppColors.pri_purple, width: 2),
+                          borderSide: const BorderSide(
+                              color: AppColors.pri_purple, width: 2),
                         ),
                       ),
                     ),
@@ -226,8 +227,8 @@ class _MoodCheckInPageState extends State<MoodCheckInPage> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide:
-                            const BorderSide(color: AppColors.pri_purple, width: 2),
+                        borderSide: const BorderSide(
+                            color: AppColors.pri_purple, width: 2),
                       ),
                     ),
                     maxLines: 8,

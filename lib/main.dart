@@ -10,12 +10,15 @@ import 'package:student/pages/login.dart';
 import 'package:student/pages/mood_done_check_in.dart';
 import 'package:student/pages/mood_tracker.dart';
 import 'package:student/pages/mood_calendar.dart';
+import 'package:student/pages/profile/profile_screen.dart';
 import 'package:student/pages/resource_library.dart';
 import 'package:student/pages/self_help_tools.dart';
 import 'package:student/pages/student_dashboard.dart';
 import 'package:student/onboarding/onboardingscreen.dart';
+import 'package:student/pages/appoinment_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:url_launcher/url_launcher.dart';
+//import 'package:student/pages/cloud_messageing.dart'; // Import your CloudMessaging class
 
 final Uri _url = Uri.parse('https://flutter.dev');
 Future<void> _launchUrl() async {
@@ -26,6 +29,8 @@ Future<void> _launchUrl() async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase
   if (kIsWeb) {
     await Firebase.initializeApp(
         options: const FirebaseOptions(
@@ -38,6 +43,10 @@ void main() async {
   } else {
     await Firebase.initializeApp();
   }
+
+  // Initialize notifications and get token
+  /*CloudMessage cloudMessage = CloudMessage();
+  await cloudMessage.initNotifications();*/
 
   runApp(const MyApp());
 }
@@ -54,24 +63,23 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         fontFamily: 'Roboto',
       ),
-      // home: MoodTrackerPage(),
-      // home: StudentDashboard(),
-      // home: ResourcePage(),
       home: const OnboardingScreen(), // Set OnboardingPage as the first page
       routes: {
-        '/login': (context) => LoginPage(),
-        '/forgotpassword': (context) => ForgotPasswordPage(),
-        '/studentdashboard': (context) => StudentDashboard(),
-        '/moodtracker': (context) => MoodTrackerPage(),
-        '/mooddonecheckin': (context) => MoodDoneCheckIn(),
-        '/mooddiary': (context) => DiaryPage(),
-        '/moodcalendar': (context) => MoodCalendarPage(),
-        '/resource': (context) => ResourceLibraryPage(),
-        '/stress': (context) => Stress(),
-        '/depression': (context) => Depression(),
-        '/selfcare': (context) => SelfCare(),
-        '/anxiety': (context) => Anxiety(),
-        '/selfhelptools': (context) => SelfHelpTools(),
+        '/login': (context) => const LoginPage(),
+        '/forgotpassword': (context) => const ForgotPasswordPage(),
+        '/studentdashboard': (context) => const StudentDashboard(),
+        '/moodtracker': (context) => const MoodTrackerPage(),
+        '/mooddonecheckin': (context) => const MoodDoneCheckIn(),
+        '/mooddiary': (context) => const DiaryPage(),
+        '/moodcalendar': (context) => const MoodCalendarPage(),
+        '/resource': (context) => const ResourceLibraryPage(),
+        '/stress': (context) => const Stress(),
+        '/depression': (context) => const Depression(),
+        '/selfcare': (context) => const SelfCare(),
+        '/anxiety': (context) => const Anxiety(),
+        '/selfhelptools': (context) => const SelfHelpTools(),
+        '/appointments': (context) => const AppointmentScreen(),
+        '/profile': (context) => const ProfileScreen(),
       },
     );
   }

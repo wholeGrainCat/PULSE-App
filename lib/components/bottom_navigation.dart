@@ -35,7 +35,7 @@ class BottomNavigation extends StatelessWidget {
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.chat),
-          label: 'Chat',
+          label: 'Support',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person),

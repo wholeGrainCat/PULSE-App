@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:student/pages/appoinment_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ScheduleAppointment extends StatefulWidget {
   const ScheduleAppointment({super.key});
@@ -12,16 +14,8 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
   DateTime selectedDate = DateTime.now();
   String selectedTime = "";
   String selectedLocation = "";
-
-  final List<String> availableTimes = [
-    '09:00 AM',
-    '10:00 AM',
-    '11:00 AM',
-    '01:00 PM',
-    '02:00 PM',
-    '03:00 PM',
-    '04:00 PM',
-  ];
+  String selectedCounselor = "";
+  bool isLoading = false;
 
   final List<String> availableLocations = [
     'Counseling Room 1',
@@ -30,13 +24,156 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
     'Counseling Room 4',
   ];
 
+  final List<String> counselors = [
+    'Madam Fauziah Bee binti Mohd Salleh',
+    'Madam Saptuyah binti Barahim',
+    'Madam Debra Adrian',
+    'Encik Lawrence Sengkuai Anak Henry',
+    'Miss Ummikhairah Sofea binti Jaafar'
+  ];
+
+  final List<String> allAvailableTimes = [
+    '09:00 AM',
+    '10:00 AM',
+    '11:00 AM',
+    '02:00 PM',
+    '03:00 PM',
+    '04:00 PM'
+  ];
+
+  List<String> availableTimes = [];
+  List<String> bookedTimes = [];
+  List<String> bookedLocations = [];
+
   bool isWeekend = false;
 
   @override
-  Widget build(BuildContext context) {
-    // Check if the selected date is a weekend (Saturday or Sunday)
-    isWeekend = selectedDate.weekday == 6 || selectedDate.weekday == 7;
+  void initState() {
+    super.initState();
+    availableTimes = List<String>.from(allAvailableTimes);
+  }
 
+  // Load both booked times and locations from Firebase
+  Future<void> _loadBookedTimesAndLocations() async {
+    try {
+      String formattedDate = selectedDate.toLocal().toString().split(' ')[0];
+
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('scheduled_appointments')
+          .where('date', isEqualTo: formattedDate)
+          .where('time', isEqualTo: selectedTime)
+          .get();
+
+      if (mounted) {
+        setState(() {
+          bookedLocations = snapshot.docs.isEmpty
+              ? []
+              : snapshot.docs.map((doc) => doc['location'] as String).toList();
+        });
+
+        QuerySnapshot timeSnapshot = await FirebaseFirestore.instance
+            .collection('scheduled_appointments')
+            .where('date', isEqualTo: formattedDate)
+            .where('counselor', isEqualTo: selectedCounselor)
+            .get();
+
+        if (mounted) {
+          setState(() {
+            bookedTimes = timeSnapshot.docs.isEmpty
+                ? []
+                : timeSnapshot.docs
+                    .map((doc) => doc['time'] as String)
+                    .toList();
+          });
+        }
+      }
+    } catch (e) {
+      print("Error loading booked data: $e");
+    }
+  }
+
+  // Check if a location is available
+  bool isLocationAvailable(String location) {
+    return !bookedLocations.contains(location);
+  }
+
+  // Save appointment data to Firebase with availability check
+  Future<void> _saveAppointment() async {
+    if (bookedTimes.contains(selectedTime)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('This time slot is already booked!')),
+      );
+      return;
+    }
+
+    if (bookedLocations.contains(selectedLocation)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('This location is already booked for this time!')),
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      // One final check before saving
+      String formattedDate = selectedDate.toLocal().toString().split(' ')[0];
+
+      // Check if the location is still available
+      QuerySnapshot locationCheck = await FirebaseFirestore.instance
+          .collection('scheduled_appointments')
+          .where('date', isEqualTo: formattedDate)
+          .where('time', isEqualTo: selectedTime)
+          .where('location', isEqualTo: selectedLocation)
+          .get();
+
+      if (locationCheck.docs.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+                  'This location was just booked. Please select another.')),
+        );
+        return;
+      }
+
+      await FirebaseFirestore.instance
+          .collection('scheduled_appointments')
+          .add({
+        'date': formattedDate,
+        'time': selectedTime,
+        'location': selectedLocation,
+        'counselor': selectedCounselor,
+        'userId': FirebaseAuth.instance.currentUser?.uid,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Appointment Scheduled successfully!')),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AppointmentScreen(),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to schedule appointment')),
+      );
+      print("Error saving appointment: $e");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -47,15 +184,37 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
         elevation: 1,
       ),
       body: SingleChildScrollView(
-        // Wrap the body in a SingleChildScrollView
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment
-              .spaceBetween, // Ensure the button stays at the bottom
           children: [
-            // Calendar Section
+            // Counselor Selection
             const SizedBox(height: 20),
+            const Text(
+              "Select Counselor",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            DropdownButton<String>(
+              isExpanded: true,
+              value: selectedCounselor.isEmpty ? null : selectedCounselor,
+              hint: const Text("Select a Counselor"),
+              onChanged: (String? newCounselor) {
+                setState(() {
+                  selectedCounselor = newCounselor ?? '';
+                  _loadBookedTimesAndLocations(); // Load available times when counselor changes
+                });
+              },
+              items: counselors
+                  .map((counselor) => DropdownMenuItem<String>(
+                        value: counselor,
+                        child: Text(counselor),
+                      ))
+                  .toList(),
+            ),
+            const SizedBox(height: 20),
+
+            // Calendar Section
             const Text(
               "Select Date",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -81,28 +240,31 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
                 onDateChanged: (date) {
                   setState(() {
                     selectedDate = date;
+                    // Check if the selected date is a weekend
+                    isWeekend = selectedDate.weekday == DateTime.saturday ||
+                        selectedDate.weekday == DateTime.sunday;
+                    // Reload booked times when date changes
+                    _loadBookedTimesAndLocations();
                   });
                 },
               ),
             ),
             const SizedBox(height: 20),
 
-            // Available Time Slots
-            const Text(
-              "Available Times",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 12),
-            if (isWeekend)
+            // Show message if weekend is selected
+            if (isWeekend) ...[
               const Text(
-                "Weekend is not available. Please choose another date.",
-                style: TextStyle(color: Colors.red, fontSize: 16),
-              )
-            else
+                "Appointments are not available on weekends.",
+                style: TextStyle(fontSize: 16, color: Colors.red),
+              ),
+              const SizedBox(height: 20),
+            ] else ...[
+              // Available Time Slots
+              const Text(
+                "Available Times",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
               GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -116,17 +278,24 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
                 itemBuilder: (context, index) {
                   final time = availableTimes[index];
                   final isSelected = selectedTime == time;
+                  final isBooked = bookedTimes
+                      .contains(time); // Check if the time is already booked
 
                   return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        selectedTime = isSelected ? "" : time;
-                      });
-                    },
+                    onTap: isBooked
+                        ? null // Disable tap if booked
+                        : () {
+                            setState(() {
+                              selectedTime = isSelected ? "" : time;
+                            });
+                          },
                     child: Container(
                       decoration: BoxDecoration(
-                        color:
-                            isSelected ? Colors.deepPurple : Colors.grey[200],
+                        color: isBooked
+                            ? Colors.grey // Gray out booked times
+                            : isSelected
+                                ? Colors.deepPurple
+                                : Colors.grey[200],
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: const [
                           BoxShadow(
@@ -140,7 +309,12 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
                       child: Text(
                         time,
                         style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.black87,
+                          color: isBooked
+                              ? Colors
+                                  .black54 // Make booked time text less visible
+                              : isSelected
+                                  ? Colors.white
+                                  : Colors.black87,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -148,89 +322,85 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
                   );
                 },
               ),
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            // Location Selection
-            if (selectedTime.isNotEmpty) ...[
-              const Text(
-                "Select Location",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+              // Location Selection
+              if (selectedTime.isNotEmpty) ...[
+                const Text(
+                  "Select Location",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-              ),
-              const SizedBox(height: 12),
-              DropdownButton<String>(
-                isExpanded: true,
-                value: selectedLocation.isEmpty ? null : selectedLocation,
-                hint: const Text("Select a Counseling Room"),
-                onChanged: (String? newLocation) {
-                  setState(() {
-                    selectedLocation = newLocation ?? '';
-                  });
-                },
-                items: availableLocations
-                    .map((location) => DropdownMenuItem<String>(
+                const SizedBox(height: 12),
+                FutureBuilder(
+                  future: _loadBookedTimesAndLocations(),
+                  builder: (context, snapshot) {
+                    return DropdownButton<String>(
+                      isExpanded: true,
+                      value: selectedLocation.isEmpty ? null : selectedLocation,
+                      hint: const Text("Select Location"),
+                      onChanged: (String? newLocation) {
+                        if (newLocation != null &&
+                            !bookedLocations.contains(newLocation)) {
+                          setState(() {
+                            selectedLocation = newLocation;
+                          });
+                        }
+                      },
+                      items: availableLocations.map((location) {
+                        bool isBooked = bookedLocations.contains(location);
+                        return DropdownMenuItem<String>(
                           value: location,
-                          child: Text(location),
-                        ))
-                    .toList(),
-              ),
-            ],
-
-            // Confirm Button
-            Padding(
-              padding: const EdgeInsets.only(bottom: 20.0),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                onPressed: selectedTime.isEmpty ||
-                        selectedLocation.isEmpty ||
-                        isWeekend
-                    ? null
-                    : () {
-                        showDialog(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            title: const Text("Your appointment is on:"),
-                            content: Text(
-                              "Date: ${selectedDate.toLocal().toString().split(' ')[0]} \nTime: $selectedTime \nLocation: $selectedLocation",
-                              style: const TextStyle(fontSize: 16),
+                          enabled: !isBooked,
+                          child: Text(
+                            location + (isBooked ? " (Booked)" : ""),
+                            style: TextStyle(
+                              color: isBooked ? Colors.grey : Colors.black,
                             ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context)
-                                      .pop(); // Close the dialog
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => AppointmentScreen(),
-                                    ),
-                                  );
-                                },
-                                child: const Text("OK"),
-                              ),
-                            ],
                           ),
                         );
-                      },
-                child: const Text(
-                  "Confirm",
-                  style: TextStyle(fontSize: 18, color: Colors.white),
+                      }).toList(),
+                    );
+                  },
+                ),
+              ],
+              const SizedBox(height: 20),
+
+              /// Book Appointment Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: isLoading
+                      ? null
+                      : selectedCounselor.isEmpty ||
+                              selectedTime.isEmpty ||
+                              selectedLocation.isEmpty
+                          ? null // Disable button if fields are empty
+                          : _saveAppointment,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        const Color(0xFF6200EA), // Updated to specific purple
+                    padding: const EdgeInsets.symmetric(vertical: 14.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  child: isLoading
+                      ? const CircularProgressIndicator(
+                          color: Colors.white,
+                        )
+                      : const Text(
+                          'Book Appointment',
+                          style: TextStyle(
+                            color: Colors.white, // Explicit text color
+                            fontSize: 18, // Font size as per request
+                          ),
+                        ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),
-      backgroundColor: Colors.grey[100],
     );
   }
 }

@@ -6,6 +6,8 @@ import 'package:student/components/bottom_navigation.dart';
 import 'package:student/components/app_colour.dart';
 
 class MoodDoneCheckIn extends StatefulWidget {
+  const MoodDoneCheckIn({super.key});
+
   @override
   _MoodDoneCheckInState createState() => _MoodDoneCheckInState();
 }
@@ -154,7 +156,7 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
                                   ),
                                   // Emoji
                                   isLoading
-                                      ? CircularProgressIndicator()
+                                      ? const CircularProgressIndicator()
                                       : FluentUiEmojiIcon(
                                           fl: moods.firstWhere(
                                             (mood) =>
@@ -165,9 +167,9 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
                                         ),
                                   // Mood
                                   isLoading
-                                      ? SizedBox()
+                                      ? const SizedBox()
                                       : Text(
-                                          '$selectedMood',
+                                          selectedMood,
                                           style: const TextStyle(
                                             fontSize: 16,
                                             color: Colors.black,
@@ -176,10 +178,10 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
                                         ),
                                   // Timestamp
                                   isLoading
-                                      ? SizedBox()
+                                      ? const SizedBox()
                                       : Text(
                                           timestamp,
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontSize: 14,
                                               color: Colors.black,
                                               fontWeight: FontWeight.w300),
@@ -296,7 +298,7 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
                   });
                 },
               );
-            }).toList(),
+            }),
           ],
         ),
         actions: [

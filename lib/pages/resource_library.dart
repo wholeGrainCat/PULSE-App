@@ -48,7 +48,7 @@ class ResourceService {
     QuerySnapshot snapshot = await _firestore
         .collection('resources')
         .where('title', isGreaterThanOrEqualTo: searchTerm)
-        .where('title', isLessThanOrEqualTo: searchTerm + '\uf8ff')
+        .where('title', isLessThanOrEqualTo: '$searchTerm\uf8ff')
         .get();
 
     return snapshot.docs
@@ -186,7 +186,7 @@ class _ResourceLibraryPageState extends State<ResourceLibraryPage> {
       },
       child: Container(
         width: 200,
-        margin: EdgeInsets.only(right: 10),
+        margin: const EdgeInsets.only(right: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -209,7 +209,7 @@ class _ResourceLibraryPageState extends State<ResourceLibraryPage> {
                     else
                       Container(height: 120, color: Colors.grey[200]),
                     if (isVideo)
-                      Positioned(
+                      const Positioned(
                         top: 0,
                         left: 0,
                         right: 0,
@@ -340,14 +340,14 @@ class _ResourceLibraryPageState extends State<ResourceLibraryPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Articles(),
+                          builder: (context) => const Articles(),
                         ),
                       );
                     } else if (type == "Videos") {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Videos(),
+                          builder: (context) => const Videos(),
                         ),
                       );
                     } else {

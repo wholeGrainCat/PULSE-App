@@ -17,7 +17,7 @@ class SelfCare extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0XFFFAFAFA),
+      backgroundColor: const Color(0XFFFAFAFA),
       appBar: AppBar(
         title: const Text('Self-care'),
         leading: IconButton(
@@ -98,7 +98,7 @@ class SelfCare extends StatelessWidget {
                                     fit: BoxFit.cover,
                                   ),
                                   if (isVideo)
-                                    Positioned(
+                                    const Positioned(
                                       top: 0,
                                       left: 0,
                                       right: 0,

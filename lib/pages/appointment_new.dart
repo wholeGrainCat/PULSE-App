@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:student/pages/appoinment_schedule.dart';
 
@@ -11,7 +13,6 @@ class NewAppointmentScreen extends StatefulWidget {
 class _NewAppointmentScreenState extends State<NewAppointmentScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  // Controllers for input fields
   final TextEditingController nameController = TextEditingController();
   final TextEditingController matricController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -19,18 +20,8 @@ class _NewAppointmentScreenState extends State<NewAppointmentScreen> {
   final TextEditingController issueDescriptionController =
       TextEditingController();
 
-  String selectedCounselor = 'Pn Fauziah Bee binti Mohd Salleh';
   String counselingType = 'Individual';
   String selectedIssue = 'Academic Stress';
-
-  // Dropdown options
-  final List<String> counselors = [
-    'Pn Fauziah Bee binti Mohd Salleh',
-    'Pn Saptuyah Bt Barahim',
-    'Pn Debra Adrian',
-    'En. Lawrence Sengkuai Anak Henry ',
-    'Cik Ummikhaira Sofea Bt Ja’afar',
-  ];
 
   final List<String> issues = [
     'Academic Stress',
@@ -41,6 +32,49 @@ class _NewAppointmentScreenState extends State<NewAppointmentScreen> {
   ];
 
   final Color appPurple = const Color(0xFF9747FF);
+
+  Future<void> _saveAppointmentToFirestore() async {
+    try {
+      // Fetch the currently logged-in user's UID
+      final User? currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        throw 'User is not logged in';
+      }
+
+      final appointmentData = {
+        'name': nameController.text.trim(),
+        'matricNumber': matricController.text.trim(),
+        'email': emailController.text.trim(),
+        'contactNumber': contactController.text.trim(),
+        'issue': selectedIssue,
+        'counselingType': counselingType,
+        'description': issueDescriptionController.text.trim(),
+        'createdAt': FieldValue.serverTimestamp(),
+        'userId': currentUser.uid, // Using currentUser.uid directly
+      };
+
+      // Save the appointment data to Firestore
+      await FirebaseFirestore.instance
+          .collection('appointment_info')
+          .add(appointmentData);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Appointment saved successfully!')),
+      );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ScheduleAppointment(),
+        ),
+      );
+    } catch (e) {
+      // Display specific error messages for better debugging
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error saving appointment: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,159 +88,153 @@ class _NewAppointmentScreenState extends State<NewAppointmentScreen> {
         elevation: 1,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: Stack(
+      body: Column(
         children: [
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.only(
-                  left: 16.0, right: 16.0, top: 16.0, bottom: 80.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Name
-                    _buildInputField(
-                      controller: nameController,
-                      labelText: 'Name',
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Name is required';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    _buildInputField(
-                      controller: matricController,
-                      labelText: 'Matric Number',
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Matric Number is required';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    _buildInputField(
-                      controller: emailController,
-                      labelText: 'Email',
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Email is required';
-                        }
-                        if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                          return 'Enter a valid email';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    _buildInputField(
-                      controller: contactController,
-                      labelText: 'Contact Number',
-                      keyboardType: TextInputType.phone,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Contact Number is required';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    _buildDropdown<String>(
-                      value: selectedCounselor,
-                      items: counselors,
-                      labelText: 'Choose Counselor',
-                      onChanged: (value) {
-                        setState(() {
-                          selectedCounselor = value!;
-                        });
-                      },
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    _buildDropdown<String>(
-                      value: selectedIssue,
-                      items: issues,
-                      labelText: 'Select Issue',
-                      onChanged: (value) {
-                        setState(() {
-                          selectedIssue = value!;
-                        });
-                      },
-                    ),
-
-                    const SizedBox(height: 12),
-                    const Text('Type of Counseling'),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: RadioListTile(
-                            title: const Text('Individual'),
-                            value: 'Individual',
-                            groupValue: counselingType,
-                            onChanged: (value) {
-                              setState(() {
-                                counselingType = value.toString();
-                              });
-                            },
+          Expanded(
+            child: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0, vertical: 16.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildInputField(
+                        controller: nameController,
+                        labelText: 'Name',
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Name is required';
+                          }
+                          if (!RegExp(r"^[a-zA-Z\s]{2,}$").hasMatch(value)) {
+                            return 'Enter a valid name';
+                          }
+                          return null;
+                        },
+                        keyboardType: TextInputType.name,
+                        maxLines: 1,
+                      ),
+                      const SizedBox(height: 12),
+                      _buildInputField(
+                        controller: matricController,
+                        labelText: 'Matric Number',
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Matric Number is required';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      _buildInputField(
+                        controller: emailController,
+                        labelText: 'Email',
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Email is required';
+                          }
+                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+$')
+                              .hasMatch(value)) {
+                            return 'Enter a valid email';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      _buildInputField(
+                        controller: contactController,
+                        labelText: 'Contact Number',
+                        keyboardType: TextInputType.phone,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Contact Number is required';
+                          }
+                          if (!RegExp(r'^\d{10,11}$').hasMatch(value)) {
+                            return 'Enter a valid phone number';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      _buildDropdown<String>(
+                        value: selectedIssue,
+                        items: issues,
+                        labelText: 'Select Issue',
+                        onChanged: (value) {
+                          setState(() {
+                            selectedIssue = value!;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      const Text('Type of Counseling'),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: RadioListTile(
+                              title: const Text('Individual'),
+                              value: 'Individual',
+                              groupValue: counselingType,
+                              onChanged: (value) {
+                                setState(() {
+                                  counselingType = value.toString();
+                                });
+                              },
+                            ),
                           ),
-                        ),
-                        Expanded(
-                          child: RadioListTile(
-                            title: const Text('Group'),
-                            value: 'Group',
-                            groupValue: counselingType,
-                            onChanged: (value) {
-                              setState(() {
-                                counselingType = value.toString();
-                              });
-                            },
+                          Expanded(
+                            child: RadioListTile(
+                              title: const Text('Group'),
+                              value: 'Group',
+                              groupValue: counselingType,
+                              onChanged: (value) {
+                                setState(() {
+                                  counselingType = value.toString();
+                                });
+                              },
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    _buildInputField(
-                      controller: issueDescriptionController,
-                      labelText: 'Describe the Issue (Optional)',
-                      maxLines: 3,
-                    ),
-                  ],
+                        ],
+                      ),
+                      _buildInputField(
+                        controller: issueDescriptionController,
+                        labelText: 'Describe the Issue (Optional)',
+                        maxLines: 3,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-          Positioned(
-            bottom: 20,
-            left: 16,
-            right: 16,
-            child: ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  _showConfirmationDialog(context);
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: appPurple,
-                padding: const EdgeInsets.symmetric(vertical: 14.0),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0)),
-              ),
-              child: const Text(
-                'Next',
-                style: TextStyle(color: Colors.white, fontSize: 18),
-              ),
+          Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        _saveAppointmentToFirestore();
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: appPurple,
+                      padding: const EdgeInsets.symmetric(vertical: 14.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    child: const Text(
+                      'Next',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -229,11 +257,6 @@ class _NewAppointmentScreenState extends State<NewAppointmentScreen> {
         labelText: labelText,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: appPurple),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: appPurple, width: 2),
         ),
       ),
       validator: validator,
@@ -257,48 +280,6 @@ class _NewAppointmentScreenState extends State<NewAppointmentScreen> {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
         ),
-      ),
-    );
-  }
-
-  void _showConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Booking Details'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Name: ${nameController.text}'),
-              Text('Matric Number: ${matricController.text}'),
-              Text('Email: ${emailController.text}'),
-              Text('Contact Number: ${contactController.text}'),
-              Text('Counselor: $selectedCounselor'),
-              Text('Issue: $selectedIssue'),
-              Text('Counseling Type: $counselingType'),
-              if (issueDescriptionController.text.isNotEmpty)
-                Text('Description: ${issueDescriptionController.text}'),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const ScheduleAppointment()),
-              );
-            },
-            child: const Text('Confirm'),
-          ),
-        ],
       ),
     );
   }

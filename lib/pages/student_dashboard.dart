@@ -9,6 +9,8 @@ import 'package:student/components/background_style_two.dart';
 import 'package:student/pages/self_help_tools.dart';
 import 'package:student/pages/unimasresources.dart';
 import 'package:student/pages/crisis_support.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class StudentDashboard extends StatefulWidget {
   const StudentDashboard({super.key});
@@ -22,11 +24,13 @@ class _StudentDashboardState extends State<StudentDashboard> {
   String username = "John Doe";
   String profilePicUrl =
       "https://p0.itc.cn/q_70/images03/20231215/9ab1589ea23e4712a6df21fa27992bd0.jpeg"; // Placeholder image
-  String appointmentDate = "2024-12-20";
-  String appointmentTime = "10:00 AM";
-  String appointmentLocation = "UNIMAS Counseling Center";
+  String nearestDate = "";
+  String nearestTime = "";
+  String nearestLocation = "";
   String selectedMood = "";
   int _currentIndex = 2;
+
+  String userId = "user1"; // Example userId for the logged-in user
 
   final List<Map<String, dynamic>> moods = [
     {"icon": Fluents.flSmilingFace, "label": "Great"},
@@ -44,6 +48,99 @@ class _StudentDashboardState extends State<StudentDashboard> {
 
   void navigateTo(String page) {
     // Replace with actual navigation logic
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchNearestAppointment(); // Call the function here
+  }
+
+  // Fetch the nearest appointment for the user
+  void _fetchNearestAppointment() async {
+    try {
+      // Get the current user's UID
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        setState(() {
+          nearestDate = "Please login to view appointments";
+          nearestTime = "";
+          nearestLocation = "";
+        });
+        return;
+      }
+
+      print("Fetching appointments for user: ${user.uid}");
+
+      // Get current date for comparison
+      DateTime now = DateTime.now();
+
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('scheduled_appointments')
+          .where('userId', isEqualTo: user.uid)
+          .orderBy('date') // Order by date first
+          .orderBy('time') // Then by time
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        print("No appointments found");
+        setState(() {
+          nearestDate = "No appointment scheduled";
+          nearestTime = "";
+          nearestLocation = "";
+        });
+        return;
+      }
+
+      // Find the nearest future appointment
+      QueryDocumentSnapshot? nearestFutureAppointment;
+
+      for (var doc in querySnapshot.docs) {
+        final data = doc.data();
+
+        // Parse the appointment date and time
+        try {
+          final dateStr = data['date'];
+          final timeStr = data['time'];
+          final appointmentDateTime =
+              DateFormat("yyyy-MM-dd hh:mm a").parse("$dateStr $timeStr");
+
+          // Check if this appointment is in the future
+          if (appointmentDateTime.isAfter(now)) {
+            nearestFutureAppointment = doc;
+            break; // Found the nearest future appointment
+          }
+        } catch (e) {
+          print("Error parsing date/time for appointment: $e");
+          continue;
+        }
+      }
+
+      // Update the UI with the nearest appointment
+      if (nearestFutureAppointment != null) {
+        final data = nearestFutureAppointment.data() as Map<String, dynamic>;
+
+        setState(() {
+          nearestDate = data['date'] ?? 'Date not specified';
+          nearestTime = data['time'] ?? 'Time not specified';
+          nearestLocation = data['location'] ?? 'Location not specified';
+        });
+      } else {
+        setState(() {
+          nearestDate = "No upcoming appointments";
+          nearestTime = "";
+          nearestLocation = "";
+        });
+      }
+    } catch (e) {
+      print("Error fetching appointments: $e");
+      setState(() {
+        nearestDate = "Error fetching appointments";
+        nearestTime = "";
+        nearestLocation = "";
+      });
+    }
   }
 
   @override
@@ -66,13 +163,13 @@ class _StudentDashboardState extends State<StudentDashboard> {
               Navigator.pushNamed(context, '/moodtracker');
               break;
             case 2:
-              Navigator.pop(context);
+              Navigator.pushNamed(context, '/studentdashboard');
               break;
             case 3:
               navigateTo("Chat");
               break;
             case 4:
-              navigateTo("Profile");
+              Navigator.pushNamed(context, '/profile');
               break;
           }
         },
@@ -87,13 +184,11 @@ class _StudentDashboardState extends State<StudentDashboard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Profile and Greeting
+                  // Profile and Greeting Section
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Row(
-                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           CircleAvatar(
                             radius: 45,
@@ -114,40 +209,24 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                     fontSize: 20, fontWeight: FontWeight.w600),
                               ),
                               const SizedBox(height: 8),
-                              // TextButton(
-                              //   onPressed: _editProfile,
-                              //   child: Text("Edit Profile"),
-                              // ),
                               Text(
                                 formattedDate,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                ),
+                                style: const TextStyle(fontSize: 16),
                               ),
                             ],
                           ),
                         ],
                       ),
-                      Container(
-                        decoration: const BoxDecoration(
-                          color: AppColors.pri_greenYellow,
-                          shape: BoxShape.circle,
-                        ),
-                        child: IconButton(
-                          onPressed: _showNotifications,
-                          icon: const Icon(
-                            Icons.notifications,
-                            color: Colors.black,
-                          ),
-                          tooltip: 'Notification',
-                        ),
+                      IconButton(
+                        icon: const Icon(Icons.notifications),
+                        onPressed: () => _showNotifications(),
                       ),
                     ],
                   ),
-                  const SizedBox(
-                    height: 8,
-                  ),
 
+                  const SizedBox(height: 20),
+
+                  // Upcoming Appointment Section
                   Center(
                     child: SizedBox(
                       width: 280,
@@ -174,22 +253,63 @@ class _StudentDashboardState extends State<StudentDashboard> {
                               style: TextStyle(
                                   fontSize: 16, fontWeight: FontWeight.bold),
                             ),
-                            ListTile(
-                              title: Text(
-                                "Date: $appointmentDate",
-                                style: const TextStyle(fontSize: 14),
-                              ),
-                              subtitle: Text(
-                                "Time: $appointmentTime\nLocation: $appointmentLocation",
-                                style: const TextStyle(fontSize: 14),
-                              ),
+                            const SizedBox(height: 8),
+                            // Date Row
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.calendar_today,
+                                  color:
+                                      AppColors.pri_purple, // Orange icon color
+                                  size: 20, // Icon size
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "Date: $nearestDate",
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            // Time Row
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.access_time,
+                                  color: Colors.purple, // Orange icon color
+                                  size: 20, // Icon size
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "Time: $nearestTime",
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            // Location Row
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.location_on,
+                                  color: Colors.green, // Orange icon color
+                                  size: 20, // Icon size
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "Location: $nearestLocation",
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
                   const Center(
                     child: Text(
                       'How was your day?',
@@ -286,7 +406,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
       const SelfHelpTools(), // Screen for Self-Help Tools
       const CrisisSupport(), // Screen for Crisis Support
       const CounsellorInfoScreen(), // Screen for UNIMAS Support
-      AppointmentScreen(), // Screen for Counselling Appointment
+      const AppointmentScreen(), // Screen for Counselling Appointment
     ];
 
     // Navigate to the respective screen based on the index

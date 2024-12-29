@@ -1,7 +1,35 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Counsellor Info',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: CounsellorInfoScreen(),
+    );
+  }
+}
 
 class CounsellorInfoScreen extends StatelessWidget {
   const CounsellorInfoScreen({super.key});
+
+  // Fetch counsellor data from Firestore
+  Future<List<Map<String, dynamic>>> _fetchCounsellorData() async {
+    final firestore = FirebaseFirestore.instance;
+    final snapshot = await firestore.collection('counsellors_info').get();
+    return snapshot.docs
+        .map((doc) => doc.data() as Map<String, dynamic>)
+        .toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -9,28 +37,49 @@ class CounsellorInfoScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Psycon Counsellor'),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildUnitInfo(),
-              const SizedBox(height: 32.0),
-              ..._buildCounsellorCards(),
-            ],
-          ),
-        ),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _fetchCounsellorData(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return const Center(child: Text('Error fetching data'));
+          }
+
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No counsellors available'));
+          }
+
+          final counsellors = snapshot.data!;
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildUnitInfo(),
+                  const SizedBox(height: 32.0),
+                  ...counsellors.map((counsellor) => _CounsellorCard(
+                        imageUrl: counsellor['imageUrl'],
+                        name: counsellor['name'],
+                        phone: counsellor['phone'],
+                        email: counsellor['email'],
+                      )),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
   Widget _buildUnitInfo() {
     return Row(
-      // Change Card to Row
       children: [
         Expanded(
-          // Wrap content in Expanded
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16.0),
@@ -65,7 +114,7 @@ Monday to Thursday:
 
 Friday:
 8.30 am - 11.30 pm | 2.30 pm - 4.30 pm
-            ''',
+                  ''',
                   style: TextStyle(
                     fontSize: 14.0,
                     color: Colors.black87,
@@ -77,41 +126,6 @@ Friday:
         ),
       ],
     );
-  }
-
-  List<Widget> _buildCounsellorCards() {
-    return [
-      const _CounsellorCard(
-        imageUrl: 'assets/images/fauziah.jpg',
-        name: 'Mdm Fauziah Bee Bt Mohd Salleh',
-        phone: '082-581861',
-        email: 'msfauziah@unimas.my',
-      ),
-      const _CounsellorCard(
-        imageUrl: 'assets/images/saptuyah.jpg',
-        name: 'Puan Saptuyah Bt Barahim',
-        phone: '082-581835',
-        email: 'bsaptuyah@unimas.my',
-      ),
-      const _CounsellorCard(
-        imageUrl: 'assets/images/debra.jpg',
-        name: 'Puan Debra Adrian',
-        phone: '082-581804',
-        email: 'adebra@unimas.my',
-      ),
-      const _CounsellorCard(
-        imageUrl: 'assets/images/lawrence.jpg',
-        name: 'En. Lawrence Sengkuai Anak Henry',
-        phone: '082-581904',
-        email: 'shlawrence@unimas.my',
-      ),
-      const _CounsellorCard(
-        imageUrl: 'assets/images/ummikhaira.jpg',
-        name: 'Cik Ummikhairah Sofea Bt Ja\'afar',
-        phone: '082-581869',
-        email: 'jusofea@unimas.my',
-      ),
-    ];
   }
 }
 
@@ -142,7 +156,7 @@ class _CounsellorCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CircleAvatar(
-              backgroundImage: AssetImage(imageUrl),
+              backgroundImage: NetworkImage(imageUrl),
               radius: 36.0,
             ),
             const SizedBox(width: 16.0),

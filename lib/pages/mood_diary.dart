@@ -227,7 +227,7 @@ class _DiaryPageState extends State<DiaryPage> {
                     final moodHistory = snapshot.data!;
                     return ListView.builder(
                       shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       itemCount: moodHistory.length,
                       itemBuilder: (context, index) {
                         final entry = moodHistory[index];
@@ -388,7 +388,7 @@ class DiaryEntryCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   description,
-                  style: TextStyle(color: Colors.black),
+                  style: const TextStyle(color: Colors.black),
                   textAlign: TextAlign.justify,
                 ),
               ],

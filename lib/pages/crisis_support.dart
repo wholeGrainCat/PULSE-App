@@ -3,7 +3,7 @@ import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:student/pages/resource_library.dart';
 import 'package:student/pages/mood_tracker.dart';
 import 'package:student/pages/student_dashboard.dart';
-import 'package:student/components/bottom_navigation.dart'; // Import your BottomNavigation widget
+import 'package:student/pages/profile/profile_screen.dart';
 
 void main() {
   runApp(const CrisisSupport());
@@ -21,8 +21,7 @@ class CrisisSupport extends StatelessWidget {
         '/resource': (context) => const ResourceLibraryPage(),
         '/moodtracker': (context) => const MoodTrackerPage(),
         '/studentdashboard': (context) => const StudentDashboard(),
-        //'/chat': (context) => const ChatScreen(),
-        //'/profile': (context) => const ProfileScreen(),
+        '/profile': (context) => const ProfileScreen(),
       },
     );
   }
@@ -36,28 +35,6 @@ class CrisisSupportPage extends StatefulWidget {
 }
 
 class _CrisisSupportPageState extends State<CrisisSupportPage> {
-  int _currentIndex = 0;
-
-  void _onTap(int index) {
-    switch (index) {
-      case 0:
-        Navigator.pushNamed(context, '/resource');
-        break;
-      case 1:
-        Navigator.pushNamed(context, '/moodtracker');
-        break;
-      case 2:
-        Navigator.pushNamed(context, '/studentdashboard');
-        break;
-      case 3:
-        Navigator.pushNamed(context, '/chat');
-        break;
-      case 4:
-        Navigator.pushNamed(context, '/profile');
-        break;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,70 +49,57 @@ class _CrisisSupportPageState extends State<CrisisSupportPage> {
             Navigator.pushNamed(context, '/studentdashboard');
           },
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.black),
-            onPressed: () {},
-          ),
-        ],
+        actions: [], // Removed the notification icon
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFA4E3E8),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Are You Feeling Suicidal?',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFA4E3E8),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: SingleChildScrollView(
+                  scrollDirection:
+                      Axis.horizontal, // Enable horizontal scrolling
+                  child: Row(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Are You Feeling Suicidal?',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(
+                          width: 16), // Added spacing between text and image
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Image.asset(
+                          'assets/images/suicidal_feeling.png',
+                          width: 60,
+                          height: 60,
+                        ),
+                      ),
+                    ],
                   ),
-                  const Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Image.asset(
-                      'assets/images/suicidal_feeling.png',
-                      width: 60,
-                      height: 60,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: ListView(
-              children: const [
-                MentalHealthHotline(),
-                EmergencyHotline(),
-              ],
-            ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigation(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          _onTap(index);
-        },
+            const MentalHealthHotline(),
+            const EmergencyHotline(),
+          ],
+        ),
       ),
     );
   }
