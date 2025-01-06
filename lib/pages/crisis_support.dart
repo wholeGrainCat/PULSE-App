@@ -49,7 +49,7 @@ class _CrisisSupportPageState extends State<CrisisSupportPage> {
             Navigator.pushNamed(context, '/studentdashboard');
           },
         ),
-        actions: [], // Removed the notification icon
+        actions: const [], // Removed the notification icon
       ),
       body: SingleChildScrollView(
         child: Column(

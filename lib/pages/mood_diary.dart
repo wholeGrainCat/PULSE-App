@@ -56,9 +56,9 @@ class _DiaryPageState extends State<DiaryPage> {
           .where('userId', isEqualTo: userId)
           .where('date', isEqualTo: formattedDate)
           .get();
-      snapshot.docs.forEach((doc) {
+      for (var doc in snapshot.docs) {
         print(doc.data());
-      });
+      }
 
       return snapshot.docs.map((doc) {
         return {
@@ -181,9 +181,9 @@ class _DiaryPageState extends State<DiaryPage> {
                       _focusedDate = focusedDay;
                     },
                     calendarStyle: CalendarStyle(
-                      todayTextStyle: TextStyle(color: Colors.black),
-                      selectedTextStyle: TextStyle(color: Colors.black),
-                      todayDecoration: BoxDecoration(
+                      todayTextStyle: const TextStyle(color: Colors.black),
+                      selectedTextStyle: const TextStyle(color: Colors.black),
+                      todayDecoration: const BoxDecoration(
                         shape: BoxShape.circle,
                         color: AppColors.pri_greenYellow,
                       ),

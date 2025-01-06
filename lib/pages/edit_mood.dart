@@ -117,7 +117,7 @@ class _EditMoodPageState extends State<EditMoodPage> {
       Navigator.pushNamed(context, '/mooddonecheckin');
     } catch (e) {
       print('Failed to save mood and journal: $e');
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Failed to save mood and journal. Please try again.')));
     }
   }
@@ -132,14 +132,14 @@ class _EditMoodPageState extends State<EditMoodPage> {
             margin: const EdgeInsets.symmetric(horizontal: 28, vertical: 20),
             child: Column(
               children: [
-                Text(
+                const Text(
                   'Edit Mood',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 MoodSelectionSection(
@@ -148,7 +148,7 @@ class _EditMoodPageState extends State<EditMoodPage> {
                   onMoodSelect:
                       handleMoodSelection, //callback function: inform the parent widget when a new mood is selected
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 30,
                 ),
 

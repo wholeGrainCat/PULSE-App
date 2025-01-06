@@ -81,7 +81,7 @@ class _MoodLineChartState extends State<MoodLineChart> {
           .where('userId', isEqualTo: userId)
           .where('date',
               isGreaterThanOrEqualTo: DateFormat('yyyy-MM-dd')
-                  .format(DateTime.now().subtract(Duration(days: 30))))
+                  .format(DateTime.now().subtract(const Duration(days: 30))))
           .get();
 
       // Initialize moodCounts map
@@ -96,7 +96,7 @@ class _MoodLineChartState extends State<MoodLineChart> {
       List<DateTime> fetchedDates = [];
 
       if (snapshot.docs.isNotEmpty) {
-        snapshot.docs.forEach((doc) {
+        for (var doc in snapshot.docs) {
           if (doc['date'] != null && doc['mood'] != null) {
             final date = DateTime.parse(
                 doc['date']); // Assuming 'date' is stored as a string
@@ -111,7 +111,7 @@ class _MoodLineChartState extends State<MoodLineChart> {
                   fetchedMoodCounts[moodString]! + 1;
             }
           }
-        });
+        }
 
         print("Mood Counts: $fetchedMoodCounts");
       } else {
@@ -144,7 +144,7 @@ class _MoodLineChartState extends State<MoodLineChart> {
     return Row(
       children: [
         // Y-axis labels
-        Container(
+        SizedBox(
           width: 40,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -165,7 +165,7 @@ class _MoodLineChartState extends State<MoodLineChart> {
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Container(
-              margin: EdgeInsets.all(10),
+              margin: const EdgeInsets.all(10),
               width: visibleMoodData.length *
                   50.0, // Adjust the width based on visible data points
               child: LineChart(
@@ -178,7 +178,7 @@ class _MoodLineChartState extends State<MoodLineChart> {
                       color: Colors.grey.withOpacity(0.2),
                       strokeWidth: 1,
                     ),
-                    getDrawingVerticalLine: (value) => FlLine(
+                    getDrawingVerticalLine: (value) => const FlLine(
                       color: Colors.transparent,
                     ),
                   ),
@@ -191,7 +191,7 @@ class _MoodLineChartState extends State<MoodLineChart> {
                           final index = value.toInt();
                           if (index >= 0 && index < visibleDates.length) {
                             return Padding(
-                              padding: EdgeInsets.only(top: 8.0),
+                              padding: const EdgeInsets.only(top: 8.0),
                               child: Text(
                                 DateFormat('d').format(visibleDates[index]),
                                 style: TextStyle(
@@ -206,13 +206,13 @@ class _MoodLineChartState extends State<MoodLineChart> {
                         },
                       ),
                     ),
-                    leftTitles: AxisTitles(
+                    leftTitles: const AxisTitles(
                       sideTitles: SideTitles(showTitles: false),
                     ),
-                    topTitles: AxisTitles(
+                    topTitles: const AxisTitles(
                       sideTitles: SideTitles(showTitles: false),
                     ),
-                    rightTitles: AxisTitles(
+                    rightTitles: const AxisTitles(
                       sideTitles: SideTitles(showTitles: false),
                     ),
                   ),
@@ -229,7 +229,7 @@ class _MoodLineChartState extends State<MoodLineChart> {
                       barWidth: 2,
                       isStrokeCapRound: true,
                       belowBarData: BarAreaData(show: false),
-                      dotData: FlDotData(show: true),
+                      dotData: const FlDotData(show: true),
                     ),
                   ],
                   minY: 1,

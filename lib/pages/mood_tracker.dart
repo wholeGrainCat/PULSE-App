@@ -189,23 +189,23 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => MoodChartPage()),
+                              builder: (context) => const MoodChartPage()),
                         );
                       },
-                      child: Row(
+                      child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text(
+                          Text(
                             'Mood Analysis',
                             style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.black),
                           ),
-                          const SizedBox(
+                          SizedBox(
                               width:
                                   8.0), // Adds spacing between text and arrow
-                          const Icon(Icons.arrow_forward_ios,
+                          Icon(Icons.arrow_forward_ios,
                               size: 20,
                               color: Colors.black), // Right arrow icon
                         ],
@@ -213,7 +213,7 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
                     ),
                     SizedBox(
                       height: constraints.maxHeight * 0.28, // Responsive height
-                      child: MoodLineChart(),
+                      child: const MoodLineChart(),
                     ),
                     const SizedBox(height: 20),
                     Row(

@@ -65,7 +65,7 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
           DateTime date = DateFormat('yyyy-MM-dd').parse(moodEntry['date']);
           date = DateTime(date.year, date.month, date.day); // Strip time
           String mood = moodEntry['mood'];
-          print('Fetched mood data: ${date} -> ${mood}');
+          print('Fetched mood data: $date -> $mood');
 
           // Add the mood to the corresponding date
           fetchedMoodData[date] = mood;
@@ -153,7 +153,7 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
         child: Center(
           child: Stack(
             children: [
-              BackgroundStyleThree(),
+              const BackgroundStyleThree(),
               Align(
                 alignment: Alignment.center,
                 child: Container(
@@ -180,7 +180,7 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
                         selectedDayPredicate: (day) =>
                             isSameDay(day, _selectedDay),
                         calendarStyle: CalendarStyle(
-                          selectedDecoration: BoxDecoration(
+                          selectedDecoration: const BoxDecoration(
                             color: AppColors
                                 .pri_purple, // Set color for selected day
                             shape: BoxShape.circle,
@@ -190,7 +190,7 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
                                 color: AppColors.pri_purple, width: 2),
                             shape: BoxShape.circle,
                           ),
-                          todayTextStyle: TextStyle(
+                          todayTextStyle: const TextStyle(
                             color:
                                 Colors.black, // Set today's text color to black
                           ),
@@ -200,13 +200,13 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
                             // Normalize the day to match the format stored in moodData
                             DateTime normalizedDay =
                                 DateTime(day.year, day.month, day.day);
-                            print('Checking mood for: ${normalizedDay}');
+                            print('Checking mood for: $normalizedDay');
 
                             // Check if the mood for this day exists in the data
                             if (moodData.containsKey(normalizedDay)) {
                               String mood = moodData[
                                   normalizedDay]!; // Fetch the mood for the day
-                              print('Mood for ${normalizedDay}: $mood');
+                              print('Mood for $normalizedDay: $mood');
 
                               // Find the emoji that corresponds to the stored mood
                               var moodEntry = moods.firstWhere(
@@ -231,7 +231,7 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
                                         style: const TextStyle(
                                             color: Colors.black),
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                           height:
                                               2), // Space between date and emoji
                                       FluentUiEmojiIcon(
@@ -244,7 +244,7 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
                                 ),
                               );
                             } else {
-                              print('No mood data for ${normalizedDay}');
+                              print('No mood data for $normalizedDay');
                               return Center(
                                 child: Text(
                                   day.day.toString(),

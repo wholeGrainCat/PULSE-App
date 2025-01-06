@@ -264,7 +264,7 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) =>
-                                                    EditMoodPage()));
+                                                    const EditMoodPage()));
                                       },
                                     ),
                                   ))
@@ -279,7 +279,7 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => MoodChartPage()),
+                              builder: (context) => const MoodChartPage()),
                         );
                       },
                       child: const Row(
@@ -304,7 +304,7 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
                     const SizedBox(height: 10),
                     SizedBox(
                       height: constraints.maxHeight * 0.28, // Responsive height
-                      child: MoodLineChart(),
+                      child: const MoodLineChart(),
                     ),
                     const SizedBox(height: 20),
                     Row(
@@ -370,7 +370,7 @@ class _MoodDoneCheckInState extends State<MoodDoneCheckIn> {
                   });
                 },
               );
-            }).toList(),
+            }),
           ],
         ),
         actions: [
