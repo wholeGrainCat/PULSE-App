@@ -5,16 +5,18 @@ import 'package:flutter/material.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Counsellor Info',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: CounsellorInfoScreen(),
+      home: const CounsellorInfoScreen(),
     );
   }
 }
@@ -26,9 +28,7 @@ class CounsellorInfoScreen extends StatelessWidget {
   Future<List<Map<String, dynamic>>> _fetchCounsellorData() async {
     final firestore = FirebaseFirestore.instance;
     final snapshot = await firestore.collection('counsellors_info').get();
-    return snapshot.docs
-        .map((doc) => doc.data() as Map<String, dynamic>)
-        .toList();
+    return snapshot.docs.map((doc) => doc.data()).toList();
   }
 
   @override
