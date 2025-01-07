@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:student/pages/user_management.dart';
 
 class EditProfilePage extends StatefulWidget {
   final String initialUsername;
@@ -28,6 +29,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
   void initState() {
     super.initState();
     usernameController.text = widget.initialUsername;
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final userData = await UserManagement.getCurrentUserData();
+    if (userData != null && mounted) {
+      setState(() {
+        profileImageUrl = userData['profileImageUrl'];
+      });
+    }
   }
 
   Future<void> _pickProfileImage() async {
@@ -60,24 +71,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
     if (updatedUsername.isNotEmpty) {
       try {
-        // Update Firestore with new username and profile image URL
-        final userDocRef = FirebaseFirestore.instance
-            .collection('users')
-            .doc(FirebaseAuth.instance.currentUser!.uid);
-        await userDocRef.update({
-          'username': updatedUsername,
-          'profileImageUrl': profileImageUrl,
-        });
+        await UserManagement.updateProfile(
+          username: updatedUsername,
+          profileImageUrl: profileImageUrl,
+        );
 
-        // Notify the parent widget (if required)
         widget.onUsernameChanged(updatedUsername);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Profile updated successfully')));
-        Navigator.pop(context);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Profile updated successfully')));
+          Navigator.pop(context);
+        }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error updating profile: $e')));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error updating profile: $e')));
+        }
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

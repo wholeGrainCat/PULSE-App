@@ -14,6 +14,7 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
@@ -21,6 +22,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   final AuthService _auth = AuthService();
   bool isButtonEnabled = false;
+  String? usernameError;
   String? emailError;
   List<String> passwordErrors = [];
 
@@ -37,6 +39,7 @@ class _RegisterPageState extends State<RegisterPage> {
     emailController.removeListener(_updateButtonState);
     passwordController.removeListener(_updateButtonState);
     confirmPasswordController.removeListener(_updateButtonState);
+    usernameController.dispose();
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
@@ -48,28 +51,39 @@ class _RegisterPageState extends State<RegisterPage> {
       isButtonEnabled = emailController.text.isNotEmpty &&
           passwordController.text.isNotEmpty &&
           confirmPasswordController.text.isNotEmpty;
+      usernameController.text.isNotEmpty;
     });
   }
 
   bool _validateInputs() {
     setState(() {
+      usernameError = null;
       emailError = null;
       passwordErrors.clear();
     });
 
+    final username = usernameController.text.trim();
     final email = emailController.text.trim();
     final password = passwordController.text;
 
-    // Email Validation
+    // Username validation
+    if (username.length < 3) {
+      setState(() {
+        usernameError = "Username must be at least 3 characters long.";
+      });
+      return false;
+    }
+
+    // Email validation
     final emailRegex =
-        RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}");
+        RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$");
     if (!emailRegex.hasMatch(email)) {
       setState(() {
         emailError = "Please enter a valid email address.";
       });
     }
 
-    // Password Validation
+    // Password validation
     if (password.length < 12) {
       passwordErrors.add("Password must be at least 12 characters long.");
     }
@@ -90,7 +104,9 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     setState(() {}); // Update UI to show errors
-    return emailError == null && passwordErrors.isEmpty;
+    return usernameError == null &&
+        emailError == null &&
+        passwordErrors.isEmpty;
   }
 
   Future<void> _signup() async {
@@ -106,6 +122,7 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     final user = await _auth.createUserWithEmailAndPassword(
+      usernameController.text,
       emailController.text,
       passwordController.text,
     );
@@ -181,6 +198,15 @@ class _RegisterPageState extends State<RegisterPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              _buildTextField("Username", usernameController),
+              if (usernameError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 5, bottom: 10),
+                  child: Text(
+                    usernameError!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
               _buildTextField("Email", emailController),
               if (emailError != null)
                 Padding(
