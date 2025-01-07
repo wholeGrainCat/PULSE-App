@@ -65,7 +65,7 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
           DateTime date = DateFormat('yyyy-MM-dd').parse(moodEntry['date']);
           date = DateTime(date.year, date.month, date.day); // Strip time
           String mood = moodEntry['mood'];
-          print('Fetched mood data: ${date} -> ${mood}');
+          // print('Fetched mood data: ${date} -> ${mood}');
 
           // Add the mood to the corresponding date
           fetchedMoodData[date] = mood;
