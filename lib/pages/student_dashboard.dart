@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:fluentui_emoji_icon/fluentui_emoji_icon.dart';
-import 'package:student/components/app_colour.dart';
-import 'package:student/pages/appoinment_screen.dart';
-import 'mood_check_in.dart';
-import 'package:intl/intl.dart';
-import 'package:student/components/bottom_navigation.dart';
-import 'package:student/components/background_style_two.dart';
-import 'package:student/pages/self_help_tools.dart';
-import 'package:student/pages/unimasresources.dart';
-import 'package:student/pages/crisis_support.dart';
+import 'package:student/pages/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fluentui_emoji_icon/fluentui_emoji_icon.dart';
+import 'package:intl/intl.dart';
+import 'package:student/components/app_colour.dart';
+import 'package:student/components/bottom_navigation.dart';
+import 'package:student/components/background_style_two.dart';
+import 'package:student/pages/appoinment_screen.dart';
+import 'package:student/pages/crisis_support.dart';
+import 'package:student/pages/self_help_tools.dart';
+import 'package:student/pages/unimasresources.dart';
+import 'package:student/pages/mood_check_in.dart';
 
 class StudentDashboard extends StatefulWidget {
   const StudentDashboard({super.key});
@@ -21,17 +22,14 @@ class StudentDashboard extends StatefulWidget {
 }
 
 class _StudentDashboardState extends State<StudentDashboard> {
-  // Sample data for greeting and counseling appointment
-  String username = "John Doe";
-  String profilePicUrl =
-      "https://p0.itc.cn/q_70/images03/20231215/9ab1589ea23e4712a6df21fa27992bd0.jpeg"; // Placeholder image
+  int _currentIndex = 2;
   String nearestDate = "";
   String nearestTime = "";
   String nearestLocation = "";
   String selectedMood = "";
-  int _currentIndex = 2;
-
-  String userId = "user1"; // Example userId for the logged-in user
+  String username = ""; // Default empty string
+  String? profilePicUrl = "";
+  final AuthService _auth = AuthService(); // Initialize AuthService
 
   final List<Map<String, dynamic>> moods = [
     {"icon": Fluents.flSmilingFace, "label": "Great"},
@@ -41,57 +39,27 @@ class _StudentDashboardState extends State<StudentDashboard> {
     {"icon": Fluents.flFrowningFace, "label": "Bad"},
   ];
 
-  Future<void> checkMoodStatus() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId != null) {
-      // Retrieve the last logged date and mood status
-      String? lastLoggedDate = prefs.getString('lastLoggedDate_$userId');
-      DateTime today = DateTime.now();
-      String todayString = "${today.year}-${today.month}-${today.day}";
-
-      // Check if the last logged date matches today's date
-      bool hasLoggedMood = (lastLoggedDate == todayString);
-      print("User ID: $userId");
-      print("Last Logged Date: $lastLoggedDate");
-      print("Has logged mood today: $hasLoggedMood");
-
-      if (hasLoggedMood) {
-        // Navigate to the mood done page (only once)
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          Navigator.pushReplacementNamed(context, '/mooddonecheckin');
-        });
-      } else {
-        // Navigate to the mood tracker page if not logged
-        Navigator.pushReplacementNamed(context, '/moodtracker');
-      }
-    }
-  }
-
-  void handleMoodSelection(String mood) {
-    setState(() {
-      selectedMood = mood;
-    });
-  }
-
-  void navigateTo(String page) {
-    print("Navigating to $page");
-    // Handle other navigation cases
-    if (page == 'Resource') {
-      Navigator.pushNamed(context, '/resource');
-    } else if (page == 'Dashboard') {
-      Navigator.pushNamed(context, '/studentdashboard');
-    } else if (page == 'Chat') {
-      Navigator.pushNamed(context, '/chat');
-    } else if (page == 'Profile') {
-      Navigator.pushNamed(context, '/profile');
-    }
-  }
-
   @override
   void initState() {
     super.initState();
     _fetchNearestAppointment(); // Call the function here
+    _loadUserData(); // Load user data when screen initializes
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final userData = await _auth.getCurrentUserData();
+      if (userData != null) {
+        setState(() {
+          username = userData['username'] ?? "User";
+        });
+      }
+    } catch (e) {
+      print("Error loading user data: $e");
+      setState(() {
+        username = "User";
+      });
+    }
   }
 
   // Fetch the nearest appointment for the user
@@ -181,6 +149,53 @@ class _StudentDashboardState extends State<StudentDashboard> {
     }
   }
 
+  Future<void> checkMoodStatus() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      // Retrieve the last logged date and mood status
+      String? lastLoggedDate = prefs.getString('lastLoggedDate_$userId');
+      DateTime today = DateTime.now();
+      String todayString = "${today.year}-${today.month}-${today.day}";
+
+      // Check if the last logged date matches today's date
+      bool hasLoggedMood = (lastLoggedDate == todayString);
+      print("User ID: $userId");
+      print("Last Logged Date: $lastLoggedDate");
+      print("Has logged mood today: $hasLoggedMood");
+
+      if (hasLoggedMood) {
+        // Navigate to the mood done page (only once)
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pushReplacementNamed(context, '/mooddonecheckin');
+        });
+      } else {
+        // Navigate to the mood tracker page if not logged
+        Navigator.pushReplacementNamed(context, '/moodtracker');
+      }
+    }
+  }
+
+  void handleMoodSelection(String mood) {
+    setState(() {
+      selectedMood = mood;
+    });
+  }
+
+  void navigateTo(String page) {
+    print("Navigating to $page");
+    // Handle other navigation cases
+    if (page == 'Resource') {
+      Navigator.pushNamed(context, '/resource');
+    } else if (page == 'Dashboard') {
+      Navigator.pushNamed(context, '/studentdashboard');
+    } else if (page == 'Chat') {
+      Navigator.pushNamed(context, '/chat');
+    } else if (page == 'Profile') {
+      Navigator.pushNamed(context, '/profile');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     String formattedDate =
@@ -234,8 +249,13 @@ class _StudentDashboardState extends State<StudentDashboard> {
                             backgroundColor:
                                 const Color(0XFFD9D9D9).withOpacity(.7),
                             child: CircleAvatar(
-                              radius: 37.5,
-                              backgroundImage: NetworkImage(profilePicUrl),
+                              radius: 40,
+                              backgroundImage: profilePicUrl != null &&
+                                      profilePicUrl!.isNotEmpty
+                                  ? NetworkImage(profilePicUrl!)
+                                      as ImageProvider
+                                  : AssetImage('assets/images/profilepic.png')
+                                      as ImageProvider, // Default image if no profile pic
                             ),
                           ),
                           const SizedBox(width: 10),

@@ -5,6 +5,7 @@ import 'package:student/onboarding/screen3.dart';
 import 'package:student/onboarding/screen4.dart';
 import 'package:student/pages/login.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:student/user_role_selection.dart';
 
 // Stateful widget to handle onboarding screen logic and state changes
 class OnboardingScreen extends StatefulWidget {
@@ -59,7 +60,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const LoginPage(),
+                        builder: (context) => const Onboarding(),
                       ),
                     );
                   },
@@ -85,7 +86,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const LoginPage(),
+                          builder: (context) => const Onboarding(),
                         ),
                       );
                     } else {

@@ -320,16 +320,25 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   _login() async {
-    final user = await _auth.loginWithEmailAndPassword(
-        emailController.text, passwordController.text);
+    if (!_validateInputs()) return;
 
-    if (user != null) {
-      //log("Login successful");
-      Navigator.pushNamed(context, '/studentdashboard');
-    } else {
+    try {
+      final user = await _auth.loginWithEmailAndPassword(
+          emailController.text.trim(), passwordController.text);
+
+      if (user != null) {
+        Navigator.pushNamed(context, '/studentdashboard');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Invalid email or password'),
+          ),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invalid email or password'),
+        SnackBar(
+          content: Text('Error: $e'),
         ),
       );
     }
