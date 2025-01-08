@@ -23,6 +23,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController usernameController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
   String? profileImageUrl;
+  String? usernameError;
 
   @override
   void initState() {
@@ -67,30 +68,37 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Future<void> _saveProfileChanges() async {
     final updatedUsername = usernameController.text;
-
-    if (updatedUsername.isNotEmpty) {
-      try {
-        await UserManagement.updateProfile(
-          username: updatedUsername,
-          profileImageUrl: profileImageUrl,
-        );
-
-        widget.onUsernameChanged(updatedUsername);
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Profile updated successfully')));
-          Navigator.pop(context);
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error updating profile: $e')));
-        }
-      }
-    } else {
+// Username validation
+    final usernameRegex = RegExp(r"^[a-zA-Z0-9._]{3,15}$");
+    if (!usernameRegex.hasMatch(updatedUsername)) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Username cannot be empty')));
+        const SnackBar(
+          content: Text(
+            'Username must be 3-15 characters long and contain only letters, numbers, dots, or underscores.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    try {
+      await UserManagement.updateProfile(
+        username: updatedUsername,
+        profileImageUrl: profileImageUrl,
+      );
+
+      widget.onUsernameChanged(updatedUsername);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile updated successfully')));
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error updating profile: $e')));
+      }
     }
   }
 

@@ -5,6 +5,7 @@ import 'package:student/pages/auth_service.dart';
 import 'login.dart';
 import 'package:student/components/text_field.dart';
 import 'package:student/components/background_with_emojis.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -67,9 +68,11 @@ class _RegisterPageState extends State<RegisterPage> {
     final password = passwordController.text;
 
     // Username validation
-    if (username.length < 3) {
+    final usernameRegex = RegExp(r"^[a-zA-Z0-9._]{3,15}$");
+    if (!usernameRegex.hasMatch(username)) {
       setState(() {
-        usernameError = "Username must be at least 3 characters long.";
+        usernameError =
+            "Username must be 3-15 characters long and contain only letters, numbers, dots, or underscores.";
       });
       return false;
     }
@@ -109,6 +112,16 @@ class _RegisterPageState extends State<RegisterPage> {
         passwordErrors.isEmpty;
   }
 
+  // Function to check if the username is already taken
+  Future<bool> _isUsernameTaken(String username) async {
+    final result = await FirebaseFirestore.instance
+        .collection('users')
+        .where('username', isEqualTo: username)
+        .get();
+
+    return result.docs.isNotEmpty;
+  }
+
   Future<void> _signup() async {
     if (!_validateInputs()) {
       return;
@@ -118,6 +131,15 @@ class _RegisterPageState extends State<RegisterPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Passwords do not match')),
       );
+      return;
+    }
+
+    // Check if the username is already taken
+    final isTaken = await _isUsernameTaken(usernameController.text.trim());
+    if (isTaken) {
+      setState(() {
+        usernameError = "Username is already taken. Please choose another.";
+      });
       return;
     }
 
@@ -160,16 +182,19 @@ class _RegisterPageState extends State<RegisterPage> {
         child: Stack(
           children: [
             const BackgroundWithEmojis(),
-            SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 180),
-                  _buildRegistrationForm(context),
-                ],
+            Positioned.fill(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 100), // Adjust for title spacing
+                    _buildTitle(), // Add the title at the top
+                    const SizedBox(height: 20),
+                    _buildRegistrationForm(context),
+                  ],
+                ),
               ),
             ),
-            _buildTitle(),
           ],
         ),
       ),
@@ -178,71 +203,67 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Widget _buildRegistrationForm(BuildContext context) {
     return Center(
-      child: SizedBox(
-        height: 600,
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xffD9D9D9).withOpacity(.7),
-                blurRadius: 20,
-                offset: const Offset(0, 4),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xffD9D9D9).withOpacity(.7),
+              blurRadius: 20,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildTextField("Username", usernameController),
+            if (usernameError != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 5, bottom: 10),
+                child: Text(
+                  usernameError!,
+                  style: const TextStyle(color: Colors.red),
+                ),
               ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildTextField("Username", usernameController),
-              if (usernameError != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 5, bottom: 10),
-                  child: Text(
-                    usernameError!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
+            _buildTextField("Email", emailController),
+            if (emailError != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 5, bottom: 10),
+                child: Text(
+                  emailError!,
+                  style: const TextStyle(color: Colors.red),
                 ),
-              _buildTextField("Email", emailController),
-              if (emailError != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 5, bottom: 10),
-                  child: Text(
-                    emailError!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
+              ),
+            _buildTextField("Password", passwordController, obscureText: true),
+            _buildTextField("Confirm Password", confirmPasswordController,
+                obscureText: true),
+            if (passwordErrors.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 5, bottom: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: passwordErrors
+                      .map((error) => Text(
+                            error,
+                            style: const TextStyle(color: Colors.red),
+                          ))
+                      .toList(),
                 ),
-              _buildTextField("Password", passwordController,
-                  obscureText: true),
-              _buildTextField("Confirm Password", confirmPasswordController,
-                  obscureText: true),
-              if (passwordErrors.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 5, bottom: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: passwordErrors
-                        .map((error) => Text(
-                              error,
-                              style: const TextStyle(color: Colors.red),
-                            ))
-                        .toList(),
-                  ),
-                ),
-              const SizedBox(height: 30),
-              _buildSignUpButton(context),
-              const SizedBox(height: 40),
-              _buildContinueWithText(),
-              const SizedBox(height: 14),
-              _buildGoogleSignInButton(),
-              const SizedBox(height: 28),
-              _buildLoginRedirect(context),
-            ],
-          ),
+              ),
+            const SizedBox(height: 30),
+            _buildSignUpButton(context),
+            const SizedBox(height: 40),
+            _buildContinueWithText(),
+            const SizedBox(height: 14),
+            _buildGoogleSignInButton(),
+            const SizedBox(height: 28),
+            _buildLoginRedirect(context),
+          ],
         ),
       ),
     );
@@ -357,7 +378,7 @@ class _RegisterPageState extends State<RegisterPage> {
       right: 0,
       child: Center(
         child: Text(
-          "Create Student Account",
+          "Student Sign Up",
           style: TextStyle(
             fontSize: 26,
             fontWeight: FontWeight.bold,

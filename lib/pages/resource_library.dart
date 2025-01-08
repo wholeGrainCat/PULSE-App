@@ -44,21 +44,22 @@ class ResourceService {
   }
 
   // Search resources by title (articles/videos)
-  Future<List<Map<String, dynamic>>> searchResources(String searchTerm) async {
-    QuerySnapshot snapshot = await _firestore
-        .collection('resources')
-        .where('title', isGreaterThanOrEqualTo: searchTerm)
-        .where('title', isLessThanOrEqualTo: '$searchTerm\uf8ff')
-        .get();
+  // Future<List<Map<String, dynamic>>> searchResources(String searchTerm) async {
+  //   QuerySnapshot snapshot = await _firestore
+  //       .collection('resources')
+  //       .where('title', isGreaterThanOrEqualTo: searchTerm)
+  //       .where('title', isLessThanOrEqualTo: '$searchTerm\uf8ff')
+  //       .get();
 
-    return snapshot.docs
-        .map((doc) => doc.data() as Map<String, dynamic>)
-        .toList();
-  }
+  //   return snapshot.docs
+  //       .map((doc) => doc.data() as Map<String, dynamic>)
+  //       .toList();
+  // }
 }
 
 class _ResourceLibraryPageState extends State<ResourceLibraryPage> {
   final ResourceService _resourceService = ResourceService();
+  TextEditingController _searchController = TextEditingController();
   String searchTerm = "";
 
   @override
@@ -263,11 +264,7 @@ class _ResourceLibraryPageState extends State<ResourceLibraryPage> {
         width: 325,
         height: 44,
         child: TextField(
-          onChanged: (value) {
-            setState(() {
-              searchTerm = value;
-            });
-          },
+          controller: _searchController,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.search),
             hintText: 'Search articles or videos',
@@ -289,6 +286,12 @@ class _ResourceLibraryPageState extends State<ResourceLibraryPage> {
             ),
             contentPadding: const EdgeInsets.symmetric(vertical: 10.0),
           ),
+          onChanged: (query) {
+            // Update the search query and filter the resources
+            setState(() {
+              searchTerm = query;
+            });
+          },
         ),
       ),
     );
@@ -321,6 +324,20 @@ class _ResourceLibraryPageState extends State<ResourceLibraryPage> {
         }
 
         final resources = snapshot.data!;
+
+        // Filter resources based on the search query
+        final filteredResources = resources.where((resource) {
+          final title = resource['title'].toString().toLowerCase();
+          final description =
+              resource['description']?.toString().toLowerCase() ?? '';
+          final category = resource['category']?.toString().toLowerCase() ?? '';
+          final query = searchTerm.toLowerCase();
+
+          // Check if any of the fields contain the search query
+          return title.contains(query) ||
+              description.contains(query) ||
+              category.contains(query);
+        }).toList();
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -368,8 +385,9 @@ class _ResourceLibraryPageState extends State<ResourceLibraryPage> {
               height: 200,
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                children:
-                    resources.map((resource) => _buildCard(resource)).toList(),
+                children: filteredResources
+                    .map((resource) => _buildCard(resource))
+                    .toList(),
               ),
             ),
           ],

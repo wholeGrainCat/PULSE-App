@@ -14,6 +14,7 @@ import 'package:student/pages/profile/profile_screen.dart';
 import 'package:student/pages/resource_library.dart';
 import 'package:student/pages/self_help_tools.dart';
 import 'package:student/pages/student_dashboard.dart';
+import 'package:student/user_role_selection.dart';
 import 'package:student/onboarding/onboardingscreen.dart';
 import 'package:student/pages/appoinment_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -67,6 +68,7 @@ class MyApp extends StatelessWidget {
       ),
       home: const OnboardingScreen(), // Set OnboardingPage as the first page
       routes: {
+        '/onboarding': (context) => const Onboarding(),
         '/login': (context) => const LoginPage(),
         '/forgotpassword': (context) => const ForgotPasswordPage(),
         '/studentdashboard': (context) => const StudentDashboard(),
