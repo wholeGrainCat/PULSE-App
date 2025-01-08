@@ -44,33 +44,42 @@ class AuthService {
   Future<UserCredential?> loginWithGoogle() async {
     try {
       final googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) return null;
+      if (googleUser == null) {
+        print("Google Sign-In aborted by user.");
+        return null;
+      }
 
       final googleAuth = await googleUser.authentication;
+
+      print("ID Token: ${googleAuth.idToken}");
+      print("Access Token: ${googleAuth.accessToken}");
+
       final credential = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,
         accessToken: googleAuth.accessToken,
       );
 
       final userCredential = await _auth.signInWithCredential(credential);
+      print("User signed in: ${userCredential.user?.email}");
 
       // Create/update user document for Google sign-in
       if (userCredential.user != null) {
         await _firestore.collection('users').doc(userCredential.user!.uid).set(
-            {
-              'uid': userCredential.user!.uid,
-              'username': userCredential.user!.displayName ??
-                  'User${userCredential.user!.uid.substring(0, 5)}',
-              'email': userCredential.user!.email,
-              'profileImageUrl': userCredential.user!.photoURL,
-              'createdAt': FieldValue.serverTimestamp(),
-            },
-            SetOptions(
-                merge: true)); // merge: true will only update specified fields
+          {
+            'uid': userCredential.user!.uid,
+            'username': userCredential.user!.displayName ??
+                'User${userCredential.user!.uid.substring(0, 5)}',
+            'email': userCredential.user!.email,
+            'profileImageUrl': userCredential.user!.photoURL,
+            'createdAt': FieldValue.serverTimestamp(),
+          },
+          SetOptions(merge: true),
+        );
       }
 
       return userCredential;
     } catch (e) {
+      print("Error in Google Sign-In: $e");
       throw Exception('Google sign-in error: $e');
     }
   }
@@ -78,19 +87,25 @@ class AuthService {
   Future<User?> loginWithEmailAndPassword(String email, String password) async {
     try {
       final userCredential = await _auth.signInWithEmailAndPassword(
-        email: email,
+        email: email.trim(),
         password: password,
       );
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        throw Exception("No user found for that email.");
-      } else if (e.code == 'wrong-password') {
-        throw Exception("Wrong password provided.");
+      switch (e.code) {
+        case 'user-not-found':
+        case 'wrong-password':
+        case 'invalid-credential':
+          throw Exception("Invalid email or password");
+        case 'invalid-email':
+          throw Exception("Please enter a valid email address");
+        case 'user-disabled':
+          throw Exception("This account has been disabled");
+        default:
+          throw Exception("Login failed. Please try again");
       }
-      throw Exception(e.message ?? "An unknown error occurred");
     } catch (e) {
-      throw Exception("Login failed: $e");
+      throw Exception("Login failed. Please try again");
     }
   }
 
