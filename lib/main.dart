@@ -5,6 +5,7 @@ import 'package:student/pages/RL_sidePages/depression.dart';
 import 'package:student/pages/RL_sidePages/self-care.dart';
 import 'package:student/pages/RL_sidePages/stress.dart';
 import 'package:student/pages/forgot_password.dart';
+import 'package:student/pages/logout.dart';
 import 'package:student/pages/mood_diary.dart';
 import 'package:student/pages/login.dart';
 import 'package:student/pages/mood_done_check_in.dart';
@@ -84,6 +85,7 @@ class MyApp extends StatelessWidget {
         '/selfhelptools': (context) => const SelfHelpTools(),
         '/appointments': (context) => const AppointmentScreen(),
         '/profile': (context) => const ProfileScreen(),
+        '/logout': (context) => const LogoutPage(),
       },
     );
   }

@@ -181,7 +181,12 @@ class _MoodChartPageState extends State<MoodChartPage> {
 
   Widget _buildScrollableLineChart() {
     if (moodData.isEmpty || dates.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+        child: Text(
+          "No mood data available.",
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      );
     }
 
     // Ensure only the most recent `visibleDataRange` data points are shown.

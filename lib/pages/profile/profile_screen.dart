@@ -201,7 +201,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         if (confirmLogout) {
                           try {
                             await AuthService().signout();
-                            Navigator.pushReplacementNamed(context, '/login');
+                            Navigator.pushReplacementNamed(context, '/logout');
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text("Failed to log out: $e")),

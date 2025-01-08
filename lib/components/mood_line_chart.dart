@@ -132,7 +132,12 @@ class _MoodLineChartState extends State<MoodLineChart> {
   @override
   Widget build(BuildContext context) {
     if (moodData.isEmpty || dates.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+        child: Text(
+          "No mood data available.",
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      );
     }
 
     final int startIndex = moodData.length > visibleDataRange
