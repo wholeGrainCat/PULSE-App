@@ -27,11 +27,11 @@ This prototype is not intended for commercial use but serves as an academic demo
 - **Mood Tracking:** Daily knomood logging with visual insights.  
 - **Mental Health Resources:** Articles, guides, and tips curated by experts.  
 - **Counseling Connection with Appointment System:**  
-  - View available counselors and their specialties.  
+  - View available counselors.  
   - Schedule and update appointments with counselors directly through the app.  
-  - Notifications for appointment confirmations and reminders.  
-- **Wellness Activities:** Suggestions for activities like mindfulness, breathing exercises, and self-care tasks.  
-- **Community Support:** Access to forums or discussion spaces for peer support.  
+- **Self-Help Tools:** Suggestions for activities like mindfulness, breathing exercises, and self-care tasks.  
+- **Resources Library:** Access to various article and video for mental health.
+- **Chat Features:** Chat with others annonymously.  
 
 ---
 
