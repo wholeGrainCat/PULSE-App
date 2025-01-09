@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'crisis_support_repository.dart';
-import 'package:student/components/bottom_navigation.dart';
 
 class CrisisSupport extends StatefulWidget {
   const CrisisSupport({super.key});
@@ -14,6 +13,8 @@ class _CrisisSupportState extends State<CrisisSupport> {
   final CrisisSupportRepository fireStoreService = CrisisSupportRepository();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController numberController = TextEditingController();
+
+  int _selectedIndex = 2; // Default selected index (Crisis Support)
 
   void openNoteBox({String? docID, String? type}) {
     showDialog(
@@ -77,6 +78,13 @@ class _CrisisSupportState extends State<CrisisSupport> {
     );
   }
 
+  // Navigation Bar onTap logic
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,42 +100,72 @@ class _CrisisSupportState extends State<CrisisSupport> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          const Thumbnail(),
-          const Text(
-            'Mental Health Hotline',
-            textAlign: TextAlign.left,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const Thumbnail(),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                'Mental Health Hotline',
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-          ),
-          MentalHealthHotline(
-            fireStoreService: fireStoreService,
-            onEdit: (docID) => openNoteBox(docID: docID, type: 'mentalHealth'),
-            onDelete: (docID) =>
-                fireStoreService.deleteMentalHealthHotline(docID),
-            onAdd: () => openNoteBox(type: 'mentalHealth'),
-          ),
-          const Text(
-            'Emergency Hotline',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+            MentalHealthHotline(
+              fireStoreService: fireStoreService,
+              onEdit: (docID) =>
+                  openNoteBox(docID: docID, type: 'mentalHealth'),
+              onDelete: (docID) =>
+                  fireStoreService.deleteMentalHealthHotline(docID),
+              onAdd: () => openNoteBox(type: 'mentalHealth'),
             ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                'Emergency Hotline',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            EmergencyHotline(
+              fireStoreService: fireStoreService,
+              onEdit: (docID) => openNoteBox(docID: docID, type: 'emergency'),
+              onDelete: (docID) =>
+                  fireStoreService.deleteEmergencyHotline(docID),
+              onAdd: () => openNoteBox(type: 'emergency'),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.health_and_safety_rounded),
+            label: 'Resources',
           ),
-          EmergencyHotline(
-            fireStoreService: fireStoreService,
-            onEdit: (docID) => openNoteBox(docID: docID, type: 'emergency'),
-            onDelete: (docID) => fireStoreService.deleteEmergencyHotline(docID),
-            onAdd: () => openNoteBox(type: 'emergency'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.date_range_rounded),
+            label: 'Appointment',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat),
+            label: 'Chat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle),
+            label: 'Profile',
           ),
         ],
-      ),
-      bottomNavigationBar: BottomNavigation(
-        currentIndex: 2, // Set the initial index
-        onTap: (index) {},
+        selectedItemColor: const Color(0xFF613CEA),
+        unselectedItemColor: Colors.grey,
       ),
     );
   }
@@ -166,7 +204,7 @@ class Thumbnail extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Image.asset(
-                'assets/suicidal_feeling.png', // Ensure the file exists
+                'assets/images/suicidal_feeling.png', // Ensure the file exists
                 width: 60,
                 height: 60,
               ),
@@ -194,49 +232,18 @@ class MentalHealthHotline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: StreamBuilder(
-        stream: fireStoreService.getMentalHealthHotlineStream(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            List noteList = snapshot.data!.docs;
+    return StreamBuilder(
+      stream: fireStoreService.getMentalHealthHotlineStream(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          List noteList = snapshot.data!.docs;
 
-            return ListView.builder(
-              itemCount: noteList.length + 1,
-              itemBuilder: (context, index) {
-                if (index == noteList.length) {
-                  return Column(
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.92,
-                        child: ListTile(
-                          tileColor: const Color(0xFFD9F65C),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 0,
-                            horizontal: 13,
-                          ),
-                          trailing: const Icon(Icons.add_circle_outline,
-                              color: Colors.black),
-                          onTap: onAdd,
-                        ),
-                      ),
-                    ],
-                  );
-                }
-
-                DocumentSnapshot document = noteList[index];
-                String docID = document.id;
-                Map<String, dynamic> data =
-                    document.data() as Map<String, dynamic>;
-
-                // Safely access fields and use default values if null
-                String name = data['name'] ?? 'Unknown Name'; // Default value
-                String number =
-                    data['number'] ?? 'No Number Available'; // Default value
-
+          return ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: noteList.length + 1,
+            itemBuilder: (context, index) {
+              if (index == noteList.length) {
                 return Column(
                   children: [
                     SizedBox(
@@ -248,44 +255,73 @@ class MentalHealthHotline extends StatelessWidget {
                         ),
                         contentPadding: const EdgeInsets.symmetric(
                           vertical: 0,
-                          horizontal: 8,
+                          horizontal: 13,
                         ),
-                        title: Text(name, textAlign: TextAlign.center),
-                        subtitle: Text(
-                          number, // Display hotline number in subtitle
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black,
-                          ),
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              onPressed: () => onEdit?.call(docID),
-                              icon: const Icon(Icons.edit, color: Colors.black),
-                            ),
-                            IconButton(
-                              onPressed: () => onDelete?.call(docID),
-                              icon:
-                                  const Icon(Icons.delete, color: Colors.black),
-                            ),
-                          ],
-                        ),
+                        trailing: const Icon(Icons.add_circle_outline,
+                            color: Colors.black),
+                        onTap: onAdd,
                       ),
                     ),
-                    const SizedBox(height: 10),
                   ],
                 );
-              },
-            );
-          } else {
-            return const Text(
-                "No mental health hotline available. Create Now!");
-          }
-        },
-      ),
+              }
+
+              DocumentSnapshot document = noteList[index];
+              String docID = document.id;
+              Map<String, dynamic> data =
+                  document.data() as Map<String, dynamic>;
+
+              // Safely access fields and use default values if null
+              String name = data['name'] ?? 'Unknown Name'; // Default value
+              String number =
+                  data['number'] ?? 'No Number Available'; // Default value
+
+              return Column(
+                children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.92,
+                    child: ListTile(
+                      tileColor: const Color(0xFFD9F65C),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 0,
+                        horizontal: 8,
+                      ),
+                      title: Text(name, textAlign: TextAlign.center),
+                      subtitle: Text(
+                        number, // Display hotline number in subtitle
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black,
+                        ),
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            onPressed: () => onEdit?.call(docID),
+                            icon: const Icon(Icons.edit, color: Colors.black),
+                          ),
+                          IconButton(
+                            onPressed: () => onDelete?.call(docID),
+                            icon: const Icon(Icons.delete, color: Colors.black),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+              );
+            },
+          );
+        } else {
+          return const Text("No mental health hotline available. Create Now!");
+        }
+      },
     );
   }
 }
@@ -306,101 +342,94 @@ class EmergencyHotline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: StreamBuilder(
-        stream: fireStoreService.getEmergencyHotlineStream(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            List noteList = snapshot.data!.docs;
+    return StreamBuilder(
+      stream: fireStoreService.getEmergencyHotlineStream(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          List noteList = snapshot.data!.docs;
 
-            return ListView.builder(
-              itemCount: noteList.length + 1,
-              itemBuilder: (context, index) {
-                if (index == noteList.length) {
-                  return Column(
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.92,
-                        child: ListTile(
-                          tileColor: Colors.red,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 0,
-                            horizontal: 13,
-                          ),
-                          trailing: const Icon(Icons.add_circle_outline,
-                              color: Colors.black),
-                          onTap: onAdd,
-                        ),
-                      ),
-                    ],
-                  );
-                }
-
-                DocumentSnapshot document = noteList[index];
-                String docID = document.id;
-                Map<String, dynamic> data =
-                    document.data() as Map<String, dynamic>;
-
-                // Safely access fields and use default values if null
-                String name = data['name'] ?? 'Unknown Name'; // Default value
-                String number =
-                    data['number'] ?? 'No Number Available'; // Default value
-
+          return ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: noteList.length + 1,
+            itemBuilder: (context, index) {
+              if (index == noteList.length) {
                 return Column(
                   children: [
                     SizedBox(
                       width: MediaQuery.of(context).size.width * 0.92,
                       child: ListTile(
-                        tileColor: Colors.red,
+                        tileColor: const Color(0xFFD9F65C),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                         contentPadding: const EdgeInsets.symmetric(
                           vertical: 0,
-                          horizontal: 8,
+                          horizontal: 13,
                         ),
-                        title: Text(
-                          name,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                        subtitle: Text(
-                          number, // Display hotline number in subtitle
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.white,
-                          ),
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              onPressed: () => onEdit?.call(docID),
-                              icon: const Icon(Icons.edit, color: Colors.white),
-                            ),
-                            IconButton(
-                              onPressed: () => onDelete?.call(docID),
-                              icon:
-                                  const Icon(Icons.delete, color: Colors.white),
-                            ),
-                          ],
-                        ),
+                        trailing: const Icon(Icons.add_circle_outline,
+                            color: Colors.black),
+                        onTap: onAdd,
                       ),
                     ),
-                    const SizedBox(height: 10),
                   ],
                 );
-              },
-            );
-          } else {
-            return const Text("No emergency hotline available. Create Now!");
-          }
-        },
-      ),
+              }
+
+              DocumentSnapshot document = noteList[index];
+              String docID = document.id;
+              Map<String, dynamic> data =
+                  document.data() as Map<String, dynamic>;
+
+              String name = data['name'] ?? 'Unknown Name';
+              String number = data['number'] ?? 'No Number Available';
+
+              return Column(
+                children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.92,
+                    child: ListTile(
+                      tileColor: const Color(0xFFD9F65C),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 0,
+                        horizontal: 8,
+                      ),
+                      title: Text(name, textAlign: TextAlign.center),
+                      subtitle: Text(
+                        number,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black,
+                        ),
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            onPressed: () => onEdit?.call(docID),
+                            icon: const Icon(Icons.edit, color: Colors.black),
+                          ),
+                          IconButton(
+                            onPressed: () => onDelete?.call(docID),
+                            icon: const Icon(Icons.delete, color: Colors.black),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+              );
+            },
+          );
+        } else {
+          return const Text("No emergency hotline available. Create Now!");
+        }
+      },
     );
   }
 }

@@ -8,8 +8,8 @@ class AppointmentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Appointment')),
-      body: Center(
+      appBar: AppBar(title: const Text('Appointment')),
+      body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[

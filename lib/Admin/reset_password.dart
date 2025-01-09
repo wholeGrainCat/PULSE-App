@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'auth_service.dart';
-import 'app_colour.dart';
-import 'background_style_three.dart';
-import 'background_with_emojis.dart';
+import 'package:student/components/app_colour.dart';
+import 'package:student/components/background_style_three.dart';
+import 'package:student/components/background_with_emojis.dart';
 import 'text_field.dart';
 
 class ResetPasswordPage extends StatefulWidget {
@@ -106,7 +106,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                                         _emailController.text,
                                         context,
                                       );
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
                                         const SnackBar(
                                           content: Text(
                                               'Password reset email sent!'),
@@ -114,10 +115,11 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                                       );
                                       Navigator.pushNamed(context, '/login');
                                     } catch (e) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
                                         SnackBar(
-                                          content: Text(
-                                              'Error: ${e.toString()}'),
+                                          content:
+                                              Text('Error: ${e.toString()}'),
                                         ),
                                       );
                                     }

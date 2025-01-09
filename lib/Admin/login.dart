@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'app_colour.dart';
+import 'package:student/components/app_colour.dart';
 import 'auth_service.dart';
 import 'text_field.dart';
-import 'background_with_emojis.dart';
+import 'package:student/components/background_with_emojis.dart';
 import 'reset_password.dart';
 
 class AdminLoginPage extends StatefulWidget {
@@ -110,11 +110,7 @@ class _LoginPageState extends State<AdminLoginPage> {
                               ),
                             const SizedBox(height: 30),
                             _buildSignInButton(context),
-                            const SizedBox(height: 40),
-                            _buildContinueWithText(),
                             const SizedBox(height: 14),
-                            _buildGoogleSignIn(),
-                            const SizedBox(height: 28),
                             _buildSignUpAndForgotPasswordLinks(context),
                           ],
                         ),
@@ -212,66 +208,18 @@ class _LoginPageState extends State<AdminLoginPage> {
     return passwordErrors.isEmpty; // Return true if no errors
   }
 
-  // Continue with text
-  Widget _buildContinueWithText() {
-    return const Center(
-      child: Text(
-        "or continue with",
-        style: TextStyle(color: Colors.black),
-      ),
-    );
-  }
-
-  // Google Sign In Button
-  Widget _buildGoogleSignIn() {
-    return Center(
-      child: GestureDetector(
-        onTap: () async {
-          final user = await _auth
-              .loginWithGoogle(); // Assuming this returns a user or null
-          if (user != null) {
-            // If Google Sign-In is successful, navigate to the Student Dashboard
-            Navigator.pushNamed(context, '/admindashboard');
-          } else {
-            // Handle the error if Google Sign-In fails
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Google Sign-In failed. Please try again.'),
-              ),
-            );
-          }
-        },
-        child: Container(
-          padding: const EdgeInsets.all(10.0),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: const Color(0xFF613EEA),
-              width: 1.0,
-            ),
-          ),
-          child: const CircleAvatar(
-            backgroundColor: Colors.white,
-            radius: 14,
-            backgroundImage: AssetImage('assets/images/google.png'),
-          ),
-        ),
-      ),
-    );
-  }
-
   // Sign Up and Forgot Password Links
   Widget _buildSignUpAndForgotPasswordLinks(BuildContext context) {
     return Center(
       child: Column(
         children: [
-          Text(
+          const Text(
             "Don't have an account?",
             style: TextStyle(
               color: Colors.black,
             ),
           ),
-          Text(
+          const Text(
             "Contact IT support to register.",
             style: TextStyle(
               color: Colors.black,

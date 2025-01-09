@@ -17,15 +17,15 @@ class _AppointmentBarChartState extends State<AppointmentBarChart> {
     [
       BarChartGroupData(
         x: 0,
-        barRods: [BarChartRodData(toY: 5, color: Color(0xFF613EEA))],
+        barRods: [BarChartRodData(toY: 5, color: const Color(0xFF613EEA))],
       ),
       BarChartGroupData(
         x: 1,
-        barRods: [BarChartRodData(toY: 7, color: Color(0xFF613EEA))],
+        barRods: [BarChartRodData(toY: 7, color: const Color(0xFF613EEA))],
       ),
       BarChartGroupData(
         x: 2,
-        barRods: [BarChartRodData(toY: 9, color: Color(0xFF613EEA))],
+        barRods: [BarChartRodData(toY: 9, color: const Color(0xFF613EEA))],
       ),
     ],
 
@@ -33,15 +33,15 @@ class _AppointmentBarChartState extends State<AppointmentBarChart> {
     [
       BarChartGroupData(
         x: 0,
-        barRods: [BarChartRodData(toY: 12, color: Color(0xFF00CBC7))],
+        barRods: [BarChartRodData(toY: 12, color: const Color(0xFF00CBC7))],
       ),
       BarChartGroupData(
         x: 1,
-        barRods: [BarChartRodData(toY: 15, color: Color(0xFF00CBC7))],
+        barRods: [BarChartRodData(toY: 15, color: const Color(0xFF00CBC7))],
       ),
       BarChartGroupData(
         x: 2,
-        barRods: [BarChartRodData(toY: 18, color: Color(0xFF00CBC7))],
+        barRods: [BarChartRodData(toY: 18, color: const Color(0xFF00CBC7))],
       ),
     ],
   ];
@@ -70,9 +70,12 @@ class _AppointmentBarChartState extends State<AppointmentBarChart> {
             IconButton(
               icon: Icon(
                 Icons.chevron_left,
-                color: period == "This Week" ? Color(0xFFAF96F5) : Color(0xFF613EEA),
+                color: period == "This Week"
+                    ? const Color(0xFFAF96F5)
+                    : const Color(0xFF613EEA),
               ),
-              onPressed: period == "This Week" ? null : () => _navigatePeriod(-1),
+              onPressed:
+                  period == "This Week" ? null : () => _navigatePeriod(-1),
             ),
             Text(
               period,
@@ -80,9 +83,12 @@ class _AppointmentBarChartState extends State<AppointmentBarChart> {
             IconButton(
               icon: Icon(
                 Icons.chevron_right,
-                color: period == "This Month" ? Color(0xFFAF96F5) : Color(0xFF613EEA),
+                color: period == "This Month"
+                    ? const Color(0xFFAF96F5)
+                    : const Color(0xFF613EEA),
               ),
-              onPressed: period == "This Month" ? null : () => _navigatePeriod(1),
+              onPressed:
+                  period == "This Month" ? null : () => _navigatePeriod(1),
             ),
           ],
         ),
@@ -100,29 +106,29 @@ class _AppointmentBarChartState extends State<AppointmentBarChart> {
                       getTitlesWidget: (value, meta) {
                         return Text(
                           value.toStringAsFixed(0),
-                          style: TextStyle(fontSize: 12),
+                          style: const TextStyle(fontSize: 12),
                         );
                       },
                       reservedSize: 25,
                     ),
                   ),
-                  bottomTitles: AxisTitles(
+                  bottomTitles: const AxisTitles(
                     sideTitles: SideTitles(showTitles: true),
                   ),
-                  rightTitles: AxisTitles(
+                  rightTitles: const AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
                   ),
-                  topTitles: AxisTitles(
+                  topTitles: const AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
                   ),
                 ),
-                gridData: FlGridData(
+                gridData: const FlGridData(
                   show: false,
                 ),
                 borderData: FlBorderData(show: true),
                 barGroups: periodData[periodIndex],
               ),
-              duration: Duration(milliseconds: 500),
+              duration: const Duration(milliseconds: 500),
             ),
           ),
         ),
