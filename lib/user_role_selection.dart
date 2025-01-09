@@ -22,15 +22,15 @@ class _OnboardingState extends State<Onboarding> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
+                  const Text(
                     "PULSE",
                     style: TextStyle(
                       fontSize: 64,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 40),
-                  Text(
+                  const SizedBox(height: 40),
+                  const Text(
                     "Your journey to well-being begins here.",
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -38,47 +38,47 @@ class _OnboardingState extends State<Onboarding> {
                       fontSize: 16,
                     ),
                   ),
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
                   // Student Button with style
                   ElevatedButton(
                     onPressed: () {
                       Navigator.pushNamed(context, '/login');
                     },
-                    child: Text("Student"),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.pri_greenYellow,
                       foregroundColor: Colors.black,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                      textStyle: TextStyle(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 15),
+                      textStyle: const TextStyle(
                         fontSize: 18,
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      minimumSize: Size(200, 60),
+                      minimumSize: const Size(200, 60),
                     ),
+                    child: Text("Student"),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   // Admin Button with style
                   ElevatedButton(
                     onPressed: () {
                       // Insert route Navigate to Admin login Page when compiling
                     },
-                    child: Text("Admin"),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.pri_cyan,
                       foregroundColor: Colors.black,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                      textStyle: TextStyle(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 15),
+                      textStyle: const TextStyle(
                         fontSize: 18, // Text size
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      minimumSize: Size(200, 60),
+                      minimumSize: const Size(200, 60),
                     ),
+                    child: Text("Admin"),
                   ),
                 ],
               ),

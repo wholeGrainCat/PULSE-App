@@ -307,7 +307,8 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                       profilePicUrl!.isNotEmpty
                                   ? NetworkImage(profilePicUrl!)
                                       as ImageProvider
-                                  : AssetImage('assets/images/profilepic.png')
+                                  : const AssetImage(
+                                          'assets/images/profilepic.png')
                                       as ImageProvider, // Default image if no profile pic
                             ),
                           ),

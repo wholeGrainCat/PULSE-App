@@ -59,7 +59,7 @@ class ResourceService {
 
 class _ResourceLibraryPageState extends State<ResourceLibraryPage> {
   final ResourceService _resourceService = ResourceService();
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   String searchTerm = "";
 
   @override
