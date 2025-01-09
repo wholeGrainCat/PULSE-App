@@ -3,18 +3,23 @@ import 'appointment_screen.dart';
 import 'appointment_barchart_repository.dart';
 import 'appointment_barchart.dart';
 import 'crisis_support_viewmodel.dart';
-import 'bottom_nav_bar.dart';
+import 'package:student/components/bottom_navigation.dart';
 
-class Dashboard extends StatefulWidget {
-  const Dashboard({super.key});
+class AdminDashboard extends StatefulWidget {
+  const AdminDashboard({super.key});
 
   @override
-  State<Dashboard> createState() => _DashboardState();
+  State<AdminDashboard> createState() => _DashboardState();
 }
 
-class _DashboardState extends State<Dashboard> {
+class _DashboardState extends State<AdminDashboard> {
   int _currentIndex = 2; // Default to "Home" tab
-  Map<String, int> stats = {'Upcoming': 0, 'Completed': 0, 'Cancelled': 0, 'Total': 0};
+  Map<String, int> stats = {
+    'Upcoming': 0,
+    'Completed': 0,
+    'Cancelled': 0,
+    'Total': 0
+  };
   bool isLoading = true;
 
   @override
@@ -71,7 +76,8 @@ class _DashboardState extends State<Dashboard> {
                   Center(
                     child: Text(
                       "Hi Admin",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
                   SizedBox(height: 20),
@@ -87,7 +93,12 @@ class _DashboardState extends State<Dashboard> {
                     ),
                     itemCount: 4,
                     itemBuilder: (context, index) {
-                      final titles = ['Upcoming', 'Completed', 'Cancelled', 'Total'];
+                      final titles = [
+                        'Upcoming',
+                        'Completed',
+                        'Cancelled',
+                        'Total'
+                      ];
                       final colors = [
                         Color(0xFFA4E3E8),
                         Color(0xFFAF96F5),
@@ -115,13 +126,15 @@ class _DashboardState extends State<Dashboard> {
                             child: Column(
                               children: [
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       titles[index],
                                       style: TextStyle(fontSize: 16),
                                     ),
-                                    Icon(Icons.arrow_forward_ios_rounded, size: 16),
+                                    Icon(Icons.arrow_forward_ios_rounded,
+                                        size: 16),
                                   ],
                                 ),
                                 Spacer(),
@@ -129,7 +142,8 @@ class _DashboardState extends State<Dashboard> {
                                 Text(
                                   stats[titles[index]].toString(),
                                   style: TextStyle(
-                                      fontSize: 64, fontWeight: FontWeight.bold),
+                                      fontSize: 64,
+                                      fontWeight: FontWeight.bold),
                                 ),
                                 Spacer(),
                               ],
@@ -145,7 +159,8 @@ class _DashboardState extends State<Dashboard> {
                     children: [
                       Text(
                         'Appointment Statistics',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -157,24 +172,18 @@ class _DashboardState extends State<Dashboard> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildVerticalCard(
-                          context,
-                          'Manage UNIMAS Resources',
-                          Colors.grey[100],
-                          ManageResourcesPage()),
+                      _buildVerticalCard(context, 'Manage UNIMAS Resources',
+                          Colors.grey[100], ManageResourcesPage()),
                       _buildVerticalCard(context, 'Manage Crisis Support',
                           Colors.grey[100], CrisisSupport()),
-                      _buildVerticalCard(
-                          context,
-                          'Manage Self-Help Tools',
-                          Colors.grey[100],
-                          ManageSelfHelpToolsPage()),
+                      _buildVerticalCard(context, 'Manage Self-Help Tools',
+                          Colors.grey[100], ManageSelfHelpToolsPage()),
                     ],
                   ),
                 ],
               ),
             ),
-      bottomNavigationBar: BottomNavBar(
+      bottomNavigationBar: BottomNavigation(
         currentIndex: _currentIndex,
         onTap: _onTabTapped,
       ),
@@ -211,7 +220,6 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 }
-
 
 // Placeholder Pages, DELETE this class when compiling
 class ManageResourcesPage extends StatelessWidget {

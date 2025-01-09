@@ -5,14 +5,14 @@ import 'text_field.dart';
 import 'background_with_emojis.dart';
 import 'reset_password.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class AdminLoginPage extends StatefulWidget {
+  const AdminLoginPage({super.key});
 
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<AdminLoginPage> {
   final _auth = AuthService();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -231,7 +231,7 @@ class _LoginPageState extends State<LoginPage> {
               .loginWithGoogle(); // Assuming this returns a user or null
           if (user != null) {
             // If Google Sign-In is successful, navigate to the Student Dashboard
-            Navigator.pushNamed(context, '/dashboard');
+            Navigator.pushNamed(context, '/admindashboard');
           } else {
             // Handle the error if Google Sign-In fails
             ScaffoldMessenger.of(context).showSnackBar(
@@ -308,7 +308,7 @@ class _LoginPageState extends State<LoginPage> {
 
     if (user != null) {
       //log("Login successful");
-      Navigator.pushNamed(context, '/dashboard');
+      Navigator.pushNamed(context, '/admindashboard');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'crisis_support_repository.dart';
-import 'bottom_nav_bar.dart';
+import 'package:student/components/bottom_navigation.dart';
 
 class CrisisSupport extends StatefulWidget {
   const CrisisSupport({super.key});
@@ -125,10 +125,10 @@ class _CrisisSupportState extends State<CrisisSupport> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavBar(
-          currentIndex: 2, // Set the initial index
-          onTap: (index) {},
-        ),
+      bottomNavigationBar: BottomNavigation(
+        currentIndex: 2, // Set the initial index
+        onTap: (index) {},
+      ),
     );
   }
 }
@@ -218,7 +218,8 @@ class MentalHealthHotline extends StatelessWidget {
                             vertical: 0,
                             horizontal: 13,
                           ),
-                          trailing: const Icon(Icons.add_circle_outline, color: Colors.black),
+                          trailing: const Icon(Icons.add_circle_outline,
+                              color: Colors.black),
                           onTap: onAdd,
                         ),
                       ),
@@ -329,7 +330,8 @@ class EmergencyHotline extends StatelessWidget {
                             vertical: 0,
                             horizontal: 13,
                           ),
-                          trailing: const Icon(Icons.add_circle_outline, color: Colors.black),
+                          trailing: const Icon(Icons.add_circle_outline,
+                              color: Colors.black),
                           onTap: onAdd,
                         ),
                       ),
@@ -382,7 +384,8 @@ class EmergencyHotline extends StatelessWidget {
                             ),
                             IconButton(
                               onPressed: () => onDelete?.call(docID),
-                              icon: const Icon(Icons.delete, color: Colors.white),
+                              icon:
+                                  const Icon(Icons.delete, color: Colors.white),
                             ),
                           ],
                         ),

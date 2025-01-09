@@ -21,6 +21,8 @@ import 'package:student/onboarding/onboardingscreen.dart';
 import 'package:student/Student/appoinment/appoinment_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:student/Admin/login.dart';
+import 'package:student/Admin/admin_dashboard.dart';
 //import 'package:student/pages/cloud_messageing.dart'; // Import your CloudMessaging class
 //import 'package:shared_preferences/shared_preferences.dart';
 
@@ -88,6 +90,13 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => const ProfileScreen(),
         '/chat': (context) => const ChatHomePage(),
         '/logout': (context) => const LogoutPage(),
+        //Admin
+        '/adminlogin': (context) => const AdminLoginPage(),
+        '/admindashboard': (context) => const AdminDashboard(),
+        //'/adminprofile':(context) => const AdminProfile(),
+        //'/adminappointment':(context) => const AdminAppointment(),
+        //'/adminchat':(context) => const AdminChat(),
+        //'/adminresource':(context) => const AdminResource(),
       },
     );
   }

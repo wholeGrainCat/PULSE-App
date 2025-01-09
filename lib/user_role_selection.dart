@@ -63,7 +63,7 @@ class _OnboardingState extends State<Onboarding> {
                   // Admin Button with style
                   ElevatedButton(
                     onPressed: () {
-                      // Insert route Navigate to Admin login Page when compiling
+                      Navigator.pushNamed(context, '/adminlogin');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.pri_cyan,

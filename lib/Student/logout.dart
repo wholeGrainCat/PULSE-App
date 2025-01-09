@@ -74,7 +74,7 @@ class _LogoutPageState extends State<LogoutPage> {
                       ),
                       minimumSize: const Size(200, 60),
                     ),
-                    child: Text("SIGN IN"),
+                    child: const Text("SIGN IN"),
                   ),
                 ],
               ),
