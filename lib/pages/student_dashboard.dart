@@ -12,7 +12,7 @@ import 'package:student/pages/appoinment_screen.dart';
 import 'package:student/pages/crisis_support.dart';
 import 'package:student/pages/self_help_tools.dart';
 import 'package:student/pages/unimasresources.dart';
-import 'package:student/pages/mood_check_in.dart';
+import 'package:student/pages/mood/mood_check_in.dart';
 
 class StudentDashboard extends StatefulWidget {
   const StudentDashboard({super.key});
@@ -30,6 +30,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
   String username = ""; // Default empty string
   String? profilePicUrl = "";
   final AuthService _auth = AuthService(); // Initialize AuthService
+  bool hasLoggedMoodToday = false;
 
   final List<Map<String, dynamic>> moods = [
     {"icon": Fluents.flSmilingFace, "label": "Great"},
@@ -44,6 +45,43 @@ class _StudentDashboardState extends State<StudentDashboard> {
     super.initState();
     _fetchNearestAppointment(); // Call the function here
     _loadUserData(); // Load user data when screen initializes
+    _loadMoodStatus();
+  }
+
+  @override
+  void dispose() {
+    // Cancel any subscriptions, listeners, or timers
+    super.dispose();
+  }
+
+  Future<void> _loadMoodStatus() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = FirebaseAuth.instance.currentUser?.uid;
+
+    if (userId != null) {
+      String? lastLoggedDate = prefs.getString('lastLoggedDate_$userId');
+      DateTime today = DateTime.now();
+      String todayString =
+          "${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
+
+      bool hasLoggedMood = lastLoggedDate == todayString;
+
+      if (mounted) {
+        setState(() {
+          hasLoggedMoodToday = hasLoggedMood;
+        });
+      }
+      print("User ID: $userId");
+      print("Last Logged Date: $lastLoggedDate");
+      print("Has logged mood today: $hasLoggedMood");
+    }
+  }
+
+  // Function to update the state when a mood is logged
+  void _onMoodLogged() {
+    setState(() {
+      hasLoggedMoodToday = true; // Mood has been logged today, trigger rebuild
+    });
   }
 
   Future<void> _loadUserData() async {
@@ -71,8 +109,8 @@ class _StudentDashboardState extends State<StudentDashboard> {
       if (user == null) {
         setState(() {
           nearestDate = "Please login to view appointments";
-          nearestTime = "";
-          nearestLocation = "";
+          nearestTime = "-";
+          nearestLocation = "-";
         });
         return;
       }
@@ -93,8 +131,8 @@ class _StudentDashboardState extends State<StudentDashboard> {
         print("No appointments found");
         setState(() {
           nearestDate = "No appointment scheduled";
-          nearestTime = "";
-          nearestLocation = "";
+          nearestTime = "-";
+          nearestLocation = "-";
         });
         return;
       }
@@ -135,16 +173,16 @@ class _StudentDashboardState extends State<StudentDashboard> {
       } else {
         setState(() {
           nearestDate = "No upcoming appointments";
-          nearestTime = "";
-          nearestLocation = "";
+          nearestTime = "-";
+          nearestLocation = "-";
         });
       }
     } catch (e) {
       print("Error fetching appointments: $e");
       setState(() {
         nearestDate = "Error fetching appointments";
-        nearestTime = "";
-        nearestLocation = "";
+        nearestTime = "-";
+        nearestLocation = "-";
       });
     }
   }
@@ -152,8 +190,9 @@ class _StudentDashboardState extends State<StudentDashboard> {
   Future<void> checkMoodStatus() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? userId = FirebaseAuth.instance.currentUser?.uid;
+
     if (userId != null) {
-      // Retrieve the last logged date and mood status
+// Retrieve the last logged date and mood status
       String? lastLoggedDate = prefs.getString('lastLoggedDate_$userId');
       DateTime today = DateTime.now();
       String todayString = "${today.year}-${today.month}-${today.day}";
@@ -173,6 +212,21 @@ class _StudentDashboardState extends State<StudentDashboard> {
         // Navigate to the mood tracker page if not logged
         Navigator.pushReplacementNamed(context, '/moodtracker');
       }
+    }
+  }
+
+  Future<void> saveMoodStatus(bool hasLoggedMood) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = FirebaseAuth.instance.currentUser?.uid;
+
+    if (userId != null) {
+      DateTime today = DateTime.now();
+      String todayString = "${today.year}-${today.month}-${today.day}";
+      // Save the status for the current user
+      await prefs.setBool('hasLoggedMood_$userId', hasLoggedMood);
+      await prefs.setString('lastLoggedDate_$userId', todayString);
+      print(
+          "Mood status saved for user: $userId, hasLoggedMood: $hasLoggedMood, Date: $todayString");
     }
   }
 
@@ -211,11 +265,10 @@ class _StudentDashboardState extends State<StudentDashboard> {
 
           switch (index) {
             case 0:
-              navigateTo('Resource');
+              Navigator.pushNamed(context, '/resource');
               break;
             case 1:
               checkMoodStatus();
-              break;
             case 2:
               Navigator.pushNamed(context, '/studentdashboard');
               break;
@@ -314,82 +367,128 @@ class _StudentDashboardState extends State<StudentDashboard> {
                             ),
                             const SizedBox(height: 8),
                             // Date Row
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.calendar_today,
-                                  color:
-                                      AppColors.pri_purple, // Orange icon color
-                                  size: 20, // Icon size
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  "Date: $nearestDate",
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                              ],
+                            Padding(
+                              padding: const EdgeInsets.only(left: 20.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  const Icon(
+                                    Icons.calendar_today,
+                                    color: AppColors.pri_purple,
+                                    size: 20, // Icon size
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text.rich(
+                                    TextSpan(
+                                      text: "Date: ",
+                                      style: const TextStyle(fontSize: 14),
+                                      children: [
+                                        TextSpan(
+                                          text: nearestDate,
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                             const SizedBox(height: 6),
                             // Time Row
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.access_time,
-                                  color: Colors.purple, // Orange icon color
-                                  size: 20, // Icon size
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  "Time: $nearestTime",
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                              ],
+                            Padding(
+                              padding: const EdgeInsets.only(left: 20.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  const Icon(
+                                    Icons.access_time,
+                                    color: AppColors.pri_purple,
+                                    size: 20, // Icon size
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text.rich(
+                                    TextSpan(
+                                      text: "Time: ",
+                                      style: const TextStyle(fontSize: 14),
+                                      children: [
+                                        TextSpan(
+                                          text: nearestTime,
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                             const SizedBox(height: 6),
                             // Location Row
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.location_on,
-                                  color: Colors.green, // Orange icon color
-                                  size: 20, // Icon size
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  "Location: $nearestLocation",
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                              ],
+                            Padding(
+                              padding: const EdgeInsets.only(left: 20.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  const Icon(
+                                    Icons.location_on,
+                                    color: AppColors
+                                        .pri_purple, // Orange icon color
+                                    size: 20, // Icon size
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text.rich(
+                                    TextSpan(
+                                      text: "Location: ",
+                                      style: const TextStyle(fontSize: 14),
+                                      children: [
+                                        TextSpan(
+                                          text: nearestLocation,
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
                       ),
                     ),
                   ),
-                  const Center(
+                  Center(
                     child: Text(
                       'How was your day?',
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                     ),
                   ),
-                  MoodSelectionSection(
-                    moods: moods,
-                    selectedMood: selectedMood,
-                    onMoodSelect: handleMoodSelection,
-                  ),
+
+                  hasLoggedMoodToday
+                      ? DoneMoodCheckInBar() // Replace with your "done mood check-in" widget
+                      : MoodSelectionSection(
+                          moods: moods,
+                          selectedMood: selectedMood,
+                          onMoodSelect: handleMoodSelection,
+                        ),
+
                   const SizedBox(height: 10),
                   CheckInButton(
                     onPressed: selectedMood.isEmpty
                         ? null // Disable button if no mood is selected
-                        : () {
+                        : () async {
                             //Find the selected emoji
                             final selectedEmoji = moods.firstWhere(
                               (mood) => mood['label'] == selectedMood,
                             )['icon'];
+                            await saveMoodStatus(true);
+
+                            _onMoodLogged();
 
                             // Navigate to Mood Check-In Page
                             Navigator.push(
@@ -433,6 +532,43 @@ class _StudentDashboardState extends State<StudentDashboard> {
                   ),
                 ],
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget DoneMoodCheckInBar() {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xfffafafa),
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(.1),
+            blurRadius: 2,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.check_circle, // Tick icon
+            color: AppColors.pri_purple, // Green color for success
+            size: 40, // Icon size
+          ),
+          SizedBox(width: 8), // Space between icon and text
+          Text(
+            "Yeah! Done Mood Check In Today!",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black, // Text color
             ),
           ),
         ],
