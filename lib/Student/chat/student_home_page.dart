@@ -1,6 +1,6 @@
-import 'package:student/pages/chat/chat_page.dart';
-import 'package:student/pages/chat/post_chat_page.dart';
-import 'package:student/pages/chat/student_view_info.dart';
+import 'package:student/Student/chat/chat_page.dart';
+import 'package:student/Student/chat/post_chat_page.dart';
+import 'package:student/Student/chat/student_view_info.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

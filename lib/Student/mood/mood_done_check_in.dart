@@ -5,7 +5,7 @@ import 'package:fluentui_emoji_icon/fluentui_emoji_icon.dart';
 import 'package:student/components/bottom_navigation.dart';
 import 'package:student/components/app_colour.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:student/pages/mood/edit_mood.dart';
+import 'package:student/Student/mood/edit_mood.dart';
 import 'mood_chart.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:student/components/mood_line_chart.dart';

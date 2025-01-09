@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:student/pages/auth_service.dart';
+import 'package:student/Student/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,11 +8,11 @@ import 'package:intl/intl.dart';
 import 'package:student/components/app_colour.dart';
 import 'package:student/components/bottom_navigation.dart';
 import 'package:student/components/background_style_two.dart';
-import 'package:student/pages/appoinment/appoinment_screen.dart';
-import 'package:student/pages/crisis_support.dart';
-import 'package:student/pages/self_help_tools.dart';
-import 'package:student/pages/unimasresources.dart';
-import 'package:student/pages/mood/mood_check_in.dart';
+import 'package:student/Student/appoinment/appoinment_screen.dart';
+import 'package:student/Student/crisis_support.dart';
+import 'package:student/Student/self_help_tools.dart';
+import 'package:student/Student/unimasresources.dart';
+import 'package:student/Student/mood/mood_check_in.dart';
 
 class StudentDashboard extends StatefulWidget {
   const StudentDashboard({super.key});

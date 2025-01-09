@@ -24,15 +24,15 @@ class _LogoutPageState extends State<LogoutPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
+                  const Text(
                     "PULSE",
                     style: TextStyle(
                       fontSize: 64,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 40),
-                  Text(
+                  const SizedBox(height: 40),
+                  const Text(
                     "You are Logged Out",
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -40,12 +40,12 @@ class _LogoutPageState extends State<LogoutPage> {
                       fontSize: 30,
                     ),
                   ),
-                  SizedBox(height: 18),
+                  const SizedBox(height: 18),
                   ConstrainedBox(
-                    constraints: BoxConstraints(
+                    constraints: const BoxConstraints(
                       maxWidth: 320, // Adjust the maxWidth as needed
                     ),
-                    child: Text(
+                    child: const Text(
                       "Take care of yourself and we're here if you need us!",
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -54,27 +54,27 @@ class _LogoutPageState extends State<LogoutPage> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
 
                   // Student Button with style
                   ElevatedButton(
                     onPressed: () {
                       Navigator.pushNamed(context, '/login');
                     },
-                    child: Text("SIGN IN"),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.pri_purple,
                       foregroundColor: Colors.white,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                      textStyle: TextStyle(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 15),
+                      textStyle: const TextStyle(
                         fontSize: 18,
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      minimumSize: Size(200, 60),
+                      minimumSize: const Size(200, 60),
                     ),
+                    child: Text("SIGN IN"),
                   ),
                 ],
               ),

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:student/pages/user_management.dart';
+import 'package:student/Student/user_management.dart';
 
 class EditProfilePage extends StatefulWidget {
   final String initialUsername;

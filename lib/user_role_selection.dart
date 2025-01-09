@@ -57,7 +57,7 @@ class _OnboardingState extends State<Onboarding> {
                       ),
                       minimumSize: const Size(200, 60),
                     ),
-                    child: Text("Student"),
+                    child: const Text("Student"),
                   ),
                   const SizedBox(height: 10),
                   // Admin Button with style
@@ -78,7 +78,7 @@ class _OnboardingState extends State<Onboarding> {
                       ),
                       minimumSize: const Size(200, 60),
                     ),
-                    child: Text("Admin"),
+                    child: const Text("Admin"),
                   ),
                 ],
               ),

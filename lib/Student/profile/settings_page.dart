@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:student/pages/profile/about_page.dart';
-import 'package:student/pages/profile/privacy_policy.dart';
+import 'package:student/Student/profile/about_page.dart';
+import 'package:student/Student/profile/privacy_policy.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
