@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 // import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
-import 'package:student/pages/resource_library.dart';
-import 'package:student/pages/mood_tracker.dart';
+import 'package:student/pages/resources/resource_library.dart';
+import 'package:student/pages/mood/mood_tracker.dart';
 import 'package:student/pages/student_dashboard.dart';
 import 'package:student/pages/profile/profile_screen.dart';
 

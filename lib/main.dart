@@ -1,18 +1,19 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:student/pages/RL_sidePages/anxiety.dart';
-import 'package:student/pages/RL_sidePages/depression.dart';
-import 'package:student/pages/RL_sidePages/self-care.dart';
-import 'package:student/pages/RL_sidePages/stress.dart';
+import 'package:student/pages/chat/student_home_page.dart';
+import 'package:student/pages/resources/anxiety.dart';
+import 'package:student/pages/resources/depression.dart';
+import 'package:student/pages/resources/self-care.dart';
+import 'package:student/pages/resources/stress.dart';
 import 'package:student/pages/forgot_password.dart';
 import 'package:student/pages/logout.dart';
-import 'package:student/pages/mood_diary.dart';
+import 'package:student/pages/mood/mood_diary.dart';
 import 'package:student/pages/login.dart';
-import 'package:student/pages/mood_done_check_in.dart';
-import 'package:student/pages/mood_tracker.dart';
-import 'package:student/pages/mood_calendar.dart';
+import 'package:student/pages/mood/mood_done_check_in.dart';
+import 'package:student/pages/mood/mood_tracker.dart';
+import 'package:student/pages/mood/mood_calendar.dart';
 import 'package:student/pages/profile/profile_screen.dart';
-import 'package:student/pages/resource_library.dart';
+import 'package:student/pages/resources/resource_library.dart';
 import 'package:student/pages/self_help_tools.dart';
 import 'package:student/pages/student_dashboard.dart';
 import 'package:student/user_role_selection.dart';
@@ -85,6 +86,7 @@ class MyApp extends StatelessWidget {
         '/selfhelptools': (context) => const SelfHelpTools(),
         '/appointments': (context) => const AppointmentScreen(),
         '/profile': (context) => const ProfileScreen(),
+        '/chat': (context) => const StudentHomePage(),
         '/logout': (context) => const LogoutPage(),
       },
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:student/pages/auth_service.dart';
+import 'package:student/pages/mood/mood_tracker.dart';
 import 'package:student/pages/profile/appoinment_history.dart';
 import 'package:student/pages/profile/change_password.dart';
 import 'package:student/pages/profile/help_center.dart';
@@ -7,8 +8,7 @@ import 'package:student/pages/profile/notifications.dart';
 import 'package:student/pages/profile/edit_profile.dart';
 import 'package:student/pages/profile/settings_page.dart';
 import 'package:student/components/bottom_navigation.dart';
-import 'package:student/pages/resource_library.dart';
-import 'package:student/pages/mood_tracker.dart';
+import 'package:student/pages/resources/resource_library.dart';
 import 'package:student/pages/student_dashboard.dart';
 
 class ProfileScreen extends StatefulWidget {

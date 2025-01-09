@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:student/components/background_style_three.dart';
 import 'package:student/components/app_colour.dart';
-import 'package:student/components/background_style_two.dart';
 import 'package:student/components/background_with_emojis.dart';
 
 class LogoutPage extends StatefulWidget {

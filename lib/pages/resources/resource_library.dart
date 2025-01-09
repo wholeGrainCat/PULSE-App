@@ -3,8 +3,8 @@ import 'package:fluentui_emoji_icon/fluentui_emoji_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:student/components/app_colour.dart';
 import 'package:student/components/bottom_navigation.dart';
-import 'package:student/pages/RL_sidePages/articles.dart';
-import 'package:student/pages/RL_sidePages/videos.dart';
+import 'package:student/pages/resources/articles.dart';
+import 'package:student/pages/resources/videos.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ResourceLibraryPage extends StatefulWidget {
