@@ -16,24 +16,25 @@ class _StudentViewInfoState extends State<StudentViewInfo> {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
 
     try {
-      QuerySnapshot usersSnapshot = await firestore.collection('Users').get();
-      List<Map<String, String>> counsellors = [];
+      // Fetch all documents from the counsellors_info collection
+      QuerySnapshot counsellorsSnapshot =
+          await firestore.collection('counsellors_info').get();
 
-      for (var userDoc in usersSnapshot.docs) {
-        QuerySnapshot counsellorsSnapshot =
-            await userDoc.reference.collection('counsellors').get();
+      // Map each document into a list of counsellor information
+      List<Map<String, String>> counsellors =
+          counsellorsSnapshot.docs.map((doc) {
+        var data = doc.data() as Map<String, dynamic>;
 
-        for (var counsellorDoc in counsellorsSnapshot.docs) {
-          var data = counsellorDoc.data() as Map<String, dynamic>;
-          counsellors.add({
-            'userId': userDoc.id,
-            'id': counsellorDoc.id,
-            'image': data['image'] ?? 'https://via.placeholder.com/150',
-            'name': data['name'] ?? 'No Name',
-            'description': data['description'] ?? 'No Description',
-          });
-        }
-      }
+        return {
+          'id': doc.id,
+          'email': data['email']?.toString() ?? 'No Email',
+          'name': data['name']?.toString() ?? 'No Name',
+          'phone': data['phone']?.toString() ?? 'No Phone',
+          'imageUrl':
+              data['imageUrl']?.toString() ?? 'https://via.placeholder.com/150',
+        };
+      }).toList();
+
       return counsellors;
     } catch (e) {
       print("Error fetching counsellors: $e");
@@ -105,8 +106,8 @@ class _StudentViewInfoState extends State<StudentViewInfo> {
                         padding: const EdgeInsets.all(20.0),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(20),
-                          child: Image.network(
-                            counsellor['image']!,
+                          child: Image.asset(
+                            counsellor['imageUrl']!,
                             height: 250,
                             width: double.infinity,
                             fit: BoxFit.cover,
@@ -127,7 +128,7 @@ class _StudentViewInfoState extends State<StudentViewInfo> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              counsellor['description']!,
+                              counsellor['email']!,
                               style: const TextStyle(
                                   fontSize: 14, color: Colors.grey),
                             ),
@@ -170,7 +171,13 @@ class _StudentViewInfoState extends State<StudentViewInfo> {
                                             ),
                                             const SizedBox(height: 10),
                                             Text(
-                                              "Description: ${counsellor['description']}",
+                                              "email: ${counsellor['email']}",
+                                              style:
+                                                  const TextStyle(fontSize: 14),
+                                            ),
+                                            const SizedBox(height: 10),
+                                            Text(
+                                              "phone: ${counsellor['phone']}",
                                               style:
                                                   const TextStyle(fontSize: 14),
                                             ),
