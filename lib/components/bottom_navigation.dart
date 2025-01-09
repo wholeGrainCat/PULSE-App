@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:student/components/app_colour.dart';
 
 class BottomNavigation extends StatelessWidget {
   final int currentIndex;
@@ -16,7 +17,8 @@ class BottomNavigation extends StatelessWidget {
       currentIndex: currentIndex,
       onTap: onTap,
       backgroundColor: Colors.white, // Background color for the navbar
-      selectedItemColor: Colors.blue, // Color for selected item icon and label
+      selectedItemColor:
+          AppColors.pri_purple, // Color for selected item icon and label
       unselectedItemColor:
           Colors.black.withOpacity(0.6), // Color for unselected icons
       type: BottomNavigationBarType.fixed, // Ensure the icons are evenly spaced
@@ -44,14 +46,14 @@ class BottomNavigation extends StatelessWidget {
       ],
       selectedIconTheme: const IconThemeData(
         size: 40, // Increase the size of the selected icon
-        color: Colors.blue, // White color for selected icon
+        color: AppColors.pri_purple, // White color for selected icon
       ),
       unselectedIconTheme: const IconThemeData(
         size: 30, // Unselected icon size
         color: Colors.black, // Unselected icon color
       ),
       selectedLabelStyle: const TextStyle(
-        color: Colors.blue, // Label color for selected item
+        color: AppColors.pri_purple, // Label color for selected item
         fontWeight: FontWeight.bold,
       ),
       unselectedLabelStyle: TextStyle(

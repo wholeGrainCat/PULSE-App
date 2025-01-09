@@ -7,20 +7,22 @@ class AuthService {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
 
-  // Create user with email, password, and username
+  // Create user with email, password, and username (with role)
   Future<User?> createUserWithEmailAndPassword(
-      String username, String email, String password) async {
+      String username, String email, String password,
+      {String role = 'user'}) async {
     try {
       // Create the authentication user
       final userCredential = await _auth.createUserWithEmailAndPassword(
           email: email.trim(), password: password.trim());
 
       if (userCredential.user != null) {
-        // Create the user document in Firestore
+        // Create the user document in Firestore with a role
         await _firestore.collection('users').doc(userCredential.user!.uid).set({
           'uid': userCredential.user!.uid,
           'username': username,
           'email': email,
+          'role': role, // Add role here
           'profileImageUrl': null,
           'createdAt': FieldValue.serverTimestamp(),
         });
@@ -40,8 +42,9 @@ class AuthService {
     return null;
   }
 
-  // Sign in with Google and create/update user document
-  Future<UserCredential?> loginWithGoogle() async {
+  // Sign in with Google and create/update user document with role
+  Future<UserCredential?> loginWithGoogle(
+      {String defaultRole = 'student'}) async {
     try {
       final googleUser = await GoogleSignIn().signIn();
       if (googleUser == null) {
@@ -51,30 +54,35 @@ class AuthService {
 
       final googleAuth = await googleUser.authentication;
 
-      print("ID Token: ${googleAuth.idToken}");
-      print("Access Token: ${googleAuth.accessToken}");
-
       final credential = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,
         accessToken: googleAuth.accessToken,
       );
 
       final userCredential = await _auth.signInWithCredential(credential);
-      print("User signed in: ${userCredential.user?.email}");
 
       // Create/update user document for Google sign-in
       if (userCredential.user != null) {
-        await _firestore.collection('users').doc(userCredential.user!.uid).set(
-          {
+        final userDoc = await _firestore
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .get();
+
+        if (!userDoc.exists) {
+          // Set default role for new Google user
+          await _firestore
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .set({
             'uid': userCredential.user!.uid,
             'username': userCredential.user!.displayName ??
                 'User${userCredential.user!.uid.substring(0, 5)}',
             'email': userCredential.user!.email,
+            'role': defaultRole, // Assign default role
             'profileImageUrl': userCredential.user!.photoURL,
             'createdAt': FieldValue.serverTimestamp(),
-          },
-          SetOptions(merge: true),
-        );
+          });
+        }
       }
 
       return userCredential;
@@ -84,6 +92,21 @@ class AuthService {
     }
   }
 
+  // Get user role
+  Future<String?> getUserRole() async {
+    try {
+      final user = _auth.currentUser;
+      if (user != null) {
+        final doc = await _firestore.collection('users').doc(user.uid).get();
+        return doc.exists ? doc['role'] as String : null;
+      }
+    } catch (e) {
+      throw Exception("Failed to get user role: $e");
+    }
+    return null;
+  }
+
+  // Login with email and password
   Future<User?> loginWithEmailAndPassword(String email, String password) async {
     try {
       final userCredential = await _auth.signInWithEmailAndPassword(
