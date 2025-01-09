@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'app_colour.dart';
-import 'auth_service.dart';
-import 'text_field.dart';
-import 'background_with_emojis.dart';
+import 'package:student/components/app_colour.dart';
+import 'package:student/Admin/auth_service.dart';
+import 'package:student/components/text_field.dart';
+import 'package:student/components/background_with_emojis.dart';
 import 'reset_password.dart';
 
 class AdminLoginPage extends StatefulWidget {
@@ -308,7 +308,7 @@ class _LoginPageState extends State<AdminLoginPage> {
 
     if (user != null) {
       //log("Login successful");
-      Navigator.pushNamed(context, '/admindashboard');
+      Navigator.pushNamed(context, '/adminhomepage');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
