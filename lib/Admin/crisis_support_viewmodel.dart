@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'crisis_support_repository.dart';
+import 'package:student/Admin/crisis_support_repository.dart';
 
 class CrisisSupport extends StatefulWidget {
   const CrisisSupport({super.key});

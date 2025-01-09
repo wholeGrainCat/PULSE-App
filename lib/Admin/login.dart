@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:student/components/app_colour.dart';
 import 'package:student/Admin/auth_service.dart';
 import 'package:student/components/text_field.dart';
-import 'auth_service.dart';
-import 'package:student/components/text_field.dart';
 import 'package:student/components/background_with_emojis.dart';
-import 'reset_password.dart';
+import 'package:student/Admin/reset_password.dart';
 
 class AdminLoginPage extends StatefulWidget {
   const AdminLoginPage({super.key});
