@@ -5,18 +5,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:student/components/bottom_navigation.dart';
 
-class StudentHomePage extends StatefulWidget {
-  const StudentHomePage({super.key});
+class ChatHomePage extends StatefulWidget {
+  const ChatHomePage({super.key});
 
   @override
-  State<StudentHomePage> createState() => _StudentHomePageState();
+  State<ChatHomePage> createState() => _ChatHomePageState();
 }
 
-class _StudentHomePageState extends State<StudentHomePage> {
+class _ChatHomePageState extends State<ChatHomePage> {
   bool showUnread = true;
   bool showCounsellorButton = false;
   bool showAnonymousPost = false;
+  int _currentIndex = 3;
 
   final String currentStudentId =
       FirebaseAuth.instance.currentUser?.uid ?? ''; // Current student ID
@@ -24,12 +27,45 @@ class _StudentHomePageState extends State<StudentHomePage> {
   TextEditingController anonymousMessageController = TextEditingController();
   TextEditingController userMessageController = TextEditingController();
 
-  int _selectedIndex = 0;
+  void navigateTo(String page) {
+    print("Navigating to $page");
+    // Handle other navigation cases
+    if (page == 'Resource') {
+      Navigator.pushNamed(context, '/resource');
+    } else if (page == 'Dashboard') {
+      Navigator.pushNamed(context, '/studentdashboard');
+    } else if (page == 'Chat') {
+      Navigator.pushNamed(context, '/chat');
+    } else if (page == 'Profile') {
+      Navigator.pushNamed(context, '/profile');
+    }
+  }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  Future<void> checkMoodStatus() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      // Retrieve the last logged date and mood status
+      String? lastLoggedDate = prefs.getString('lastLoggedDate_$userId');
+      DateTime today = DateTime.now();
+      String todayString = "${today.year}-${today.month}-${today.day}";
+
+      // Check if the last logged date matches today's date
+      bool hasLoggedMood = (lastLoggedDate == todayString);
+      print("User ID: $userId");
+      print("Last Logged Date: $lastLoggedDate");
+      print("Has logged mood today: $hasLoggedMood");
+
+      if (hasLoggedMood) {
+        // Navigate to the mood done page (only once)
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pushReplacementNamed(context, '/mooddonecheckin');
+        });
+      } else {
+        // Navigate to the mood tracker page if not logged
+        Navigator.pushReplacementNamed(context, '/moodtracker');
+      }
+    }
   }
 
   void _confirmDelete(BuildContext context, String chatRoomId) {
@@ -98,10 +134,11 @@ class _StudentHomePageState extends State<StudentHomePage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
+        automaticallyImplyLeading: false,
         elevation: 0,
         title: const Text(
           'Peer Support',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
         ),
         centerTitle: true,
         actions: [
@@ -112,6 +149,32 @@ class _StudentHomePageState extends State<StudentHomePage> {
         ],
       ),
       backgroundColor: Colors.white,
+      bottomNavigationBar: BottomNavigation(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+
+          switch (index) {
+            case 0:
+              navigateTo('Resource');
+              break;
+            case 1:
+              checkMoodStatus();
+              break;
+            case 2:
+              navigateTo('Dashboard');
+              break;
+            case 3:
+              navigateTo('Chat');
+              break;
+            case 4:
+              navigateTo('Profile');
+              break;
+          }
+        },
+      ),
       body: Column(
         children: [
           Row(
@@ -542,30 +605,6 @@ class _StudentHomePageState extends State<StudentHomePage> {
               ),
             ),
         ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.health_and_safety_rounded),
-            label: 'Resources',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.date_range_rounded),
-            label: 'Appointment',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: 'Chat',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            label: 'Profile',
-          ),
-        ],
-        selectedItemColor: const Color(0xFF613CEA),
-        unselectedItemColor: Colors.grey,
       ),
     );
   }

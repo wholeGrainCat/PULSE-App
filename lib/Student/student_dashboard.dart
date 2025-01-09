@@ -217,13 +217,13 @@ class _StudentDashboardState extends State<StudentDashboard> {
               checkMoodStatus();
               break;
             case 2:
-              Navigator.pushNamed(context, '/studentdashboard');
+              navigateTo('Dashboard');
               break;
             case 3:
-              Navigator.pushNamed(context, '/chat');
+              navigateTo('Chat');
               break;
             case 4:
-              Navigator.pushNamed(context, '/profile');
+              navigateTo('Profile');
               break;
           }
         },

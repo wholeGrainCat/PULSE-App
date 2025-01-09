@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:student/Student/chat/student_home_page.dart';
+import 'package:student/Student/chat/chat_home_page.dart';
 import 'package:student/Student/resources/anxiety.dart';
 import 'package:student/Student/resources/depression.dart';
 import 'package:student/Student/resources/self-care.dart';
@@ -86,7 +86,7 @@ class MyApp extends StatelessWidget {
         '/selfhelptools': (context) => const SelfHelpTools(),
         '/appointments': (context) => const AppointmentScreen(),
         '/profile': (context) => const ProfileScreen(),
-        '/chat': (context) => const StudentHomePage(),
+        '/chat': (context) => const ChatHomePage(),
         '/logout': (context) => const LogoutPage(),
       },
     );

@@ -35,6 +35,20 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
     checkMoodStatus();
   }
 
+  void navigateTo(String page) {
+    print("Navigating to $page");
+    // Handle other navigation cases
+    if (page == 'Resource') {
+      Navigator.pushNamed(context, '/resource');
+    } else if (page == 'Dashboard') {
+      Navigator.pushNamed(context, '/studentdashboard');
+    } else if (page == 'Chat') {
+      Navigator.pushNamed(context, '/chat');
+    } else if (page == 'Profile') {
+      Navigator.pushNamed(context, '/profile');
+    }
+  }
+
   // SET*Save whether the user has completed their mood logging for the day
   Future<void> saveMoodStatus(bool hasLoggedMood) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -87,20 +101,6 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
     });
   }
 
-  void navigateTo(String page) {
-    print("Navigating to $page");
-    // Handle other navigation cases
-    if (page == 'Resource') {
-      Navigator.pushNamed(context, '/resource');
-    } else if (page == 'Dashboard') {
-      Navigator.pushNamed(context, '/studentdashboard');
-    } else if (page == 'Chat') {
-      Navigator.pushNamed(context, '/chat');
-    } else if (page == 'Profile') {
-      Navigator.pushNamed(context, '/profile');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     // Get current date and format it
@@ -127,10 +127,10 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
               navigateTo('Dashboard');
               break;
             case 3:
-              Navigator.pushNamed(context, '/chat');
+              navigateTo('Chat');
               break;
             case 4:
-              Navigator.pushNamed(context, '/profile');
+              navigateTo('Profile');
               break;
           }
         },

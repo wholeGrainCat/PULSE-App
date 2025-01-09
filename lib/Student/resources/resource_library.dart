@@ -6,6 +6,8 @@ import 'package:student/components/bottom_navigation.dart';
 import 'package:student/Student/resources/articles.dart';
 import 'package:student/Student/resources/videos.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ResourceLibraryPage extends StatefulWidget {
   const ResourceLibraryPage({super.key});
@@ -42,60 +44,88 @@ class ResourceService {
         .map((doc) => doc.data() as Map<String, dynamic>)
         .toList();
   }
-
-  // Search resources by title (articles/videos)
-  // Future<List<Map<String, dynamic>>> searchResources(String searchTerm) async {
-  //   QuerySnapshot snapshot = await _firestore
-  //       .collection('resources')
-  //       .where('title', isGreaterThanOrEqualTo: searchTerm)
-  //       .where('title', isLessThanOrEqualTo: '$searchTerm\uf8ff')
-  //       .get();
-
-  //   return snapshot.docs
-  //       .map((doc) => doc.data() as Map<String, dynamic>)
-  //       .toList();
-  // }
 }
 
 class _ResourceLibraryPageState extends State<ResourceLibraryPage> {
   final ResourceService _resourceService = ResourceService();
   final TextEditingController _searchController = TextEditingController();
   String searchTerm = "";
+  int _currentIndex = 0;
+
+  void navigateTo(String page) {
+    print("Navigating to $page");
+    // Handle other navigation cases
+    if (page == 'Resource') {
+      Navigator.pushNamed(context, '/resource');
+    } else if (page == 'Dashboard') {
+      Navigator.pushNamed(context, '/studentdashboard');
+    } else if (page == 'Chat') {
+      Navigator.pushNamed(context, '/chat');
+    } else if (page == 'Profile') {
+      Navigator.pushNamed(context, '/profile');
+    }
+  }
+
+  Future<void> checkMoodStatus() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      // Retrieve the last logged date and mood status
+      String? lastLoggedDate = prefs.getString('lastLoggedDate_$userId');
+      DateTime today = DateTime.now();
+      String todayString = "${today.year}-${today.month}-${today.day}";
+
+      // Check if the last logged date matches today's date
+      bool hasLoggedMood = (lastLoggedDate == todayString);
+      print("User ID: $userId");
+      print("Last Logged Date: $lastLoggedDate");
+      print("Has logged mood today: $hasLoggedMood");
+
+      if (hasLoggedMood) {
+        // Navigate to the mood done page (only once)
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pushReplacementNamed(context, '/mooddonecheckin');
+        });
+      } else {
+        // Navigate to the mood tracker page if not logged
+        Navigator.pushReplacementNamed(context, '/moodtracker');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    int currentIndex = 0;
-    void navigateTo(String page) {
-      // Replace with actual navigation logic
-    }
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         centerTitle: true,
-        title: const Text('Resources'),
+        title: const Text('Resources',
+            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 24)),
         backgroundColor: Colors.white,
       ),
       bottomNavigationBar: BottomNavigation(
-        currentIndex: currentIndex,
+        currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
-            currentIndex = index;
+            _currentIndex = index;
           });
+
           switch (index) {
             case 0:
-              Navigator.pushNamed(context, '/resource');
+              navigateTo('Resource');
               break;
             case 1:
-              Navigator.pushNamed(context, '/moodtracker');
+              checkMoodStatus();
               break;
             case 2:
-              Navigator.pushNamed(context, '/studentdashboard');
+              navigateTo('Dashboard');
               break;
             case 3:
-              navigateTo("Chat");
+              navigateTo('Chat');
               break;
             case 4:
-              navigateTo("Profile");
+              navigateTo('Profile');
               break;
           }
         },
@@ -127,16 +157,13 @@ class _ResourceLibraryPageState extends State<ResourceLibraryPage> {
                   ),
                 ),
                 const Divider(
-                  color: Colors.black, // Change the color of the divider
-                  thickness: 2, // Set the thickness of the divider
-                  indent: 70, // Add space before the divider starts
-                  endIndent: 70, // Add space after the divider ends
-                  height:
-                      7, // Set the height of the divider (space around the divider)
+                  color: Colors.black,
+                  thickness: 2,
+                  indent: 70,
+                  endIndent: 70,
+                  height: 7,
                 ),
                 _buildResourceList('Articles'),
-                // const SizedBox(height: 10),
-                // Recommended Videos Section
                 _buildResourceList('Videos'),
               ],
             ),
@@ -192,7 +219,7 @@ class _ResourceLibraryPageState extends State<ResourceLibraryPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              height: 120, // Set a fixed height for all images
+              height: 120,
               width: double
                   .infinity, // Ensures the image takes up the full width of the container
               child: ClipRRect(
@@ -219,13 +246,13 @@ class _ResourceLibraryPageState extends State<ResourceLibraryPage> {
                           child: Icon(
                             Icons.play_circle_filled,
                             color: Colors.white,
-                            size: 48, // Make the icon larger if necessary
+                            size: 48,
                           ),
                         ),
                       ),
                   ],
                 ),
-              ), // Fallback if no image
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -244,11 +271,6 @@ class _ResourceLibraryPageState extends State<ResourceLibraryPage> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  // Text(
-                  //   resource['category'],
-                  //   style: const TextStyle(
-                  //       fontSize: 12, fontWeight: FontWeight.w500),
-                  // ),
                 ],
               ),
             ),
@@ -287,7 +309,6 @@ class _ResourceLibraryPageState extends State<ResourceLibraryPage> {
             contentPadding: const EdgeInsets.symmetric(vertical: 10.0),
           ),
           onChanged: (query) {
-            // Update the search query and filter the resources
             setState(() {
               searchTerm = query;
             });

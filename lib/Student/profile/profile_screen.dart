@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:student/Student/auth_service.dart';
-import 'package:student/Student/mood/mood_tracker.dart';
 import 'package:student/Student/profile/appoinment_history.dart';
 import 'package:student/Student/profile/change_password.dart';
 import 'package:student/Student/profile/help_center.dart';
@@ -8,8 +7,8 @@ import 'package:student/Student/profile/notifications.dart';
 import 'package:student/Student/profile/edit_profile.dart';
 import 'package:student/Student/profile/settings_page.dart';
 import 'package:student/components/bottom_navigation.dart';
-import 'package:student/Student/resources/resource_library.dart';
-import 'package:student/Student/student_dashboard.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -25,20 +24,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final AuthService _auth = AuthService(); // Initialize AuthService
   int _currentIndex = 4; // Start with 'Profile' tab selected
 
-  // List of pages corresponding to each tab
-  final List<Widget> _pages = [
-    // Add your other screens here for each bottom nav item
-    const ResourceLibraryPage(), // Resource tab
-    const MoodTrackerPage(), // Mood tab
-    const StudentDashboard(), // Home tab
-    const Placeholder(), // Support tab
-    const ProfileScreen(), // Profile tab (this one is ProfileScreen itself)
-  ];
+  void navigateTo(String page) {
+    print("Navigating to $page");
+    // Handle other navigation cases
+    if (page == 'Resource') {
+      Navigator.pushNamed(context, '/resource');
+    } else if (page == 'Dashboard') {
+      Navigator.pushNamed(context, '/studentdashboard');
+    } else if (page == 'Chat') {
+      Navigator.pushNamed(context, '/chat');
+    } else if (page == 'Profile') {
+      Navigator.pushNamed(context, '/profile');
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _loadUserData(); // Load user data when screen initializes
+  }
+
+  Future<void> checkMoodStatus() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      // Retrieve the last logged date and mood status
+      String? lastLoggedDate = prefs.getString('lastLoggedDate_$userId');
+      DateTime today = DateTime.now();
+      String todayString = "${today.year}-${today.month}-${today.day}";
+
+      // Check if the last logged date matches today's date
+      bool hasLoggedMood = (lastLoggedDate == todayString);
+      print("User ID: $userId");
+      print("Last Logged Date: $lastLoggedDate");
+      print("Has logged mood today: $hasLoggedMood");
+
+      if (hasLoggedMood) {
+        // Navigate to the mood done page (only once)
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pushReplacementNamed(context, '/mooddonecheckin');
+        });
+      } else {
+        // Navigate to the mood tracker page if not logged
+        Navigator.pushReplacementNamed(context, '/moodtracker');
+      }
+    }
   }
 
   // Function to mask email for privacy
@@ -83,7 +113,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Profile")),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        title: const Text(
+          "Profile",
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 24),
+        ),
+      ),
+      bottomNavigationBar: BottomNavigation(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+
+          switch (index) {
+            case 0:
+              navigateTo('Resource');
+              break;
+            case 1:
+              checkMoodStatus();
+              break;
+            case 2:
+              navigateTo('Dashboard');
+              break;
+            case 3:
+              navigateTo('Chat');
+              break;
+            case 4:
+              navigateTo('Profile');
+              break;
+          }
+        },
+      ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -239,18 +303,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
             ),
-      bottomNavigationBar: BottomNavigation(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => _pages[index]),
-            );
-          });
-        },
-      ),
     );
   }
 
