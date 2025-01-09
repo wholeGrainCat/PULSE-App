@@ -3,11 +3,7 @@ import 'auth_service.dart';
 import 'package:student/components/app_colour.dart';
 import 'package:student/components/background_style_three.dart';
 import 'package:student/components/background_with_emojis.dart';
-<<<<<<< HEAD
 import 'package:student/components/text_field.dart';
-=======
-import 'text_field.dart';
->>>>>>> 9b91a688bb5e37dcae5decd782636ecfc486ca5c
 
 class ResetPasswordPage extends StatefulWidget {
   const ResetPasswordPage({super.key});

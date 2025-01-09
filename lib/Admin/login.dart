@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:student/components/app_colour.dart';
-<<<<<<< HEAD
 import 'package:student/Admin/auth_service.dart';
 import 'package:student/components/text_field.dart';
-=======
 import 'auth_service.dart';
-import 'text_field.dart';
->>>>>>> 9b91a688bb5e37dcae5decd782636ecfc486ca5c
+import 'package:student/components/text_field.dart';
 import 'package:student/components/background_with_emojis.dart';
 import 'reset_password.dart';
 
