@@ -248,11 +248,7 @@ class _CounsellorsPageState extends State<EditCounsellorsPage> {
                             padding: const EdgeInsets.all(20.0),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(20),
-<<<<<<< HEAD
                               child: Image.asset(
-=======
-                              child: Image.network(
->>>>>>> 9b91a688bb5e37dcae5decd782636ecfc486ca5c
                                 counsellor['image']!,
                                 height: 250,
                                 width: double.infinity,
@@ -371,13 +367,8 @@ class _CounsellorsPageState extends State<EditCounsellorsPage> {
             },
           );
         },
-<<<<<<< HEAD
-        child: const Icon(Icons.add),
-        backgroundColor: Colors.blue,
-=======
         backgroundColor: Colors.blue,
         child: const Icon(Icons.add),
->>>>>>> 9b91a688bb5e37dcae5decd782636ecfc486ca5c
       ),
     );
   }
