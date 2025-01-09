@@ -18,7 +18,7 @@ import 'package:student/pages/self_help_tools.dart';
 import 'package:student/pages/student_dashboard.dart';
 import 'package:student/user_role_selection.dart';
 import 'package:student/onboarding/onboardingscreen.dart';
-import 'package:student/pages/appoinment_screen.dart';
+import 'package:student/pages/appoinment/appoinment_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:url_launcher/url_launcher.dart';
 //import 'package:student/pages/cloud_messageing.dart'; // Import your CloudMessaging class

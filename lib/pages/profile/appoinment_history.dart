@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:student/pages/appoinment_model.dart';
+import 'package:student/pages/appoinment/appoinment_model.dart';
 //import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:student/components/app_colour.dart'; // Import AppColors
 

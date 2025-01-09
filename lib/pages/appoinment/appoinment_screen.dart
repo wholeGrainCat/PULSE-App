@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:student/pages/appointment_new.dart';
+import 'package:student/pages/appoinment/appointment_new.dart';
 import 'package:student/components/bottom_navigation.dart'; // Import the BottomNavigation widget
 
 class AppointmentScreen extends StatefulWidget {
