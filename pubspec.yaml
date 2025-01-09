@@ -51,6 +51,8 @@ dependencies:
   shared_preferences: ^2.3.2
   font_awesome_flutter: ^10.8.0
   # flutter_local_notifications: ^18.0.1
+  flutter_svg: ^2.0.16
+  
 
 dev_dependencies:
   flutter_test:
@@ -98,6 +100,8 @@ flutter:
     - assets/images/profilepic.png
     - assets/images/pulse_logo.png
     - assets/images/psycon_logo.png
+
+
 
 
   #   - images/a_dot_ham.jpeg

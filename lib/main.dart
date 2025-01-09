@@ -1,5 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
+=======
+import 'package:student/Admin/pages/admin_profile_page.dart';
+import 'package:student/Admin/pages/appointment_page.dart';
+>>>>>>> 9b91a688bb5e37dcae5decd782636ecfc486ca5c
 import 'package:student/chat/admin_home_page.dart';
 import 'package:student/chat/chat_home_page.dart';
 import 'package:student/Student/resources/anxiety.dart';
@@ -23,8 +28,14 @@ import 'package:student/Student/appoinment/appoinment_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:student/Admin/login.dart';
+<<<<<<< HEAD
 
 // import 'package:student/Admin/admin_dashboard.dart';
+=======
+import 'package:student/Admin/admin_dashboard.dart';
+import 'package:student/Admin/edit_resource_library.dart';
+import 'package:student/Admin/pages/selfhelp_tools.dart';
+>>>>>>> 9b91a688bb5e37dcae5decd782636ecfc486ca5c
 //import 'package:student/pages/cloud_messageing.dart'; // Import your CloudMessaging class
 //import 'package:shared_preferences/shared_preferences.dart';
 
@@ -94,12 +105,21 @@ class MyApp extends StatelessWidget {
         '/logout': (context) => const LogoutPage(),
         //Admin
         '/adminlogin': (context) => const AdminLoginPage(),
+<<<<<<< HEAD
         '/adminhomepage': (context) => const AdminHomePage(),
         // '/admindashboard': (context) => const AdminDashboard(),
         //'/adminprofile':(context) => const AdminProfile(),
         //'/adminappointment':(context) => const AdminAppointment(),
         //'/adminchat':(context) => const AdminChat(),
         //'/adminresource':(context) => const AdminResource(),
+=======
+        '/admindashboard': (context) => const AdminDashboard(),
+        '/adminprofile': (context) => const AdminProfilePage(),
+        '/adminappointment': (context) => const AdminAppointmentPage(),
+        '/adminchat': (context) => const AdminHomePage(),
+        '/adminresource': (context) => const EditResourceLibraryPage(),
+        '/adminselfhelptools': (context) => const SelfhelpToolsPage(),
+>>>>>>> 9b91a688bb5e37dcae5decd782636ecfc486ca5c
       },
     );
   }
