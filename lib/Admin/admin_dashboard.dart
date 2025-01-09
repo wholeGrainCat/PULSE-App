@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:student/Admin/pages/counsellor_page.dart';
-import 'appointment_screen.dart';
-import 'appointment_barchart_repository.dart';
-import 'appointment_barchart.dart';
-import 'crisis_support_viewmodel.dart';
+import 'package:student/Admin/appointment_screen.dart';
+import 'package:student/Admin/appointment_barchart_repository.dart';
+import 'package:student/Admin/appointment_barchart.dart';
+import 'package:student/Admin/crisis_support_viewmodel.dart';
 import 'package:student/Admin/pages/selfhelp_tools.dart';
 
 class AdminDashboard extends StatefulWidget {
