@@ -31,7 +31,7 @@ class NotificationPage extends StatelessWidget {
           // Background Image
           Positioned.fill(
             child: Image.asset(
-              'images/background.png',
+              'assets/images/background.png',
               fit: BoxFit.cover,
             ),
           ),

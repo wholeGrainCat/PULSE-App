@@ -47,7 +47,7 @@ class AdminCounsellorPage extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
           ),
           child: SvgPicture.asset(
-            'icons/Back.svg',
+            'assets/icons/Back.svg',
             height: 20,
             width: 20,
           ),
@@ -65,7 +65,7 @@ class AdminCounsellorPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
             child: SvgPicture.asset(
-              'icons/Bell.svg',
+              'assets/icons/Bell.svg',
               height: 20,
               width: 20,
             ),
@@ -92,7 +92,7 @@ class AdminCounsellorPage extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: Image.asset(
-                    'images/psycon.png',
+                    'assets/images/psycon.png',
                     height: 180,
                     width: double.infinity,
                     fit: BoxFit.contain,

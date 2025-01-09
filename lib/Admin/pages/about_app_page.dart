@@ -11,7 +11,7 @@ class AboutAppPage extends StatelessWidget {
           // Background Image
           Positioned.fill(
             child: Image.asset(
-              'images/background.png', // Background image for the page
+              'assets/images/background.png', // Background image for the page
               fit: BoxFit.cover, // Cover the entire screen
             ),
           ),
@@ -126,7 +126,7 @@ class AboutAppPage extends StatelessWidget {
                               ),
                               padding: const EdgeInsets.all(16.0),
                               child: Image.asset(
-                                'images/psycon.png', // Path to PsyCon logo
+                                'assets/images/psycon.png', // Path to PsyCon logo
                                 height: 80, // Logo size
                               ),
                             ),

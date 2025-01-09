@@ -14,7 +14,8 @@ class CreateCounsellorPage extends StatelessWidget {
 
     return Scaffold(
       appBar: appBar(context),
-      body: padding(emailController, imageController, nameController, phoneNumberController, context),
+      body: padding(emailController, imageController, nameController,
+          phoneNumberController, context),
     );
   }
 
@@ -71,7 +72,12 @@ class CreateCounsellorPage extends StatelessWidget {
     );
   }
 
-  Padding padding(TextEditingController emailController, TextEditingController imageController, TextEditingController nameController, TextEditingController phoneNumberController, BuildContext context) {
+  Padding padding(
+      TextEditingController emailController,
+      TextEditingController imageController,
+      TextEditingController nameController,
+      TextEditingController phoneNumberController,
+      BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(15.0),
       child: SingleChildScrollView(
@@ -222,7 +228,9 @@ class CreateCounsellorPage extends StatelessWidget {
     );
   }
 
-  void _showDialog(BuildContext context, String message, IconData icon, Color iconColor, {bool navigateBack = false}) {
+  void _showDialog(
+      BuildContext context, String message, IconData icon, Color iconColor,
+      {bool navigateBack = false}) {
     showDialog(
       context: context,
       builder: (BuildContext context) {

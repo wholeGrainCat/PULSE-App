@@ -74,7 +74,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
               children: [
                 Positioned.fill(
                   child: Image.asset(
-                    'images/background.png',
+                    'assets/images/background.png',
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -101,7 +101,8 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                             radius: 40,
                             backgroundImage: profilePictureUrl.isNotEmpty
                                 ? NetworkImage(profilePictureUrl)
-                                : const AssetImage('images/placeholder.png')
+                                : const AssetImage(
+                                        'assets/images/placeholder.png')
                                     as ImageProvider,
                           ),
                           const SizedBox(width: 15),
@@ -140,7 +141,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                               );
                             },
                             child: SvgPicture.asset(
-                              'icons/Edit.svg',
+                              'assets/icons/Edit.svg',
                               height: 40,
                               width: 40,
                             ),
@@ -153,7 +154,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                     Center(
                       child: _buildMenuContainer(
                         context,
-                        'icons/notification.png',
+                        'assets/icons/notification.png',
                         "Notification",
                         page: const NotificationPage(),
                       ),
@@ -161,7 +162,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                     Center(
                       child: _buildMenuContainer(
                         context,
-                        'icons/appointment.png',
+                        'assets/icons/appointment.png',
                         "Appointment History",
                         page: const AdminAppointmentPage(),
                       ),
@@ -169,7 +170,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                     Center(
                       child: _buildMenuContainer(
                         context,
-                        'icons/password.png',
+                        'assets/icons/password.png',
                         "Change Password",
                         page: const ChangePasswordPage(),
                       ),
@@ -177,7 +178,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                     Center(
                       child: _buildMenuContainer(
                         context,
-                        'icons/info.png',
+                        'assets/icons/info.png',
                         "Help Center",
                         page: const HelpCenterPage(),
                       ),
@@ -185,7 +186,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                     Center(
                       child: _buildMenuContainer(
                         context,
-                        'icons/settings.png',
+                        'assets/icons/settings.png',
                         "Settings",
                         page: const SettingsPage(),
                       ),

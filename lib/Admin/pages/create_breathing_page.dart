@@ -8,7 +8,8 @@ class CreateBreathingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextEditingController titleController = TextEditingController();
-    final TextEditingController introductionController = TextEditingController();
+    final TextEditingController introductionController =
+        TextEditingController();
     final TextEditingController line1Controller = TextEditingController();
     final TextEditingController line2Controller = TextEditingController();
     final TextEditingController line3Controller = TextEditingController();
@@ -368,8 +369,9 @@ class CreateBreathingPage extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   final String title = titleController.text.trim();
-                  final String introduction = introductionController.text.trim();
-                  final String line1= line1Controller.text.trim();
+                  final String introduction =
+                      introductionController.text.trim();
+                  final String line1 = line1Controller.text.trim();
                   final String line2 = line2Controller.text.trim();
                   final String line3 = line3Controller.text.trim();
                   final String line4 = line4Controller.text.trim();
@@ -383,8 +385,7 @@ class CreateBreathingPage extends StatelessWidget {
                   if (title.isNotEmpty &&
                       introduction.isNotEmpty &&
                       conclusion.isNotEmpty) {
-                    FirebaseFirestore.instance
-                      .collection('breaths').add({
+                    FirebaseFirestore.instance.collection('breaths').add({
                       'title': title,
                       'introduction': introduction,
                       'line1': line1,
@@ -449,7 +450,9 @@ class CreateBreathingPage extends StatelessWidget {
     );
   }
 
-  void _showDialog(BuildContext context, String message, IconData icon, Color iconColor, {bool navigateBack = false}) {
+  void _showDialog(
+      BuildContext context, String message, IconData icon, Color iconColor,
+      {bool navigateBack = false}) {
     showDialog(
       context: context,
       builder: (BuildContext context) {

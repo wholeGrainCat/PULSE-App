@@ -153,8 +153,7 @@ class CreateCbtexerciseVideoPage extends StatelessWidget {
                   if (thumbnail.isNotEmpty &&
                       title.isNotEmpty &&
                       url.isNotEmpty) {
-                    FirebaseFirestore.instance
-                      .collection('cbtvideos').add({
+                    FirebaseFirestore.instance.collection('cbtvideos').add({
                       'thumbnail': thumbnail,
                       'title': title,
                       'url': url
@@ -209,7 +208,9 @@ class CreateCbtexerciseVideoPage extends StatelessWidget {
     );
   }
 
-  void _showDialog(BuildContext context, String message, IconData icon, Color iconColor, {bool navigateBack = false}) {
+  void _showDialog(
+      BuildContext context, String message, IconData icon, Color iconColor,
+      {bool navigateBack = false}) {
     showDialog(
       context: context,
       builder: (BuildContext context) {

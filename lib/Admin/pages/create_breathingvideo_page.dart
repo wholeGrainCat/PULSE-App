@@ -154,7 +154,8 @@ class CreateBreathingVideoPage extends StatelessWidget {
                       title.isNotEmpty &&
                       url.isNotEmpty) {
                     FirebaseFirestore.instance
-                      .collection('breathingvideos').add({
+                        .collection('breathingvideos')
+                        .add({
                       'thumbnail': thumbnail,
                       'title': title,
                       'url': url
@@ -209,7 +210,9 @@ class CreateBreathingVideoPage extends StatelessWidget {
     );
   }
 
-  void _showDialog(BuildContext context, String message, IconData icon, Color iconColor, {bool navigateBack = false}) {
+  void _showDialog(
+      BuildContext context, String message, IconData icon, Color iconColor,
+      {bool navigateBack = false}) {
     showDialog(
       context: context,
       builder: (BuildContext context) {

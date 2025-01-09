@@ -11,7 +11,7 @@ class AppointmentHistoryPage extends StatelessWidget {
           // Background Image
           Positioned.fill(
             child: Image.asset(
-              'images/background.png', // Replace with your image path
+              'assets/images/background.png', // Replace with your image path
               fit: BoxFit.cover,
             ),
           ),

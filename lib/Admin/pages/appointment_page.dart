@@ -818,7 +818,7 @@ class _AppointmentPageState extends State<AdminAppointmentPage> {
             borderRadius: BorderRadius.circular(10),
           ),
           child: SvgPicture.asset(
-            'icons/Back.svg',
+            'assets/icons/Back.svg',
             height: 20,
             width: 20,
           ),
@@ -836,7 +836,7 @@ class _AppointmentPageState extends State<AdminAppointmentPage> {
               borderRadius: BorderRadius.circular(10),
             ),
             child: SvgPicture.asset(
-              'icons/Bell.svg',
+              'assets/icons/Bell.svg',
               height: 20,
               width: 20,
             ),

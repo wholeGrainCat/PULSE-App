@@ -273,19 +273,3 @@ class _DashboardState extends State<AdminDashboard> {
     );
   }
 }
-
-// Placeholder Pages, DELETE this class when compiling
-class ManageResourcesPage extends StatelessWidget {
-  const ManageResourcesPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Manage UNIMAS Resources'),
-      ),
-      body: const Center(
-          child: Text('Testing only. Manage Unimas Resources Page')),
-    );
-  }
-}

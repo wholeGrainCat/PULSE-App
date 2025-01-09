@@ -18,10 +18,10 @@ class CreateCbtexercisePage extends StatelessWidget {
   }
 
   Padding padding(
-    TextEditingController numberController,
-    TextEditingController titleController,
-    TextEditingController urlController,
-    BuildContext context) {
+      TextEditingController numberController,
+      TextEditingController titleController,
+      TextEditingController urlController,
+      BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(15.0),
       child: Column(
@@ -90,9 +90,7 @@ class CreateCbtexercisePage extends StatelessWidget {
                 final String number = numberController.text.trim();
                 final String title = titleController.text.trim();
                 final String url = urlController.text.trim();
-                if (number.isNotEmpty && 
-                title.isNotEmpty && 
-                url.isNotEmpty) {
+                if (number.isNotEmpty && title.isNotEmpty && url.isNotEmpty) {
                   FirebaseFirestore.instance.collection('cbtexercises').add({
                     'number': number,
                     'title': title,
@@ -123,22 +121,18 @@ class CreateCbtexercisePage extends StatelessWidget {
                 }
               },
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40, 
-                  vertical: 15
-                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 backgroundColor: Colors.purple,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)
-                ),
+                    borderRadius: BorderRadius.circular(10)),
               ),
               child: const Text(
                 "Save",
                 style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold
-                ),
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -200,7 +194,9 @@ class CreateCbtexercisePage extends StatelessWidget {
     );
   }
 
-  void _showDialog(BuildContext context, String message, IconData icon, Color iconColor, {bool navigateBack = false}) {
+  void _showDialog(
+      BuildContext context, String message, IconData icon, Color iconColor,
+      {bool navigateBack = false}) {
     showDialog(
       context: context,
       builder: (BuildContext context) {

@@ -100,7 +100,26 @@ flutter:
     - assets/images/profilepic.png
     - assets/images/pulse_logo.png
     - assets/images/psycon_logo.png
-
+    - assets/images/background.png
+    - assets/icons/Edit.svg
+    - assets/icons/Add.svg
+    - assets/icons/AddRing.svg
+    - assets/icons/appointment.png
+    - assets/icons/ArrowRight.svg
+    - assets/icons/Back.svg
+    - assets/icons/Bell.svg
+    - assets/icons/edit.svg
+    - assets/icons/left.svg
+    - assets/icons/right.svg
+    - assets/icons/settings.png
+    - assets/icons/password.png
+    - assets/icons/notification.png
+    - assets/icons/password.png
+    - assets/icons/logout.png
+    - assets/icons/info.png
+    - assets/icons/chat.png
+    - assets/images/psycon.png
+    - assets/images/placeholder.png
 
 
 
