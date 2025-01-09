@@ -256,7 +256,7 @@ class _LoginPageState extends State<AdminLoginPage> {
 
     if (user != null) {
       //log("Login successful");
-      Navigator.pushNamed(context, '/admindashboard');
+      Navigator.pushNamed(context, '/adminhomepage');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

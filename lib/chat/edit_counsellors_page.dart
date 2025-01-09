@@ -248,7 +248,7 @@ class _CounsellorsPageState extends State<EditCounsellorsPage> {
                             padding: const EdgeInsets.all(20.0),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(20),
-                              child: Image.network(
+                              child: Image.asset(
                                 counsellor['image']!,
                                 height: 250,
                                 width: double.infinity,
