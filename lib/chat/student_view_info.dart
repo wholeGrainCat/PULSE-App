@@ -28,7 +28,7 @@ class _StudentViewInfoState extends State<StudentViewInfo> {
           counsellors.add({
             'userId': userDoc.id,
             'id': counsellorDoc.id,
-            'image': data['image'] ?? 'https://via.placeholder.com/150',
+            'image': data['image'] ?? 'assets/images/placeholder.png',
             'name': data['name'] ?? 'No Name',
             'description': data['description'] ?? 'No Description',
           });

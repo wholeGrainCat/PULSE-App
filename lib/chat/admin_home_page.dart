@@ -243,7 +243,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                       return FutureBuilder<DocumentSnapshot>(
                         future: FirebaseFirestore.instance
                             .collection(
-                                'Users') // Replace with your Users collection
+                                'users') // Replace with your Users collection
                             .doc(studentId)
                             .get(),
                         builder: (context, userSnapshot) {

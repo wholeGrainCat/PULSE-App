@@ -28,7 +28,7 @@ class _CounsellorsPageState extends State<EditCounsellorsPage> {
           .doc(userId)
           .collection('counsellors')
           .doc(
-              userId) // Use the user's uid to store counsellor info under a unique ID
+              'profile') // Use the user's uid to store counsellor info under a unique ID
           .get();
 
       if (!counsellorDoc.exists) {
@@ -37,8 +37,7 @@ class _CounsellorsPageState extends State<EditCounsellorsPage> {
             .collection('users')
             .doc(userId)
             .collection('counsellors')
-            .doc(
-                userId) // Ensure that each user can only add one counsellor document
+            .doc('profile')
             .set({
           'image': _imageController.text,
           'name': _nameController.text,

@@ -455,7 +455,7 @@ class _ChatHomePageState extends State<ChatHomePage> {
 
                       return FutureBuilder<DocumentSnapshot>(
                         future: FirebaseFirestore.instance
-                            .collection('Users')
+                            .collection('users')
                             .doc(receiverId)
                             .collection('counsellors')
                             .doc(receiverId)
