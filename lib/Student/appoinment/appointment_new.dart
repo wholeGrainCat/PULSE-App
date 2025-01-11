@@ -59,7 +59,7 @@ class _NewAppointmentScreenState extends State<NewAppointmentScreen> {
           .add(appointmentData);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Appointment saved successfully!')),
+        const SnackBar(content: Text('Appoinment details saved successfully!')),
       );
 
       Navigator.push(

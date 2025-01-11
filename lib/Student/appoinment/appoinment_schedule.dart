@@ -98,31 +98,27 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
   }
 
   // Save appointment data to Firebase with availability check
-  Future<void> _saveAppointment() async {
-    if (bookedTimes.contains(selectedTime)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('This time slot is already booked!')),
-      );
-      return;
-    }
-
-    if (bookedLocations.contains(selectedLocation)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('This location is already booked for this time!')),
-      );
-      return;
-    }
-
-    setState(() {
-      isLoading = true;
-    });
-
+  Future<bool> _checkAvailability() async {
     try {
-      // One final check before saving
       String formattedDate = selectedDate.toLocal().toString().split(' ')[0];
 
-      // Check if the location is still available
+      // Check counselor availability
+      QuerySnapshot counselorCheck = await FirebaseFirestore.instance
+          .collection('scheduled_appointments')
+          .where('date', isEqualTo: formattedDate)
+          .where('time', isEqualTo: selectedTime)
+          .where('counselor', isEqualTo: selectedCounselor)
+          .get();
+
+      if (counselorCheck.docs.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Counselor is not available at this time')),
+        );
+        return false;
+      }
+
+      // Check location availability
       QuerySnapshot locationCheck = await FirebaseFirestore.instance
           .collection('scheduled_appointments')
           .where('date', isEqualTo: formattedDate)
@@ -133,11 +129,44 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
       if (locationCheck.docs.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text(
-                  'This location was just booked. Please select another.')),
+              content: Text('Location is already booked for this time')),
         );
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      print("Error checking availability: $e");
+      return false;
+    }
+  }
+
+  Future<void> _saveAppointment() async {
+    if (selectedCounselor.isEmpty ||
+        selectedTime.isEmpty ||
+        selectedLocation.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      // First check availability
+      bool isAvailable = await _checkAvailability();
+      if (!isAvailable) {
+        setState(() {
+          isLoading = false;
+        });
         return;
       }
+
+      // If available, proceed with saving
+      String formattedDate = selectedDate.toLocal().toString().split(' ')[0];
 
       await FirebaseFirestore.instance
           .collection('scheduled_appointments')
@@ -148,27 +177,35 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
         'counselor': selectedCounselor,
         'userId': FirebaseAuth.instance.currentUser?.uid,
         'createdAt': FieldValue.serverTimestamp(),
+        'status': 'scheduled' // Adding a status field
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Appointment Scheduled successfully!')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Appointment Scheduled successfully!')),
+        );
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const AppointmentScreen(),
-        ),
-      );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const AppointmentScreen(),
+          ),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to schedule appointment')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Failed to schedule appointment: ${e.toString()}')),
+        );
+      }
       print("Error saving appointment: $e");
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
