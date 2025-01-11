@@ -1,16 +1,63 @@
-# login
+# PULSE: Student Mental Health Support App
 
-A new Flutter project.
+PULSE is an academic prototype designed to provide mental health and wellness support for students. Developed by Team **Appitude**, the app focuses on addressing mental health challenges in a user-friendly and engaging way. This project is part of the **TMA3084 - Software Engineering Laboratory** course at UNIMAS.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## Table of Contents
+1. [Project Overview](#project-overview)  
+2. [Features](#features)  
+3. [Technology Stack](#technology-stack)   
+4. [Team Members](#team-members)  
+5. [Acknowledgments](#acknowledgments)
 
-A few resources to get you started if this is your first Flutter project:
+---
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Project Overview
+The **PULSE** app aims to:  
+- Assist students in tracking their mental health.  
+- Provide resources and tools for stress management.  
+- Foster connections between students and counseling services.  
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+This prototype is not intended for commercial use but serves as an academic demonstration of mental health app development.
+
+---
+
+## Features
+- **Mood Tracking:** Daily knomood logging with visual insights.  
+- **Mental Health Resources:** Articles, guides, and tips curated by experts.  
+- **Counseling Connection with Appointment System:**  
+  - View available counselors.  
+  - Schedule and update appointments with counselors directly through the app.  
+- **Self-Help Tools:** Suggestions for activities like mindfulness, breathing exercises, and self-care tasks.  
+- **Resources Library:** Access to various article and video for mental health.
+- **Chat Features:** Chat with others anonymous.  
+
+---
+
+## Technology Stack
+- **Frontend:** Flutter  
+- **Backend:** Firebase (or other backend technology used)  
+- **Database:** Firebase Firestore  
+- **Version Control:** GitHub  
+- **Design Tools:** Figma  
+
+---
+
+## Team Members
+1. Chiew Ming Yien -82487
+2. Daniel Ong Chee Ho -86385
+3. Joanne Wong Sue Yii -86159
+4. Khuhan Raj A/L Thiagarajan -86556
+5. Tan Xue Qian -87046
+6. Wang Xin Yu -86039
+
+--
+
+## Acknowledgments
+- UNIMAS Counselor Department: For providing insights and feedback.
+- TMA3084 Course Coordinator: For guidance and support.
+
+
+
+
