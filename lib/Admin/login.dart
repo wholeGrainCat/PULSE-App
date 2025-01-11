@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:student/components/app_colour.dart';
-import 'package:student/Admin/auth_service.dart';
+import 'package:student/auth_service.dart';
 import 'package:student/components/text_field.dart';
 import 'package:student/components/background_with_emojis.dart';
 import 'package:student/Admin/reset_password.dart';
@@ -251,16 +251,33 @@ class _LoginPageState extends State<AdminLoginPage> {
   }
 
   _login() async {
-    final user = await _auth.loginWithEmailAndPassword(
-        emailController.text, passwordController.text);
+    if (!_validateInputs()) {
+      return;
+    }
 
-    if (user != null) {
-      //log("Login successful");
-      Navigator.pushNamed(context, '/admindashboard');
-    } else {
+    try {
+      final user = await _auth.loginWithEmailAndPassword(
+          emailController.text.trim(),
+          passwordController.text,
+          'counsellor' // Add this parameter for admin/counsellor role
+          );
+
+      if (user != null) {
+        Navigator.pushNamed(context, '/admindashboard');
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invalid email or password'),
+        SnackBar(
+          content: Text(
+            e.toString().replaceAll('Exception: ', ''),
+            style: const TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red[400],
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
         ),
       );
     }
