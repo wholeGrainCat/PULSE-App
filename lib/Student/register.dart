@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:student/components/app_colour.dart';
-import 'package:student/Student/auth_service.dart';
+import 'package:student/auth_service.dart';
 import 'login.dart';
 import 'package:student/components/text_field.dart';
 import 'package:student/components/background_with_emojis.dart';
@@ -164,6 +164,7 @@ class _RegisterPageState extends State<RegisterPage> {
       usernameController.text,
       emailController.text,
       passwordController.text,
+      'student',
     );
 
     if (user != null) {

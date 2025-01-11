@@ -7,20 +7,43 @@ class AuthService {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
 
+  // Verify if user has correct role
+  Future<bool> verifyUserRole(String uid, String expectedRole) async {
+    try {
+      final userDoc = await _firestore.collection('users').doc(uid).get();
+      if (!userDoc.exists) return false;
+
+      final subcollection =
+          expectedRole == 'counsellor' ? 'counsellors' : 'students';
+      final profileDoc = await _firestore
+          .collection('users')
+          .doc(uid)
+          .collection(subcollection)
+          .doc('profile')
+          .get();
+
+      return profileDoc.exists;
+    } catch (e) {
+      return false;
+    }
+  }
+
   // Create user with email, password, and username (with role)
   Future<User?> createUserWithEmailAndPassword(
-      String username, String email, String password,
-      {String role = 'student'}) async {
+      String username, String email, String password, String role) async {
     try {
-      // Create the authentication user
       final userCredential = await _auth.createUserWithEmailAndPassword(
           email: email.trim(), password: password.trim());
 
       if (userCredential.user != null) {
-        // Determine the subcollection
         final subcollection = role == 'counsellor' ? 'counsellors' : 'students';
 
-        // Add the user document to the appropriate subcollection
+        // Create the main user document
+        await _firestore.collection('users').doc(userCredential.user!.uid).set({
+          'email': email,
+        });
+
+        // Add profile to the appropriate subcollection
         await _firestore
             .collection('users')
             .doc(userCredential.user!.uid)
@@ -39,7 +62,6 @@ class AuthService {
           'uid': userCredential.user!.uid,
         });
 
-        print("User document created successfully in $subcollection");
         return userCredential.user;
       }
     } on FirebaseAuthException catch (e) {
@@ -55,102 +77,26 @@ class AuthService {
     return null;
   }
 
-  // Sign in with Google and create/update user document with role
-  Future<UserCredential?> loginWithGoogle(
-      {String defaultRole = 'student'}) async {
-    try {
-      final googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) {
-        print("Google Sign-In aborted by user.");
-        return null;
-      }
-
-      final googleAuth = await googleUser.authentication;
-
-      final credential = GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken,
-        accessToken: googleAuth.accessToken,
-      );
-
-      final userCredential = await _auth.signInWithCredential(credential);
-
-      if (userCredential.user != null) {
-        final subcollection =
-            defaultRole == 'counsellor' ? 'counsellors' : 'students';
-
-        final userDoc = await _firestore
-            .collection('users')
-            .doc(userCredential.user!.uid)
-            .collection(subcollection)
-            .doc('profile')
-            .get();
-
-        if (!userDoc.exists) {
-          await _firestore
-              .collection('users')
-              .doc(userCredential.user!.uid)
-              .collection(subcollection)
-              .doc('profile')
-              .set({
-            'uid': userCredential.user!.uid,
-            'username': userCredential.user!.displayName ??
-                'User${userCredential.user!.uid.substring(0, 5)}',
-            'email': userCredential.user!.email,
-            'role': defaultRole,
-            'profileImageUrl': userCredential.user!.photoURL,
-            'createdAt': FieldValue.serverTimestamp(),
-          });
-        }
-      }
-
-      return userCredential;
-    } catch (e) {
-      print("Error in Google Sign-In: $e");
-      throw Exception('Google sign-in error: $e');
-    }
-  }
-
-  // Get user role
-  Future<String?> getUserRole() async {
-    try {
-      final user = _auth.currentUser;
-      if (user != null) {
-        final studentDoc = await _firestore
-            .collection('users')
-            .doc(user.uid)
-            .collection('students')
-            .doc('profile')
-            .get();
-
-        if (studentDoc.exists) {
-          return 'student';
-        }
-
-        final counsellorDoc = await _firestore
-            .collection('users')
-            .doc(user.uid)
-            .collection('counsellors')
-            .doc('profile')
-            .get();
-
-        if (counsellorDoc.exists) {
-          return 'counsellor';
-        }
-      }
-    } catch (e) {
-      throw Exception("Failed to get user role: $e");
-    }
-    return null;
-  }
-
   // Login with email and password
-  Future<User?> loginWithEmailAndPassword(String email, String password) async {
+  Future<User?> loginWithEmailAndPassword(
+      String email, String password, String expectedRole) async {
     try {
       final userCredential = await _auth.signInWithEmailAndPassword(
         email: email.trim(),
         password: password,
       );
-      return userCredential.user;
+
+      if (userCredential.user != null) {
+        // Verify user has the correct role
+        final hasRole =
+            await verifyUserRole(userCredential.user!.uid, expectedRole);
+        if (!hasRole) {
+          await _auth.signOut();
+          throw Exception("This account does not have access to this portal.");
+        }
+        return userCredential.user;
+      }
+      return null;
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
         case 'user-not-found':
@@ -165,7 +111,63 @@ class AuthService {
           throw Exception("Login failed. Please try again");
       }
     } catch (e) {
-      throw Exception("Login failed. Please try again");
+      throw Exception(e.toString());
+    }
+  }
+
+  // Google Sign In
+  Future<UserCredential?> loginWithGoogle(String expectedRole) async {
+    try {
+      final googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) return null;
+
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+        accessToken: googleAuth.accessToken,
+      );
+
+      final userCredential = await _auth.signInWithCredential(credential);
+
+      if (userCredential.user != null) {
+        // Check if user exists with the correct role
+        final hasRole =
+            await verifyUserRole(userCredential.user!.uid, expectedRole);
+
+        // If user doesn't exist or doesn't have the role, create new profile
+        if (!hasRole) {
+          final subcollection =
+              expectedRole == 'counsellor' ? 'counsellors' : 'students';
+
+          // Create main user document
+          await _firestore
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .set({
+            'email': userCredential.user!.email,
+          });
+
+          // Create profile in appropriate subcollection
+          await _firestore
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .collection(subcollection)
+              .doc('profile')
+              .set({
+            'uid': userCredential.user!.uid,
+            'username': userCredential.user!.displayName ??
+                'User${userCredential.user!.uid.substring(0, 5)}',
+            'email': userCredential.user!.email,
+            'role': expectedRole,
+            'profileImageUrl': userCredential.user!.photoURL,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        }
+        return userCredential;
+      }
+      return null;
+    } catch (e) {
+      throw Exception('Authentication failed: $e');
     }
   }
 
