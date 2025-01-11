@@ -24,7 +24,7 @@ class _CounsellorsPageState extends State<EditCounsellorsPage> {
 
       // Check if the counsellor information already exists
       DocumentSnapshot counsellorDoc = await firestore
-          .collection('Users')
+          .collection('users')
           .doc(userId)
           .collection('counsellors')
           .doc(
@@ -34,7 +34,7 @@ class _CounsellorsPageState extends State<EditCounsellorsPage> {
       if (!counsellorDoc.exists) {
         // If no counsellor information exists, add it
         await firestore
-            .collection('Users')
+            .collection('users')
             .doc(userId)
             .collection('counsellors')
             .doc(
@@ -76,7 +76,7 @@ class _CounsellorsPageState extends State<EditCounsellorsPage> {
 
     // Fetch all counsellors for the current user
     QuerySnapshot querySnapshot = await firestore
-        .collection('Users')
+        .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .collection('counsellors')
         .get();
@@ -138,10 +138,11 @@ class _CounsellorsPageState extends State<EditCounsellorsPage> {
                 try {
                   // Update counsellor information in Firestore
                   await FirebaseFirestore.instance
-                      .collection('Users')
+                      .collection('users')
                       .doc(FirebaseAuth.instance.currentUser!.uid)
                       .collection('counsellors')
-                      .doc(counsellorId)
+                      .doc(
+                          counsellorId) // Ensure this is the correct counsellor document
                       .update({
                     'image': _imageController.text,
                     'name': _nameController.text,
@@ -200,7 +201,7 @@ class _CounsellorsPageState extends State<EditCounsellorsPage> {
             // Display existing counsellors
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection('Users')
+                  .collection('users')
                   .doc(FirebaseAuth.instance.currentUser!.uid)
                   .collection('counsellors')
                   .snapshots(),
@@ -249,7 +250,9 @@ class _CounsellorsPageState extends State<EditCounsellorsPage> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(20),
                               child: Image.asset(
-                                counsellor['image']!,
+                                counsellor['image']?.isNotEmpty == true
+                                    ? counsellor['image']!
+                                    : 'assets/images/placeholder.png', // Default image if null or empty
                                 height: 250,
                                 width: double.infinity,
                                 fit: BoxFit.cover,
@@ -263,7 +266,7 @@ class _CounsellorsPageState extends State<EditCounsellorsPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  counsellor['name']!,
+                                  counsellor['name'] ?? '',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -271,7 +274,7 @@ class _CounsellorsPageState extends State<EditCounsellorsPage> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  counsellor['description']!,
+                                  counsellor['description'] ?? '',
                                   style: const TextStyle(
                                     fontSize: 14,
                                     color: Colors.grey,
@@ -294,9 +297,12 @@ class _CounsellorsPageState extends State<EditCounsellorsPage> {
                                   onPressed: () {
                                     showEditDialog(
                                       doc.id, // Use the document ID as counsellorId
-                                      counsellor['image']!,
-                                      counsellor['name']!,
-                                      counsellor['description']!,
+                                      counsellor['image'] ??
+                                          'assets/images/default_image.png', // Default image if null
+                                      counsellor['name'] ??
+                                          'No name provided', // Default name if null
+                                      counsellor['description'] ??
+                                          'No description provided', // Default description if null
                                     );
                                   },
                                 ),

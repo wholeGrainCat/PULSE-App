@@ -10,23 +10,36 @@ class AuthService {
   // Create user with email, password, and username (with role)
   Future<User?> createUserWithEmailAndPassword(
       String username, String email, String password,
-      {String role = 'user'}) async {
+      {String role = 'student'}) async {
     try {
       // Create the authentication user
       final userCredential = await _auth.createUserWithEmailAndPassword(
           email: email.trim(), password: password.trim());
 
       if (userCredential.user != null) {
-        // Create the user document in Firestore with a role
-        await _firestore.collection('users').doc(userCredential.user!.uid).set({
+        // Determine the subcollection
+        final subcollection = role == 'counsellor' ? 'counsellors' : 'students';
+
+        // Add the user document to the appropriate subcollection
+        await _firestore
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .collection(subcollection)
+            .doc('profile')
+            .set({
           'uid': userCredential.user!.uid,
           'username': username,
           'email': email,
-          'role': role, // Add role here
+          'role': role,
           'profileImageUrl': null,
           'createdAt': FieldValue.serverTimestamp(),
         });
 
+        await _firestore.collection('usernames').doc(username).set({
+          'uid': userCredential.user!.uid,
+        });
+
+        print("User document created successfully in $subcollection");
         return userCredential.user;
       }
     } on FirebaseAuthException catch (e) {
@@ -61,24 +74,29 @@ class AuthService {
 
       final userCredential = await _auth.signInWithCredential(credential);
 
-      // Create/update user document for Google sign-in
       if (userCredential.user != null) {
+        final subcollection =
+            defaultRole == 'counsellor' ? 'counsellors' : 'students';
+
         final userDoc = await _firestore
             .collection('users')
             .doc(userCredential.user!.uid)
+            .collection(subcollection)
+            .doc('profile')
             .get();
 
         if (!userDoc.exists) {
-          // Set default role for new Google user
           await _firestore
               .collection('users')
               .doc(userCredential.user!.uid)
+              .collection(subcollection)
+              .doc('profile')
               .set({
             'uid': userCredential.user!.uid,
             'username': userCredential.user!.displayName ??
                 'User${userCredential.user!.uid.substring(0, 5)}',
             'email': userCredential.user!.email,
-            'role': defaultRole, // Assign default role
+            'role': defaultRole,
             'profileImageUrl': userCredential.user!.photoURL,
             'createdAt': FieldValue.serverTimestamp(),
           });
@@ -97,8 +115,27 @@ class AuthService {
     try {
       final user = _auth.currentUser;
       if (user != null) {
-        final doc = await _firestore.collection('users').doc(user.uid).get();
-        return doc.exists ? doc['role'] as String : null;
+        final studentDoc = await _firestore
+            .collection('users')
+            .doc(user.uid)
+            .collection('students')
+            .doc('profile')
+            .get();
+
+        if (studentDoc.exists) {
+          return 'student';
+        }
+
+        final counsellorDoc = await _firestore
+            .collection('users')
+            .doc(user.uid)
+            .collection('counsellors')
+            .doc('profile')
+            .get();
+
+        if (counsellorDoc.exists) {
+          return 'counsellor';
+        }
       }
     } catch (e) {
       throw Exception("Failed to get user role: $e");
@@ -156,12 +193,31 @@ class AuthService {
   }
 
   // Get current user data
+// Fetch current user's data from Firestore
   Future<Map<String, dynamic>?> getCurrentUserData() async {
     try {
       final user = _auth.currentUser;
       if (user != null) {
-        final doc = await _firestore.collection('users').doc(user.uid).get();
-        return doc.data();
+        // Fetch the main user document to determine the role
+        final userDoc =
+            await _firestore.collection('users').doc(user.uid).get();
+
+        if (userDoc.exists) {
+          final userData = userDoc.data();
+          final role = userData?['role']; // Determine the user's role
+
+          // Fetch data from the appropriate subcollection
+          final subcollection =
+              role == 'counsellor' ? 'counsellors' : 'students';
+          final profileDoc = await _firestore
+              .collection('users')
+              .doc(user.uid)
+              .collection(subcollection)
+              .doc('profile')
+              .get();
+
+          return profileDoc.exists ? profileDoc.data() : null;
+        }
       }
       return null;
     } catch (e) {

@@ -26,6 +26,7 @@ class _RegisterPageState extends State<RegisterPage> {
   String? usernameError;
   String? emailError;
   List<String> passwordErrors = [];
+  final _firestore = FirebaseFirestore.instance;
 
   @override
   void initState() {
@@ -113,13 +114,29 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   // Function to check if the username is already taken
-  Future<bool> _isUsernameTaken(String username) async {
-    final result = await FirebaseFirestore.instance
-        .collection('users')
-        .where('username', isEqualTo: username)
-        .get();
+  // Future<bool> _isUsernameTaken(String username) async {
+  //   final result = await FirebaseFirestore.instance
+  //       .collection('users')
+  //       .where('username', isEqualTo: username)
+  //       .get();
 
-    return result.docs.isNotEmpty;
+  //   return result.docs.isNotEmpty;
+  // }
+
+// Function to check if the username is already taken
+  Future<bool> _isUsernameTaken(String username) async {
+    try {
+      bool exists = false;
+      await _firestore.runTransaction((transaction) async {
+        final doc = await transaction
+            .get(_firestore.collection('usernames').doc(username));
+        exists = doc.exists;
+      });
+      return exists;
+    } catch (e) {
+      print('Error checking username: $e');
+      throw Exception('Error checking username availability');
+    }
   }
 
   Future<void> _signup() async {

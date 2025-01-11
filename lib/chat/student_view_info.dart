@@ -1,7 +1,7 @@
-import 'package:student/chat/chat_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:student/chat/chat_page.dart';
 
 class StudentViewInfo extends StatefulWidget {
   const StudentViewInfo({super.key});
@@ -16,29 +16,28 @@ class _StudentViewInfoState extends State<StudentViewInfo> {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
 
     try {
-      // Fetch all documents from the counsellors_info collection
-      QuerySnapshot counsellorsSnapshot =
-          await firestore.collection('counsellors_info').get();
+      QuerySnapshot usersSnapshot = await firestore.collection('users').get();
+      List<Map<String, String>> counsellors = [];
 
-      // Map each document into a list of counsellor information
-      List<Map<String, String>> counsellors =
-          counsellorsSnapshot.docs.map((doc) {
-        var data = doc.data() as Map<String, dynamic>;
+      for (var userDoc in usersSnapshot.docs) {
+        QuerySnapshot counsellorsSnapshot =
+            await userDoc.reference.collection('counsellors').get();
 
-        return {
-          'id': doc.id,
-          'email': data['email']?.toString() ?? 'No Email',
-          'name': data['name']?.toString() ?? 'No Name',
-          'phone': data['phone']?.toString() ?? 'No Phone',
-          'imageUrl':
-              data['imageUrl']?.toString() ?? 'https://via.placeholder.com/150',
-        };
-      }).toList();
-
+        for (var counsellorDoc in counsellorsSnapshot.docs) {
+          var data = counsellorDoc.data() as Map<String, dynamic>;
+          counsellors.add({
+            'userId': userDoc.id,
+            'id': counsellorDoc.id,
+            'image': data['image'] ?? 'https://via.placeholder.com/150',
+            'name': data['name'] ?? 'No Name',
+            'description': data['description'] ?? 'No Description',
+          });
+        }
+      }
       return counsellors;
     } catch (e) {
       print("Error fetching counsellors: $e");
-      return [];
+      throw Exception("Failed to fetch counsellors: $e");
     }
   }
 
@@ -107,7 +106,7 @@ class _StudentViewInfoState extends State<StudentViewInfo> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(20),
                           child: Image.asset(
-                            counsellor['imageUrl']!,
+                            counsellor['image']!,
                             height: 250,
                             width: double.infinity,
                             fit: BoxFit.cover,
@@ -128,7 +127,7 @@ class _StudentViewInfoState extends State<StudentViewInfo> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              counsellor['email']!,
+                              counsellor['description']!,
                               style: const TextStyle(
                                   fontSize: 14, color: Colors.grey),
                             ),
@@ -171,13 +170,7 @@ class _StudentViewInfoState extends State<StudentViewInfo> {
                                             ),
                                             const SizedBox(height: 10),
                                             Text(
-                                              "email: ${counsellor['email']}",
-                                              style:
-                                                  const TextStyle(fontSize: 14),
-                                            ),
-                                            const SizedBox(height: 10),
-                                            Text(
-                                              "phone: ${counsellor['phone']}",
+                                              "Description: ${counsellor['description']}",
                                               style:
                                                   const TextStyle(fontSize: 14),
                                             ),

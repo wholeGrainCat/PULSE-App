@@ -51,12 +51,19 @@ class _StudentDashboardState extends State<StudentDashboard> {
       final userData = await _auth.getCurrentUserData();
       if (userData != null) {
         setState(() {
+          // Fetch the username from the userData
           username = userData['username'] ?? "User";
+        });
+      } else {
+        setState(() {
+          // Fallback value when userData is null
+          username = "User";
         });
       }
     } catch (e) {
       print("Error loading user data: $e");
       setState(() {
+        // Fallback value on error
         username = "User";
       });
     }
