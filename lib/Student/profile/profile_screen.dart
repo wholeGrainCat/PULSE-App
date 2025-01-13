@@ -21,7 +21,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String username = ""; // Default empty string
   String email = ""; // Default empty string
   bool isLoading = true; // Add loading state
+
   final AuthService _auth = AuthService(); // Initialize AuthService
+
   int _currentIndex = 4; // Start with 'Profile' tab selected
 
   void navigateTo(String page) {

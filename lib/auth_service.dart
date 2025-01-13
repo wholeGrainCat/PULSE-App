@@ -200,15 +200,26 @@ class AuthService {
     try {
       final user = _auth.currentUser;
       if (user != null) {
-        // Fetch the main user document to determine the role
+        // First try to fetch from admin collection
+        final adminDoc = await _firestore
+            .collection('users')
+            .doc(user.uid)
+            .collection('counsellors') // Add admin subcollection
+            .doc('profile')
+            .get();
+
+        if (adminDoc.exists) {
+          return adminDoc.data();
+        }
+
+        // If not admin, proceed with existing student/counsellor logic
         final userDoc =
             await _firestore.collection('users').doc(user.uid).get();
 
         if (userDoc.exists) {
           final userData = userDoc.data();
-          final role = userData?['role']; // Determine the user's role
+          final role = userData?['role'];
 
-          // Fetch data from the appropriate subcollection
           final subcollection =
               role == 'counsellor' ? 'counsellors' : 'students';
           final profileDoc = await _firestore

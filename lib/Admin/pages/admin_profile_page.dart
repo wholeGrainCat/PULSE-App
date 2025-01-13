@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:student/Admin/pages/appointment_page.dart';
 import 'package:student/Admin/pages/change_password_page.dart';
 import 'package:student/Admin/pages/edit_admin_profile_page.dart';
@@ -8,6 +7,8 @@ import 'package:student/Admin/pages/notification_page.dart';
 import 'package:student/Admin/pages/privacy_policy_page.dart';
 import 'package:student/Admin/pages/settings_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:student/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AdminProfilePage extends StatefulWidget {
   const AdminProfilePage({super.key});
@@ -21,9 +22,8 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
   String email = "";
   String profilePictureUrl = "";
   bool isLoading = true;
-
   int _currentIndex = 4;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -31,37 +31,83 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
     fetchUserData();
   }
 
-  void fetchUserData() async {
+  Future<void> fetchUserData() async {
     try {
-      // Hardcoded userId for now; replace with dynamic uid later
-      String userId = 'userId1';
+      final userData = await _authService.getCurrentUserData();
 
-      DocumentSnapshot userDoc =
-          await _firestore.collection('users').doc(userId).get();
-
-      if (userDoc.exists) {
+      if (userData != null) {
         setState(() {
-          username = userDoc['username'] ?? 'N/A';
-          email = userDoc['email'] ?? 'N/A';
-          profilePictureUrl = userDoc['profilePicture'] ?? '';
+          username = userData['username'] ?? 'N/A';
+          email = userData['email'] ?? 'N/A';
+          profilePictureUrl = userData['profileImageUrl'] ?? '';
           isLoading = false;
         });
       } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Admin profile not found.")),
+          );
+          setState(() {
+            isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("User data not found.")),
+          SnackBar(content: Text("Failed to fetch admin data: $e")),
         );
         setState(() {
           isLoading = false;
         });
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to fetch user data: $e")),
-      );
-      setState(() {
-        isLoading = false;
-      });
     }
+  }
+
+  Future<void> _handleLogout() async {
+    try {
+      await _authService.signout();
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Log out failed: $e")),
+        );
+      }
+    }
+  }
+
+  Widget _buildMenuContainer(
+      BuildContext context, String imagePath, String title,
+      {required Widget page}) {
+    return Container(
+      width: 300,
+      height: 50,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.grey,
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: ListTile(
+        leading: Image.asset(imagePath, width: 30, height: 30),
+        title: Text(title, style: const TextStyle(fontSize: 16)),
+        trailing:
+            const Icon(Icons.arrow_forward_ios, size: 18, color: Colors.grey),
+        onTap: () {
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => page));
+        },
+      ),
+    );
   }
 
   @override
@@ -135,7 +181,9 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                                 MaterialPageRoute(
                                   builder: (context) => EditProfilePage(
                                     initialUsername: username,
-                                    userId: 'userId1', // Pass hardcoded userId
+                                    userId: FirebaseAuth
+                                            .instance.currentUser?.uid ??
+                                        '',
                                   ),
                                 ),
                               );
@@ -150,7 +198,6 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                       ),
                     ),
                     const SizedBox(height: 30),
-                    // Additional Pages
                     Center(
                       child: _buildMenuContainer(
                         context,
@@ -191,36 +238,26 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                         page: const SettingsPage(),
                       ),
                     ),
-                    const SizedBox(height: 30), // Space below menu options
+                    const SizedBox(height: 30),
                     // Log Out Button
                     Center(
                       child: Container(
-                        width: 300, // Width of the button
+                        width: 300,
+                        height: 50,
                         decoration: BoxDecoration(
-                          color: const Color(
-                              0xFFDFFF66), // Light yellow background
+                          color: const Color(0xFFDFFF66),
                           borderRadius: BorderRadius.circular(15),
-                          boxShadow: [
+                          boxShadow: const [
                             BoxShadow(
                               color: Colors.grey,
                               blurRadius: 10,
-                              offset: const Offset(0, 5),
+                              offset: Offset(0, 5),
                             ),
                           ],
                         ),
-                        /*child: ElevatedButton.icon(
-                          onPressed: () async {
-                            try {
-                              await FirebaseAuth.instance.signOut(); // Log out user
-                              Navigator.pushReplacementNamed(
-                                  context, '/login'); // Navigate to login page
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Log out failed: $e")),
-                              );
-                            }
-                          },
-                          icon: Image.asset('assets/icons/logout.png'), // Log out icon
+                        child: ElevatedButton.icon(
+                          onPressed: _handleLogout,
+                          icon: Image.asset('assets/icons/logout.png'),
                           label: const Text(
                             'Log Out',
                             style: TextStyle(
@@ -231,25 +268,24 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.transparent,
                             shadowColor: Colors.transparent,
-                            minimumSize: const Size(double.infinity, 30), // Height
+                            minimumSize: const Size(double.infinity, 30),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
                           ),
-                        ),*/
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 20), // Space below log-out button
-                    // Terms & Privacy Policy
+                    const SizedBox(height: 20),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: GestureDetector(
                         onTap: () {
-                          // Navigate to Terms & Privacy Policy page
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => PrivacyPolicyPage()),
+                              builder: (context) => const PrivacyPolicyPage(),
+                            ),
                           );
                         },
                         child: const Text(
@@ -270,7 +306,6 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
           setState(() {
             _currentIndex = index;
           });
-          // Navigate based on the tab index
           switch (index) {
             case 0:
               Navigator.pushNamed(context, '/adminresource');
@@ -286,8 +321,6 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
               break;
             case 4:
               Navigator.pushNamed(context, '/adminprofile');
-              break;
-            default:
               break;
           }
         },
@@ -315,37 +348,6 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
         ],
         selectedItemColor: const Color(0xFF613CEA),
         unselectedItemColor: Colors.grey,
-      ),
-    );
-  }
-
-  Widget _buildMenuContainer(
-      BuildContext context, String imagePath, String title,
-      {required Widget page}) {
-    return Container(
-      width: 300,
-      height: 50,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey,
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: ListTile(
-        leading: Image.asset(imagePath, width: 30, height: 30),
-        title: Text(title, style: const TextStyle(fontSize: 16)),
-        trailing:
-            const Icon(Icons.arrow_forward_ios, size: 18, color: Colors.grey),
-        onTap: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => page));
-        },
       ),
     );
   }
