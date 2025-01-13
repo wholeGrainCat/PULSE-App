@@ -46,7 +46,6 @@ class _LoginPageState extends State<AdminLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
       resizeToAvoidBottomInset: false,
       backgroundColor: const Color(0xFFFAFAFA),
       body: SafeArea(
@@ -133,6 +132,16 @@ class _LoginPageState extends State<AdminLoginPage> {
                     color: Colors.black,
                   ),
                 ),
+              ),
+            ),
+            Positioned(
+              top: 20, // Adjust this for your design
+              left: 10, // Adjust this for your design
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.black),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
               ),
             ),
           ],

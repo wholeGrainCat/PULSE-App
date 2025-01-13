@@ -113,16 +113,6 @@ class _RegisterPageState extends State<RegisterPage> {
         passwordErrors.isEmpty;
   }
 
-  // Function to check if the username is already taken
-  // Future<bool> _isUsernameTaken(String username) async {
-  //   final result = await FirebaseFirestore.instance
-  //       .collection('users')
-  //       .where('username', isEqualTo: username)
-  //       .get();
-
-  //   return result.docs.isNotEmpty;
-  // }
-
 // Function to check if the username is already taken
   Future<bool> _isUsernameTaken(String username) async {
     try {
@@ -211,6 +201,16 @@ class _RegisterPageState extends State<RegisterPage> {
                     _buildRegistrationForm(context),
                   ],
                 ),
+              ),
+            ),
+            Positioned(
+              top: 20, // Adjust this for your design
+              left: 10, // Adjust this for your design
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.black),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
               ),
             ),
           ],
