@@ -38,6 +38,7 @@ class _CrisisSupportPageState extends State<CrisisSupportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Crisis Support'),
         centerTitle: true,

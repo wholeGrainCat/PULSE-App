@@ -34,7 +34,9 @@ class CounsellorInfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: const Text('Psycon Counsellor'),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
@@ -156,7 +158,7 @@ class _CounsellorCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CircleAvatar(
-              backgroundImage: NetworkImage(imageUrl),
+              backgroundImage: AssetImage(imageUrl),
               radius: 36.0,
             ),
             const SizedBox(width: 16.0),

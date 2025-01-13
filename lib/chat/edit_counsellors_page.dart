@@ -297,7 +297,7 @@ class _CounsellorsPageState extends State<EditCounsellorsPage> {
                                     showEditDialog(
                                       doc.id, // Use the document ID as counsellorId
                                       counsellor['image'] ??
-                                          'assets/images/default_image.png', // Default image if null
+                                          'assets/images/placeholder.png', // Default image if null
                                       counsellor['name'] ??
                                           'No name provided', // Default name if null
                                       counsellor['description'] ??
