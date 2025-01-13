@@ -1,5 +1,6 @@
 import 'package:student/Student/resources/articles.dart';
 import 'package:student/Student/resources/videos.dart';
+import 'package:student/components/admin_bottom_navigation.dart';
 import 'package:student/components/app_colour.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fluentui_emoji_icon/fluentui_emoji_icon.dart';
@@ -39,6 +40,7 @@ class ResourceService {
 
 class _EditResourceLibraryPageState extends State<EditResourceLibraryPage> {
   final ResourceService _resourceService = ResourceService();
+  final TextEditingController _searchController = TextEditingController();
   String searchTerm = "";
   bool isEditMode = false; // Flag to toggle edit mode
 
@@ -53,69 +55,44 @@ class _EditResourceLibraryPageState extends State<EditResourceLibraryPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        surfaceTintColor: Colors.transparent,
+        automaticallyImplyLeading: false,
         centerTitle: true,
         title: const Text('Resources'),
         backgroundColor: Colors.white,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentIndex,
-        onTap: (index) {
-          setState(() {
-            currentIndex = index;
-          });
-          // Navigate based on the tab index
-          switch (index) {
-            case 0:
-              // Navigate to Resources page
-              Navigator.pushNamed(context, '/adminresource');
-              break;
-            case 1:
-              // Navigate to Appointment page
-              Navigator.pushNamed(context, '/adminappointment');
-              break;
-            case 2:
-              // Navigate to Chat page
-              Navigator.pushNamed(
-                  context, '/admindashboard'); // Use named route for chat
-              break;
-            case 3:
-              // Navigate to Profile page
-              Navigator.pushNamed(context, '/adminchat');
-              break;
-            case 4:
-              // Navigate to Profile page
-              Navigator.pushNamed(context, '/adminprofile');
-              break;
-            default:
-              break;
-          }
-        },
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.health_and_safety_rounded),
-            label: 'Resources',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.date_range_rounded),
-            label: 'Appointment',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: 'Chat',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            label: 'Profile',
-          ),
-        ],
-        selectedItemColor: const Color(0xFF613CEA),
-        unselectedItemColor: Colors.grey,
-      ),
+      bottomNavigationBar: AdminBottomNavigation(
+          currentIndex: currentIndex,
+          onTap: (index) {
+            setState(() {
+              currentIndex = index;
+            });
+            // Navigate based on the tab index
+            switch (index) {
+              case 0:
+                // Navigate to Resources page
+                Navigator.pushNamed(context, '/adminresource');
+                break;
+              case 1:
+                // Navigate to Appointment page
+                Navigator.pushNamed(context, '/adminappointment');
+                break;
+              case 2:
+                // Navigate to Chat page
+                Navigator.pushNamed(
+                    context, '/admindashboard'); // Use named route for chat
+                break;
+              case 3:
+                // Navigate to Profile page
+                Navigator.pushNamed(context, '/adminchat');
+                break;
+              case 4:
+                // Navigate to Profile page
+                Navigator.pushNamed(context, '/adminprofile');
+                break;
+              default:
+                break;
+            }
+          }),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -376,11 +353,7 @@ class _EditResourceLibraryPageState extends State<EditResourceLibraryPage> {
         width: 325,
         height: 44,
         child: TextField(
-          onChanged: (value) {
-            setState(() {
-              searchTerm = value;
-            });
-          },
+          controller: _searchController,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.search),
             hintText: 'Search articles or videos',
@@ -402,6 +375,11 @@ class _EditResourceLibraryPageState extends State<EditResourceLibraryPage> {
             ),
             contentPadding: const EdgeInsets.symmetric(vertical: 10.0),
           ),
+          onChanged: (query) {
+            setState(() {
+              searchTerm = query;
+            });
+          },
         ),
       ),
     );
@@ -434,6 +412,20 @@ class _EditResourceLibraryPageState extends State<EditResourceLibraryPage> {
         }
 
         final resources = snapshot.data!;
+
+        // Filter resources based on the search query
+        final filteredResources = resources.where((resource) {
+          final title = resource['title'].toString().toLowerCase();
+          final description =
+              resource['description']?.toString().toLowerCase() ?? '';
+          final category = resource['category']?.toString().toLowerCase() ?? '';
+          final query = searchTerm.toLowerCase();
+
+          // Check if any of the fields contain the search query
+          return title.contains(query) ||
+              description.contains(query) ||
+              category.contains(query);
+        }).toList();
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -480,8 +472,9 @@ class _EditResourceLibraryPageState extends State<EditResourceLibraryPage> {
               height: 200,
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                children:
-                    resources.map((resource) => _buildCard(resource)).toList(),
+                children: filteredResources
+                    .map((resource) => _buildCard(resource))
+                    .toList(),
               ),
             ),
           ],

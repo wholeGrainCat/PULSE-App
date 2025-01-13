@@ -5,6 +5,7 @@ import 'package:student/Admin/appointment_barchart_repository.dart';
 import 'package:student/Admin/appointment_barchart.dart';
 import 'package:student/Admin/crisis_support_viewmodel.dart';
 import 'package:student/Admin/pages/selfhelp_tools.dart';
+import 'package:student/components/admin_bottom_navigation.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -51,7 +52,9 @@ class _DashboardState extends State<AdminDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Admin Dashboard'),
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -181,7 +184,7 @@ class _DashboardState extends State<AdminDashboard> {
                 ],
               ),
             ),
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: AdminBottomNavigation(
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
@@ -214,30 +217,6 @@ class _DashboardState extends State<AdminDashboard> {
               break;
           }
         },
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.health_and_safety_rounded),
-            label: 'Resources',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.date_range_rounded),
-            label: 'Appointment',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: 'Chat',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            label: 'Profile',
-          ),
-        ],
-        selectedItemColor: const Color(0xFF613CEA),
-        unselectedItemColor: Colors.grey,
       ),
     );
   }
