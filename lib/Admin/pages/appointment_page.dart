@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:student/Admin/models/appointment.dart';
 import 'package:student/Admin/pages/update_appointment_page.dart';
 import 'package:student/Admin/services/appointment_service.dart';
+import 'package:student/components/admin_bottom_navigation.dart';
 
 class AdminAppointmentPage extends StatefulWidget {
   const AdminAppointmentPage({super.key});
@@ -15,6 +16,7 @@ class AdminAppointmentPage extends StatefulWidget {
 class _AppointmentPageState extends State<AdminAppointmentPage> {
   final AppointmentService _appointmentService = AppointmentService();
   bool isPendingSelected = true;
+  int _currentIndex = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +24,40 @@ class _AppointmentPageState extends State<AdminAppointmentPage> {
       appBar: appBar(context),
       backgroundColor: Colors.white,
       body: buildUI(),
+      bottomNavigationBar: AdminBottomNavigation(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+          // Navigate based on the tab index
+          switch (index) {
+            case 0:
+              // Navigate to Resources page
+              Navigator.pushNamed(context, '/adminresource');
+              break;
+            case 1:
+              // Navigate to Appointment page
+              Navigator.pushNamed(context, '/adminappointment');
+              break;
+            case 2:
+              // Navigate to Chat page
+              Navigator.pushNamed(
+                  context, '/admindashboard'); // Use named route for chat
+              break;
+            case 3:
+              // Navigate to Profile page
+              Navigator.pushNamed(context, '/adminchat');
+              break;
+            case 4:
+              // Navigate to Profile page
+              Navigator.pushNamed(context, '/adminprofile');
+              break;
+            default:
+              break;
+          }
+        },
+      ),
     );
   }
 
@@ -795,6 +831,7 @@ class _AppointmentPageState extends State<AdminAppointmentPage> {
 
   AppBar appBar(BuildContext context) {
     return AppBar(
+      automaticallyImplyLeading: false,
       title: const Text(
         'Appointment',
         style: TextStyle(
@@ -806,24 +843,6 @@ class _AppointmentPageState extends State<AdminAppointmentPage> {
       backgroundColor: Colors.white,
       elevation: 0.0,
       centerTitle: true,
-      leading: GestureDetector(
-        onTap: () {
-          Navigator.pop(context);
-        },
-        child: Container(
-          margin: const EdgeInsets.all(10),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: SvgPicture.asset(
-            'assets/icons/Back.svg',
-            height: 20,
-            width: 20,
-          ),
-        ),
-      ),
       actions: [
         GestureDetector(
           onTap: () {},

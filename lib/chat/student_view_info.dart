@@ -216,7 +216,7 @@ class _StudentViewInfoState extends State<StudentViewInfo> {
 
                                   // Get the receiverId (counselor's ID) from the counsellor data
                                   String receiverId = counsellor[
-                                      'id']!; // Assuming 'id' is the counselor's unique ID from the data
+                                      'userId']!; // Assuming 'id' is the counselor's unique ID from the data
 
                                   if (senderId.isNotEmpty &&
                                       receiverId.isNotEmpty) {
@@ -232,6 +232,10 @@ class _StudentViewInfoState extends State<StudentViewInfo> {
                                         ),
                                       ),
                                     );
+                                    print("Counsellor data: $counsellor");
+
+                                    print("Sender ID: $senderId");
+                                    print("Receiver ID: $receiverId");
                                   } else {
                                     // Handle case when IDs are not available
                                     print(

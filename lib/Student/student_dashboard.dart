@@ -78,8 +78,8 @@ class _StudentDashboardState extends State<StudentDashboard> {
       if (user == null) {
         setState(() {
           nearestDate = "Please login to view appointments";
-          nearestTime = "";
-          nearestLocation = "";
+          nearestTime = "-";
+          nearestLocation = "-";
         });
         return;
       }
@@ -100,8 +100,8 @@ class _StudentDashboardState extends State<StudentDashboard> {
         print("No appointments found");
         setState(() {
           nearestDate = "No appointment scheduled";
-          nearestTime = "";
-          nearestLocation = "";
+          nearestTime = "-";
+          nearestLocation = "-";
         });
         return;
       }
@@ -142,16 +142,16 @@ class _StudentDashboardState extends State<StudentDashboard> {
       } else {
         setState(() {
           nearestDate = "No upcoming appointments";
-          nearestTime = "";
-          nearestLocation = "";
+          nearestTime = "-";
+          nearestLocation = "-";
         });
       }
     } catch (e) {
       print("Error fetching appointments: $e");
       setState(() {
         nearestDate = "Error fetching appointments";
-        nearestTime = "";
-        nearestLocation = "";
+        nearestTime = "-";
+        nearestLocation = "-";
       });
     }
   }
@@ -322,55 +322,94 @@ class _StudentDashboardState extends State<StudentDashboard> {
                             ),
                             const SizedBox(height: 8),
                             // Date Row
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.calendar_today,
-                                  color:
-                                      AppColors.pri_purple, // Orange icon color
-                                  size: 20, // Icon size
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  "Date: $nearestDate",
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                              ],
+                            Padding(
+                              padding: const EdgeInsets.only(left: 20.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  const Icon(
+                                    Icons.calendar_today,
+                                    color: AppColors
+                                        .pri_purple, // Orange icon color
+                                    size: 20, // Icon size
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text.rich(
+                                    TextSpan(
+                                      text: "Date: ",
+                                      style: const TextStyle(fontSize: 14),
+                                      children: [
+                                        TextSpan(
+                                          text: nearestDate,
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                             const SizedBox(height: 6),
                             // Time Row
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.access_time,
-                                  color: Colors.purple, // Orange icon color
-                                  size: 20, // Icon size
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  "Time: $nearestTime",
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                              ],
+                            Padding(
+                              padding: const EdgeInsets.only(left: 20.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  const Icon(
+                                    Icons.access_time,
+                                    color: Colors.purple, // Orange icon color
+                                    size: 20, // Icon size
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text.rich(
+                                    TextSpan(
+                                      text: "Time: ",
+                                      style: const TextStyle(fontSize: 14),
+                                      children: [
+                                        TextSpan(
+                                          text: nearestTime,
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                             const SizedBox(height: 6),
                             // Location Row
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.location_on,
-                                  color: Colors.green, // Orange icon color
-                                  size: 20, // Icon size
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  "Location: $nearestLocation",
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                              ],
+                            Padding(
+                              padding: const EdgeInsets.only(left: 20.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  const Icon(
+                                    Icons.location_on,
+                                    color: Colors.green, // Orange icon color
+                                    size: 20, // Icon size
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text.rich(
+                                    TextSpan(
+                                      text: "Location: ",
+                                      style: const TextStyle(fontSize: 14),
+                                      children: [
+                                        TextSpan(
+                                          text: nearestLocation,
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),

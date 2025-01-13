@@ -50,11 +50,12 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-
     // Mark messages as read only for the current user
     final chatRoomId = getChatRoomId();
+    print(chatRoomId);
     markMessagesAsRead(
         chatRoomId, widget.senderId); // Only mark messages for sender
+    _ensureChatRoomExists(chatRoomId);
   }
 
   void _updateTypingStatus(bool isTyping) {
@@ -63,6 +64,25 @@ class _ChatPageState extends State<ChatPage> {
     FirebaseFirestore.instance.collection('chats').doc(chatRoomId).update({
       'typing.${widget.senderId}': isTyping,
     });
+  }
+
+  Future<void> _ensureChatRoomExists(String chatRoomId) async {
+    try {
+      final chatDoc =
+          FirebaseFirestore.instance.collection('chats').doc(chatRoomId);
+      final docSnapshot = await chatDoc.get();
+      if (!docSnapshot.exists) {
+        await chatDoc.set({
+          'participants': [widget.senderId, widget.receiverId],
+          'lastMessage': '',
+          'lastTimestamp': FieldValue.serverTimestamp(),
+          'isResolved': false,
+          'name': widget.chat['name'] ?? 'Unknown User',
+        });
+      }
+    } catch (e) {
+      print('Error ensuring chat room exists: $e');
+    }
   }
 
   void _sendMessage() async {

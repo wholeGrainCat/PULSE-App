@@ -458,7 +458,7 @@ class _ChatHomePageState extends State<ChatHomePage> {
                             .collection('users')
                             .doc(receiverId)
                             .collection('counsellors')
-                            .doc(receiverId)
+                            .doc('profile')
                             .get(),
                         builder: (context, userSnapshot) {
                           if (!userSnapshot.hasData) {
