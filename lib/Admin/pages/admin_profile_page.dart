@@ -9,6 +9,7 @@ import 'package:student/Admin/pages/settings_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:student/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:student/components/admin_bottom_navigation.dart';
 
 class AdminProfilePage extends StatefulWidget {
   const AdminProfilePage({super.key});
@@ -300,54 +301,39 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                 ),
               ],
             ),
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: AdminBottomNavigation(
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
             _currentIndex = index;
           });
+          // Navigate based on the tab index
           switch (index) {
             case 0:
+              // Navigate to Resources page
               Navigator.pushNamed(context, '/adminresource');
               break;
             case 1:
+              // Navigate to Appointment page
               Navigator.pushNamed(context, '/adminappointment');
               break;
             case 2:
-              Navigator.pushNamed(context, '/admindashboard');
+              // Navigate to Chat page
+              Navigator.pushNamed(
+                  context, '/admindashboard'); // Use named route for chat
               break;
             case 3:
+              // Navigate to Profile page
               Navigator.pushNamed(context, '/adminchat');
               break;
             case 4:
+              // Navigate to Profile page
               Navigator.pushNamed(context, '/adminprofile');
+              break;
+            default:
               break;
           }
         },
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.health_and_safety_rounded),
-            label: 'Resources',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.date_range_rounded),
-            label: 'Appointment',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: 'Chat',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            label: 'Profile',
-          ),
-        ],
-        selectedItemColor: const Color(0xFF613CEA),
-        unselectedItemColor: Colors.grey,
       ),
     );
   }

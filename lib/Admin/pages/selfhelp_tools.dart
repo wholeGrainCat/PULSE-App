@@ -2,17 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:student/Admin/models/advertisement.dart';
-import 'package:student/Admin/models/breathing.dart';
-import 'package:student/Admin/models/cbtexercise.dart';
 import 'package:student/Admin/pages/advertisement_page.dart';
-import 'package:student/Admin/pages/appointment_page.dart';
 import 'package:student/Admin/pages/breathing_page.dart';
 import 'package:student/Admin/pages/cbtexercise_page.dart';
 import 'package:student/Admin/services/advertisement_service.dart';
-import 'package:student/Admin/models/meditation.dart';
 import 'package:student/Admin/pages/meditation_page.dart';
-import 'package:student/Admin/services/meditation_service.dart';
-import 'package:student/Admin/pages/counsellor_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 final List<Color> backgrounds = [

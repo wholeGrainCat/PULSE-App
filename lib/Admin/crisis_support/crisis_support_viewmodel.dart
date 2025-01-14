@@ -129,8 +129,8 @@ class _CrisisSupportState extends State<CrisisSupport> {
             onDelete: (docID) => fireStoreService.deleteEmergencyHotline(docID),
             onAdd: () => openNoteBox(type: 'emergency'),
           ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 30.0), // Add bottom padding
+          const Padding(
+            padding: EdgeInsets.only(bottom: 30.0), // Add bottom padding
             child: SizedBox.shrink(),
           ),
         ],
@@ -260,7 +260,7 @@ class MentalHealthHotline extends StatelessWidget {
                       title: Text(
                         name,
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       subtitle: Text(
                         number, // Display hotline number in subtitle
@@ -373,7 +373,7 @@ class EmergencyHotline extends StatelessWidget {
                       title: Text(
                         name,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                             color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                       subtitle: Text(
