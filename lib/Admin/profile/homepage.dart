@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:student/Admin/counselling_appointment/appointment_page.dart';
 import 'admin_profile_page.dart';
-import '../counselling_appointment/counsellor_page.dart';
+import '../psycon_info/counsellor_page.dart';
 import '../self-help_tools/selfhelp_tools.dart';
 
 class Homepage extends StatefulWidget {

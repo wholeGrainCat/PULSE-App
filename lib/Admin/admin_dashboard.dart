@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:student/Admin/counselling_appointment/counsellor_page.dart';
+import 'package:student/Admin/psycon_info/counsellor_page.dart';
 import 'package:student/Admin/counselling_appointment/appointment_screen.dart';
 import 'package:student/Admin/counselling_appointment/appointment_barchart_repository.dart';
 import 'package:student/Admin/counselling_appointment/appointment_barchart.dart';
