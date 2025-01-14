@@ -1,31 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
-import 'package:student/Student/resources/resource_library.dart';
-import 'package:student/Student/mood/mood_tracker.dart';
-import 'package:student/Student/student_dashboard.dart';
-import 'package:student/Student/profile/profile_screen.dart';
-
-void main() {
-  runApp(const CrisisSupport());
-}
-
-class CrisisSupport extends StatelessWidget {
-  const CrisisSupport({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: const CrisisSupportPage(),
-      routes: {
-        '/resource': (context) => const ResourceLibraryPage(),
-        '/moodtracker': (context) => const MoodTrackerPage(),
-        '/studentdashboard': (context) => const StudentDashboard(),
-        '/profile': (context) => const ProfileScreen(),
-      },
-    );
-  }
-}
 
 class CrisisSupportPage extends StatefulWidget {
   const CrisisSupportPage({super.key});
@@ -109,31 +84,58 @@ class _CrisisSupportPageState extends State<CrisisSupportPage> {
 class MentalHealthHotline extends StatelessWidget {
   const MentalHealthHotline({super.key});
 
+  Future<List<Map<String, dynamic>>> fetchMentalHealthHotlines() async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('mentalHealthHotline')
+        .get();
+    return snapshot.docs
+        .map((doc) => {'name': doc['name'], 'number': doc['number']})
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Mental Health Hotline',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: fetchMentalHealthHotlines(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return const Center(child: Text('Error loading hotlines.'));
+        }
+
+        final hotlines = snapshot.data ?? [];
+        if (hotlines.isEmpty) {
+          return const Center(
+            child: Text('No mental health hotlines available.'),
+          );
+        }
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Mental Health Hotline',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              ...hotlines.map((hotline) {
+                return HotlineButton(
+                  title: hotline['name'],
+                  backgroundColor: const Color(0xFFD9F65C),
+                  textColor: Colors.black,
+                  phoneNumber: hotline['number'],
+                );
+              }).toList(),
+            ],
           ),
-          SizedBox(height: 10),
-          HotlineButton(
-            title: 'Befrienders 082-242800',
-            icon: Icons.phone,
-            iconColor: Colors.black,
-            backgroundColor: Color(0xFFD9F65C),
-            textColor: Colors.black,
-            phoneNumber: '082242800',
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -141,67 +143,73 @@ class MentalHealthHotline extends StatelessWidget {
 class EmergencyHotline extends StatelessWidget {
   const EmergencyHotline({super.key});
 
+  Future<List<Map<String, dynamic>>> fetchEmergencyHotlines() async {
+    final snapshot =
+        await FirebaseFirestore.instance.collection('emergencyHotline').get();
+    return snapshot.docs
+        .map((doc) => {'name': doc['name'], 'number': doc['number']})
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Emergency Contact Hotline',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: fetchEmergencyHotlines(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return const Center(child: Text('Error loading hotlines.'));
+        }
+
+        final hotlines = snapshot.data ?? [];
+        if (hotlines.isEmpty) {
+          return const Center(
+            child: Text('No emergency hotlines available.'),
+          );
+        }
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Emergency Contact Hotline',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              ...hotlines.map((hotline) {
+                return HotlineButton(
+                  title: hotline['name'],
+                  backgroundColor: Colors.red,
+                  textColor: Colors.white,
+                  phoneNumber: hotline['number'],
+                );
+              }).toList(),
+            ],
           ),
-          SizedBox(height: 10),
-          HotlineButton(
-            title: 'Polis Bantuan UNIMAS +6017-212 7464',
-            icon: Icons.local_police,
-            backgroundColor: Colors.red,
-            phoneNumber: '+60172127464',
-          ),
-          HotlineButton(
-            title: 'Rescue 991',
-            icon: Icons.fire_truck,
-            backgroundColor: Colors.red,
-            phoneNumber: '991',
-          ),
-          HotlineButton(
-            title: 'Hotline 082-244444',
-            icon: Icons.support_agent,
-            backgroundColor: Colors.red,
-            phoneNumber: '082244444',
-          ),
-          HotlineButton(
-            title: '082-230689',
-            icon: Icons.local_hospital,
-            backgroundColor: Colors.red,
-            phoneNumber: '082230689',
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
 
 class HotlineButton extends StatelessWidget {
   final String title;
-  final IconData icon;
   final Color backgroundColor;
   final Color textColor;
-  final Color iconColor;
   final String phoneNumber;
 
   const HotlineButton({
     super.key,
     required this.title,
-    required this.icon,
     required this.backgroundColor,
     required this.phoneNumber,
     this.textColor = Colors.white,
-    this.iconColor = Colors.white,
   });
 
   @override
@@ -223,13 +231,18 @@ class HotlineButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: iconColor,
-            ),
-            const SizedBox(width: 16),
             Text(
               title,
+              style: TextStyle(
+                color: textColor,
+                fontSize: 16,
+              ),
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            Text(
+              phoneNumber,
               style: TextStyle(
                 color: textColor,
                 fontSize: 16,

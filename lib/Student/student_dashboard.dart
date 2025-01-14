@@ -510,7 +510,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
     // Map index to respective screen
     final screens = [
       const SelfHelpTools(), // Screen for Self-Help Tools
-      const CrisisSupport(), // Screen for Crisis Support
+      const CrisisSupportPage(), // Screen for Crisis Support
       const CounsellorInfoScreen(), // Screen for UNIMAS Support
       const AppointmentScreen(), // Screen for Counselling Appointment
     ];
