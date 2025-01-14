@@ -37,7 +37,7 @@ This prototype is not intended for commercial use but serves as an academic demo
 
 ## Technology Stack
 - **Frontend:** Flutter  
-- **Backend:** Firebase (or other backend technology used)  
+- **Backend:** Firebase
 - **Database:** Firebase Firestore  
 - **Version Control:** GitHub  
 - **Design Tools:** Figma  
