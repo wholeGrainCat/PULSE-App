@@ -110,8 +110,8 @@ flutter:
     - assets/icons/Back.svg
     - assets/icons/Bell.svg
     - assets/icons/edit.svg
-    - assets/icons/left.svg
-    - assets/icons/right.svg
+    - assets/icons/Left.svg
+    - assets/icons/Right.svg
     - assets/icons/settings.png
     - assets/icons/password.png
     - assets/icons/notification.png

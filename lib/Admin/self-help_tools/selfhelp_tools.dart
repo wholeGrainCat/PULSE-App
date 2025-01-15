@@ -2,17 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:student/Admin/self-help_tools/advertisement/advertisement.dart';
-import 'package:student/Admin/self-help_tools/breathing/breathing.dart';
-import 'package:student/Admin/self-help_tools/cbt_exercise/cbtexercise.dart';
 import 'package:student/Admin/self-help_tools/advertisement/advertisement_page.dart';
-import 'package:student/Admin/counselling_appointment/appointment_page.dart';
 import 'package:student/Admin/self-help_tools/breathing/breathing_page.dart';
 import 'package:student/Admin/self-help_tools/cbt_exercise/cbtexercise_page.dart';
 import 'package:student/Admin/self-help_tools/advertisement/advertisement_service.dart';
-import 'package:student/Admin/self-help_tools/meditation/meditation.dart';
 import 'package:student/Admin/self-help_tools/meditation/meditation_page.dart';
-import 'package:student/Admin/self-help_tools/meditation/meditation_service.dart';
-import 'package:student/Admin/counselling_appointment/counsellor_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 final List<Color> backgrounds = [
@@ -142,20 +136,22 @@ class _SelfhelpToolsPageState extends State<SelfhelpToolsPage> {
 
   Widget buildUI() {
     return SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              "Tips: Let's explore tools designed to help you relax, focus, and navigate challenging emotions! 😊",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                "Tips: Let's explore tools designed to help you relax, focus, and navigate challenging emotions! 😊",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+              ),
             ),
-          ),
-          advertisementSection(),
-          const SizedBox(height: 20),
-          categorySection(),
-        ],
+            advertisementSection(),
+            const SizedBox(height: 20),
+            categorySection(),
+          ],
+        ),
       ),
     );
   }

@@ -253,10 +253,10 @@ class BreathingPage extends StatelessWidget {
           );
         }
         final breaths = snapshot.data!.docs;
-        final dynamicTitle = breaths.first.data().title;
+        // final dynamicTitle = breaths.first.data().title;
         return Column(
           children: breaths.asMap().entries.map((entry) {
-            final index = entry.key;
+            // final index = entry.key;
             final doc = entry.value;
             final breathing = doc.data();
             final breathingId = doc.id;

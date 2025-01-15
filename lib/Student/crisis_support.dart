@@ -16,7 +16,6 @@ class _CrisisSupportPageState extends State<CrisisSupportPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Crisis Support'),
-        centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(

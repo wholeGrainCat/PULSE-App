@@ -147,7 +147,7 @@ class CreateMeditationPage extends StatelessWidget {
             ),
             const SizedBox(height: 5),
             TextField(
-              controller: thumbnailController,
+              controller: urlController,
               decoration: InputDecoration(
                 hintText: "Enter YouTube Video URL here.",
                 border: OutlineInputBorder(
