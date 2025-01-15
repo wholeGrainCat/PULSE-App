@@ -3,6 +3,7 @@ import 'package:student/Admin/counselling_appointment/appointment_page.dart';
 import 'package:student/Admin/profile/change_password_page.dart';
 import 'package:student/Admin/profile/edit_admin_profile_page.dart';
 import 'package:student/Admin/profile/help_center_page.dart';
+
 import 'package:student/Admin/profile/privacy_policy_page.dart';
 import 'package:student/Admin/profile/settings_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -116,7 +117,6 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Admin Profile")),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Stack(
