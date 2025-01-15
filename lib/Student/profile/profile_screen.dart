@@ -6,6 +6,7 @@ import 'package:student/Student/profile/help_center.dart';
 import 'package:student/Student/profile/notifications.dart';
 import 'package:student/Student/profile/edit_profile.dart';
 import 'package:student/Student/profile/settings_page.dart';
+import 'package:student/components/background_style_two.dart';
 import 'package:student/components/bottom_navigation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -115,6 +116,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
@@ -152,158 +154,168 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Profile Section
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.2),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
+          : Stack(
+              children: [
+                const BackgroundStyleTwo(),
+                SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 40),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Profile Section
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.2),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          const CircleAvatar(
-                            radius: 40,
-                            backgroundColor: Color.fromARGB(255, 170, 239, 232),
-                            child: CircleAvatar(
-                              radius: 35,
-                              backgroundImage:
-                                  AssetImage('assets/images/profilepic.png'),
-                            ),
-                          ),
-                          const SizedBox(width: 15),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  username,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                          child: Row(
+                            children: [
+                              const CircleAvatar(
+                                radius: 40,
+                                backgroundColor:
+                                    Color.fromARGB(255, 170, 239, 232),
+                                child: CircleAvatar(
+                                  radius: 35,
+                                  backgroundImage: AssetImage(
+                                      'assets/images/profilepic.png'),
                                 ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  email,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                  ),
+                              ),
+                              const SizedBox(width: 15),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      username,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      email,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                              IconButton(
+                                icon:
+                                    const Icon(Icons.edit, color: Colors.black),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => EditProfilePage(
+                                        initialUsername: username,
+                                        onUsernameChanged: (newUsername) {
+                                          setState(() {
+                                            username = newUsername;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.black),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => EditProfilePage(
-                                    initialUsername: username,
-                                    onUsernameChanged: (newUsername) {
-                                      setState(() {
-                                        username = newUsername;
-                                      });
-                                    },
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.notifications,
-                      title: "Notification",
-                      page: const NotificationPage(),
-                    ),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.history,
-                      title: "Appointment History",
-                      page: const AppointmentHistory(),
-                    ),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.lock,
-                      title: "Change Password",
-                      page: const ChangePasswordPage(),
-                    ),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.help,
-                      title: "Help Center",
-                      page: const HelpCenterPage(),
-                    ),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.settings,
-                      title: "Settings",
-                      page: const SettingsPage(),
-                    ),
-                    const SizedBox(height: 30),
-                    ElevatedButton(
-                      onPressed: () async {
-                        bool confirmLogout =
-                            await _showLogoutConfirmationDialog(context);
-                        if (confirmLogout) {
-                          try {
-                            await AuthService().signout();
-                            Navigator.pushReplacementNamed(context, '/logout');
-                          } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Failed to log out: $e")),
-                            );
-                          }
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFDFFF66),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                      ),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.logout, color: Colors.black),
-                          SizedBox(width: 8),
-                          Text(
-                            'Log Out',
-                            style: TextStyle(color: Colors.black, fontSize: 16),
+                        const SizedBox(height: 30),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.notifications,
+                          title: "Notification",
+                          page: const NotificationPage(),
+                        ),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.history,
+                          title: "Appointment History",
+                          page: const AppointmentHistory(),
+                        ),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.lock,
+                          title: "Change Password",
+                          page: const ChangePasswordPage(),
+                        ),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.help,
+                          title: "Help Center",
+                          page: const HelpCenterPage(),
+                        ),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.settings,
+                          title: "Settings",
+                          page: const SettingsPage(),
+                        ),
+                        const SizedBox(height: 30),
+                        ElevatedButton(
+                          onPressed: () async {
+                            bool confirmLogout =
+                                await _showLogoutConfirmationDialog(context);
+                            if (confirmLogout) {
+                              try {
+                                await AuthService().signout();
+                                Navigator.pushReplacementNamed(
+                                    context, '/logout');
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text("Failed to log out: $e")),
+                                );
+                              }
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFDFFF66),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 15),
                           ),
-                        ],
-                      ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.logout, color: Colors.black),
+                              SizedBox(width: 8),
+                              Text(
+                                'Log Out',
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 16),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        const Center(
+                          child: Text(
+                            'Terms & Condition | Privacy Policy',
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 20),
-                    const Center(
-                      child: Text(
-                        'Terms & Condition | Privacy Policy',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
     );
   }

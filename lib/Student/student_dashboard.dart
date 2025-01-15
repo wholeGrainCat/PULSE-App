@@ -292,10 +292,6 @@ class _StudentDashboardState extends State<StudentDashboard> {
                           ),
                         ],
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.notifications),
-                        onPressed: () => _showNotifications(),
-                      ),
                     ],
                   ),
                   const SizedBox(height: 20),

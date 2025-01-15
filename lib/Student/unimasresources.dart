@@ -62,13 +62,26 @@ class CounsellorInfoScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildUnitInfo(),
-                  const SizedBox(height: 32.0),
-                  ...counsellors.map((counsellor) => _CounsellorCard(
-                        imageUrl: counsellor['imageUrl'],
-                        name: counsellor['name'],
-                        phone: counsellor['phone'],
-                        email: counsellor['email'],
-                      )),
+                  const SizedBox(height: 10.0),
+                  ...counsellors.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final counsellor = entry.value;
+
+                    return Column(
+                      children: [
+                        _CounsellorCard(
+                          imageUrl: counsellor['imageUrl'],
+                          name: counsellor['name'],
+                          phone: counsellor['phone'],
+                          email: counsellor['email'],
+                        ),
+                        // Add a Divider unless it's the last item
+                        if (index < counsellors.length - 1)
+                          const Divider(
+                              thickness: 1.0, color: Color(0xffd9d9d9)),
+                      ],
+                    );
+                  }).toList(),
                 ],
               ),
             ),
@@ -105,7 +118,7 @@ class CounsellorInfoScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16.0,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black54,
+                    color: Colors.black,
                   ),
                 ),
                 SizedBox(height: 8.0),
@@ -146,12 +159,9 @@ class _CounsellorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 6.0,
-      margin: const EdgeInsets.symmetric(vertical: 12.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
-      ),
+    return Container(
+      color: Colors.white,
+      margin: const EdgeInsets.symmetric(vertical: 4.0),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Row(
@@ -159,7 +169,7 @@ class _CounsellorCard extends StatelessWidget {
           children: [
             CircleAvatar(
               backgroundImage: AssetImage(imageUrl),
-              radius: 36.0,
+              radius: 40.0,
             ),
             const SizedBox(width: 16.0),
             Expanded(

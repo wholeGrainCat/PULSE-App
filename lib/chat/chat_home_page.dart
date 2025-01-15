@@ -141,12 +141,6 @@ class _ChatHomePageState extends State<ChatHomePage> {
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () {},
-          ),
-        ],
       ),
       backgroundColor: Colors.white,
       bottomNavigationBar: BottomNavigation(
