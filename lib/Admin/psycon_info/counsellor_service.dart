@@ -29,7 +29,7 @@ class CounsellorService {
       await _counsellorRef.add(counsellor);
     } catch (e) {
       print('Error adding counselor: $e');
-      throw e; // Re-throw to handle in UI
+      rethrow; // Re-throw to handle in UI
     }
   }
 }
