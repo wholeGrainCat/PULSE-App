@@ -432,8 +432,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                       style: const TextStyle(fontSize: 14),
                                       children: [
                                         TextSpan(
-                                          text: nearestCounselor ??
-                                              'Not assigned',
+                                          text: nearestCounselor,
                                           style: const TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.bold),
