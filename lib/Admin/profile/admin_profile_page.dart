@@ -3,7 +3,6 @@ import 'package:student/Admin/counselling_appointment/appointment_page.dart';
 import 'package:student/Admin/profile/change_password_page.dart';
 import 'package:student/Admin/profile/edit_admin_profile_page.dart';
 import 'package:student/Admin/profile/help_center_page.dart';
-import 'package:student/Admin/profile/notification_page.dart';
 import 'package:student/Admin/profile/privacy_policy_page.dart';
 import 'package:student/Admin/profile/settings_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -202,14 +201,6 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                       ),
                     ),
                     const SizedBox(height: 30),
-                    Center(
-                      child: _buildMenuContainer(
-                        context,
-                        'assets/icons/notification.png',
-                        "Notification",
-                        page: const NotificationPage(),
-                      ),
-                    ),
                     Center(
                       child: _buildMenuContainer(
                         context,

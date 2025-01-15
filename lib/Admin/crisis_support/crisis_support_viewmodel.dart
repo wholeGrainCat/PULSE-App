@@ -85,12 +85,6 @@ class _CrisisSupportState extends State<CrisisSupport> {
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.black),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: ListView(
         children: [

@@ -53,25 +53,6 @@ class CreateCbtexerciseVideoPage extends StatelessWidget {
           ),
         ),
       ),
-      actions: [
-        GestureDetector(
-          onTap: () {},
-          child: Container(
-            margin: const EdgeInsets.all(10),
-            alignment: Alignment.center,
-            width: 37,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: SvgPicture.asset(
-              'assets/icons/Bell.svg',
-              height: 20,
-              width: 20,
-            ),
-          ),
-        )
-      ],
     );
   }
 

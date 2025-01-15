@@ -150,12 +150,6 @@ class _ChatPageState extends State<ChatPage> {
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () {},
-          ),
-        ],
       ),
       backgroundColor: Colors.white,
       body: Column(

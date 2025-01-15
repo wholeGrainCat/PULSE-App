@@ -185,12 +185,6 @@ class _CounsellorsPageState extends State<EditCounsellorsPage> {
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () {},
-          ),
-        ],
       ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
