@@ -43,7 +43,7 @@ class _SelfHelpToolsState extends State<SelfHelpTools> {
                 'Let\'s explore tools designed to help you relax, focus and navigate challenging emotions! 😊',
               ),
               const SizedBox(height: 16),
-              AdvertisementSlider(),
+              const AdvertisementSlider(),
               const SizedBox(height: 16),
               // Fetch tools dynamically
               categorySection(),
@@ -220,6 +220,8 @@ class ToolCard extends StatelessWidget {
 
 //Advertisement
 class AdvertisementSlider extends StatefulWidget {
+  const AdvertisementSlider({super.key});
+
   @override
   _AdvertisementSliderState createState() => _AdvertisementSliderState();
 }
@@ -258,11 +260,11 @@ class _AdvertisementSliderState extends State<AdvertisementSlider> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (advertisementUrls.isEmpty) {
-      return Center(child: Text('No advertisements available'));
+      return const Center(child: Text('No advertisements available'));
     }
 
     return CarouselSlider(

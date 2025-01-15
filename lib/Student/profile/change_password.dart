@@ -1,17 +1,26 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class ChangePasswordPage extends StatelessWidget {
+class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // TextEditingControllers for input fields
-    final currentPasswordController = TextEditingController();
-    final newPasswordController = TextEditingController();
-    final confirmPasswordController = TextEditingController();
-    final FirebaseAuth auth = FirebaseAuth.instance;
+  _ChangePasswordPageState createState() => _ChangePasswordPageState();
+}
 
+class _ChangePasswordPageState extends State<ChangePasswordPage> {
+  final currentPasswordController = TextEditingController();
+  final newPasswordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
+  // Password visibility states
+  bool isCurrentPasswordVisible = false;
+  bool isNewPasswordVisible = false;
+  bool isConfirmPasswordVisible = false;
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -33,7 +42,7 @@ class ChangePasswordPage extends StatelessWidget {
             // Current Password Input
             TextField(
               controller: currentPasswordController,
-              obscureText: true,
+              obscureText: !isCurrentPasswordVisible,
               decoration: InputDecoration(
                 labelText: 'Current Password',
                 filled: true,
@@ -42,6 +51,18 @@ class ChangePasswordPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 prefixIcon: const Icon(Icons.lock),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    isCurrentPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      isCurrentPasswordVisible = !isCurrentPasswordVisible;
+                    });
+                  },
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -49,7 +70,7 @@ class ChangePasswordPage extends StatelessWidget {
             // New Password Input
             TextField(
               controller: newPasswordController,
-              obscureText: true,
+              obscureText: !isNewPasswordVisible,
               decoration: InputDecoration(
                 labelText: 'New Password',
                 filled: true,
@@ -58,6 +79,18 @@ class ChangePasswordPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 prefixIcon: const Icon(Icons.lock_outline),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    isNewPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      isNewPasswordVisible = !isNewPasswordVisible;
+                    });
+                  },
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -65,7 +98,7 @@ class ChangePasswordPage extends StatelessWidget {
             // Confirm New Password Input
             TextField(
               controller: confirmPasswordController,
-              obscureText: true,
+              obscureText: !isConfirmPasswordVisible,
               decoration: InputDecoration(
                 labelText: 'Confirm New Password',
                 filled: true,
@@ -74,6 +107,18 @@ class ChangePasswordPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 prefixIcon: const Icon(Icons.check_circle_outline),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    isConfirmPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      isConfirmPasswordVisible = !isConfirmPasswordVisible;
+                    });
+                  },
+                ),
               ),
             ),
             const SizedBox(height: 30),
@@ -86,7 +131,6 @@ class ChangePasswordPage extends StatelessWidget {
                 final confirmPassword = confirmPasswordController.text;
                 final List<String> passwordErrors = [];
 
-                // Basic Validation
                 if (currentPassword.isEmpty ||
                     newPassword.isEmpty ||
                     confirmPassword.isEmpty) {
@@ -108,7 +152,6 @@ class ChangePasswordPage extends StatelessWidget {
                   return;
                 }
 
-                // Password Validation
                 if (newPassword.length < 12) {
                   passwordErrors
                       .add("Password must be at least 12 characters long.");
@@ -132,7 +175,6 @@ class ChangePasswordPage extends StatelessWidget {
                 }
 
                 if (passwordErrors.isNotEmpty) {
-                  // Display all validation errors
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(passwordErrors.join('\n')),
@@ -142,17 +184,13 @@ class ChangePasswordPage extends StatelessWidget {
                 }
 
                 try {
-                  // Get the current user
                   User? user = auth.currentUser;
 
-                  // Re-authenticate the user
                   AuthCredential credential = EmailAuthProvider.credential(
                     email: user!.email!,
                     password: currentPassword,
                   );
                   await user.reauthenticateWithCredential(credential);
-
-                  // Update the password
                   await user.updatePassword(newPassword);
 
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -161,7 +199,6 @@ class ChangePasswordPage extends StatelessWidget {
                     ),
                   );
 
-                  // Clear Text Fields
                   currentPasswordController.clear();
                   newPasswordController.clear();
                   confirmPasswordController.clear();
@@ -175,7 +212,7 @@ class ChangePasswordPage extends StatelessWidget {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFAF96F5),
+                backgroundColor: const Color(0xFF613EEA),
                 padding: const EdgeInsets.symmetric(vertical: 15),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),

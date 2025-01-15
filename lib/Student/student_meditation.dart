@@ -52,7 +52,7 @@ class _StudentMeditationPageState extends State<StudentMeditationPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                padding: EdgeInsets.symmetric(horizontal: 24.0),
                 child: Text(
                   'Recommended Meditation Guides 🦩',
                   style: TextStyle(
