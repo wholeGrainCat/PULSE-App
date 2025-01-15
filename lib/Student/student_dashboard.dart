@@ -26,6 +26,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
   String nearestDate = "";
   String nearestTime = "";
   String nearestLocation = "";
+  String nearestCounselor = "";
   String selectedMood = "";
   String username = ""; // Default empty string
   String? profilePicUrl = "";
@@ -80,6 +81,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
           nearestDate = "Please login to view appointments";
           nearestTime = "-";
           nearestLocation = "-";
+          nearestCounselor = "-";
         });
         return;
       }
@@ -102,6 +104,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
           nearestDate = "No appointment scheduled";
           nearestTime = "-";
           nearestLocation = "-";
+          nearestCounselor = "-";
         });
         return;
       }
@@ -114,15 +117,17 @@ class _StudentDashboardState extends State<StudentDashboard> {
 
         // Parse the appointment date and time
         try {
-          final dateStr = data['date'];
-          final timeStr = data['time'];
+          final dateStr = data['date'] as String?;
+          final timeStr = data['time'] as String?;
+
+          if (dateStr == null || timeStr == null) continue;
+
           final appointmentDateTime =
               DateFormat("yyyy-MM-dd hh:mm a").parse("$dateStr $timeStr");
 
-          // Check if this appointment is in the future
           if (appointmentDateTime.isAfter(now)) {
             nearestFutureAppointment = doc;
-            break; // Found the nearest future appointment
+            break;
           }
         } catch (e) {
           print("Error parsing date/time for appointment: $e");
@@ -138,12 +143,14 @@ class _StudentDashboardState extends State<StudentDashboard> {
           nearestDate = data['date'] ?? 'Date not specified';
           nearestTime = data['time'] ?? 'Time not specified';
           nearestLocation = data['location'] ?? 'Location not specified';
+          nearestCounselor = data['counselor'] ?? 'Counselor not specified';
         });
       } else {
         setState(() {
           nearestDate = "No upcoming appointments";
           nearestTime = "-";
           nearestLocation = "-";
+          nearestCounselor = "-";
         });
       }
     } catch (e) {
@@ -152,6 +159,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
         nearestDate = "Error fetching appointments";
         nearestTime = "-";
         nearestLocation = "-";
+        nearestCounselor = "-";
       });
     }
   }
@@ -290,51 +298,51 @@ class _StudentDashboardState extends State<StudentDashboard> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 20),
 
                   // Upcoming Appointment Section
                   Center(
-                    child: SizedBox(
+                    child: Container(
                       width: 280,
-                      height: 140,
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0XFFD9D9D9).withOpacity(.4),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0XFFD9D9D9).withOpacity(.4),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 16),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize
+                              .min, // This makes the column take minimum required space
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              "Upcoming Appointment",
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            const Center(
+                              child: Text(
+                                "Upcoming Appointment",
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 12),
                             // Date Row
-                            Padding(
-                              padding: const EdgeInsets.only(left: 20.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  const Icon(
-                                    Icons.calendar_today,
-                                    color: AppColors
-                                        .pri_purple, // Orange icon color
-                                    size: 20, // Icon size
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text.rich(
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.calendar_today,
+                                  color: AppColors.pri_purple,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text.rich(
                                     TextSpan(
                                       text: "Date: ",
                                       style: const TextStyle(fontSize: 14),
@@ -348,23 +356,21 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                       ],
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 8),
                             // Time Row
-                            Padding(
-                              padding: const EdgeInsets.only(left: 20.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  const Icon(
-                                    Icons.access_time,
-                                    color: Colors.purple, // Orange icon color
-                                    size: 20, // Icon size
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text.rich(
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.access_time,
+                                  color: Colors.purple,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text.rich(
                                     TextSpan(
                                       text: "Time: ",
                                       style: const TextStyle(fontSize: 14),
@@ -378,23 +384,21 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                       ],
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 8),
                             // Location Row
-                            Padding(
-                              padding: const EdgeInsets.only(left: 20.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  const Icon(
-                                    Icons.location_on,
-                                    color: Colors.green, // Orange icon color
-                                    size: 20, // Icon size
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text.rich(
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.location_on,
+                                  color: Colors.green,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text.rich(
                                     TextSpan(
                                       text: "Location: ",
                                       style: const TextStyle(fontSize: 14),
@@ -408,8 +412,37 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                       ],
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            // Counselor Row
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.person,
+                                  color: Colors.orange,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text.rich(
+                                    TextSpan(
+                                      text: "Counselor: ",
+                                      style: const TextStyle(fontSize: 14),
+                                      children: [
+                                        TextSpan(
+                                          text: nearestCounselor ??
+                                              'Not assigned',
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -431,14 +464,11 @@ class _StudentDashboardState extends State<StudentDashboard> {
                   const SizedBox(height: 10),
                   CheckInButton(
                     onPressed: selectedMood.isEmpty
-                        ? null // Disable button if no mood is selected
+                        ? null
                         : () {
-                            //Find the selected emoji
                             final selectedEmoji = moods.firstWhere(
                               (mood) => mood['label'] == selectedMood,
                             )['icon'];
-
-                            // Navigate to Mood Check-In Page
                             Navigator.push(
                               context,
                               MaterialPageRoute(

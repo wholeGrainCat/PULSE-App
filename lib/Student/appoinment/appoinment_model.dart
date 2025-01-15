@@ -5,6 +5,8 @@ class Appointment {
   final String date;
   final String time;
   final String location;
+  final String status;
+  //final String counselorNotes;
   final String userId;
   final Timestamp createdAt;
 
@@ -13,6 +15,8 @@ class Appointment {
     required this.date,
     required this.time,
     required this.location,
+    required this.status,
+    //required this.counselorNotes,
     required this.userId,
     required this.createdAt,
   });
@@ -26,6 +30,8 @@ class Appointment {
       date: data['date'] ?? '',
       time: data['time'] ?? '',
       location: data['location'] ?? '',
+      status: data['status'] ?? '',
+      //counselorNotes: data['counselorNotes'] ?? '',
       userId: data['userId'] ?? '',
       createdAt: data['createdAt'] ?? Timestamp.now(),
     );

@@ -177,7 +177,7 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
         'counselor': selectedCounselor,
         'userId': FirebaseAuth.instance.currentUser?.uid,
         'createdAt': FieldValue.serverTimestamp(),
-        'status': 'scheduled' // Adding a status field
+        'status': 'pending', // Adding a status field
       });
 
       if (mounted) {
