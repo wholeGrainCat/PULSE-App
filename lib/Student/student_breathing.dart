@@ -27,14 +27,14 @@ class StudentBreathingPage extends StatelessWidget {
             children: [
               _breathingList(breathingService),
               const SizedBox(height: 20),
-              Text(
+              const Text(
                 'Recommended Breathing Videos 🥳',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              Divider(
+              const Divider(
                 color: Colors.black,
                 thickness: 2,
               ),
@@ -106,7 +106,7 @@ class StudentBreathingPage extends StatelessWidget {
 
 class BreathingCard extends StatelessWidget {
   final Breathing breathing;
-  const BreathingCard({required this.breathing});
+  const BreathingCard({super.key, required this.breathing});
 
   @override
   Widget build(BuildContext context) {
@@ -183,12 +183,12 @@ class BreathingCard extends StatelessWidget {
 
 class VideoCard extends StatelessWidget {
   final BreathingVideo video;
-  const VideoCard({required this.video});
+  const VideoCard({super.key, required this.video});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
+      margin: const EdgeInsets.symmetric(vertical: 10),
       child: GestureDetector(
         onTap: () async {
           final uri = Uri.parse(video.url);

@@ -73,7 +73,7 @@ class _StudentCbtexercisePageState extends State<StudentCbtexercisePage> {
               const NeverScrollableScrollPhysics(), // Prevent scrolling within this section
           itemCount: cbtexercises.length,
           itemBuilder: (context, index) {
-            final cbtexercise = cbtexercises[index].data() as Cbtexercise;
+            final cbtexercise = cbtexercises[index].data();
             // Alternate between three colors based on index
             Color cardColor;
             if (index % 3 == 0) {
@@ -116,10 +116,12 @@ class _StudentCbtexercisePageState extends State<StudentCbtexercisePage> {
     return StreamBuilder<QuerySnapshot<CbtVideo>>(
       stream: cbtVideoService.getCbtVideos(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting)
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty)
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return const Center(child: Text("No videos available."));
+        }
 
         final videos = snapshot.data!.docs;
         return SizedBox(
@@ -128,7 +130,7 @@ class _StudentCbtexercisePageState extends State<StudentCbtexercisePage> {
             scrollDirection: Axis.horizontal, // Enable horizontal scrolling
             itemCount: videos.length,
             itemBuilder: (context, index) {
-              final video = videos[index].data() as CbtVideo;
+              final video = videos[index].data();
               return Padding(
                 padding:
                     const EdgeInsets.only(right: 4.0), // Spacing between items
@@ -144,7 +146,7 @@ class _StudentCbtexercisePageState extends State<StudentCbtexercisePage> {
 
 class VideoCard extends StatelessWidget {
   final CbtVideo video;
-  const VideoCard({required this.video});
+  const VideoCard({super.key, required this.video});
 
   @override
   Widget build(BuildContext context) {
