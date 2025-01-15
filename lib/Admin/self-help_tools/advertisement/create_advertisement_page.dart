@@ -7,19 +7,22 @@ class CreateAdvertisementPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController advertisementURLController =
-        TextEditingController();
+    final TextEditingController advertisementURLController = TextEditingController();
+
 
     return Scaffold(
       appBar: appBar(context),
-      body: padding(advertisementURLController, context),
+      body: padding(
+        advertisementURLController,
+        context,
+      ),
     );
   }
 
   AppBar appBar(BuildContext context) {
     return AppBar(
       title: const Text(
-        'Advertisement',
+        'Advertisements',
         style: TextStyle(
           color: Colors.black,
           fontSize: 24,
@@ -51,7 +54,9 @@ class CreateAdvertisementPage extends StatelessWidget {
   }
 
   Padding padding(
-      TextEditingController advertisementURLController, BuildContext context) {
+    TextEditingController advertisementURLController,
+    BuildContext context,
+  ) {
     return Padding(
       padding: const EdgeInsets.all(15.0),
       child: SingleChildScrollView(
@@ -61,9 +66,10 @@ class CreateAdvertisementPage extends StatelessWidget {
             const Text(
               "Advertisement URL",
               style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold),
+                color: Colors.black,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 5),
             TextField(
@@ -79,14 +85,11 @@ class CreateAdvertisementPage extends StatelessWidget {
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  final String advertisementURL =
-                      advertisementURLController.text.trim();
+                  final String advertisementURL = advertisementURLController.text.trim();
                   if (advertisementURL.isNotEmpty) {
-                    FirebaseFirestore.instance
-                        .collection('advertisements')
-                        .add({
+                    FirebaseFirestore.instance.collection('advertisements').add({
                       'advertisementURL': advertisementURL,
-                      'createdOn': FieldValue.serverTimestamp(),
+                      'createdOn': Timestamp.now(),
                     }).then((_) {
                       _showDialog(
                         context,
@@ -113,8 +116,10 @@ class CreateAdvertisementPage extends StatelessWidget {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 15,
+                  ),
                   backgroundColor: Colors.purple,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -154,9 +159,10 @@ class CreateAdvertisementPage extends StatelessWidget {
               Text(
                 message,
                 style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                    fontWeight: FontWeight.normal),
+                  color: Colors.black,
+                  fontSize: 18,
+                  fontWeight: FontWeight.normal,
+                ),
                 textAlign: TextAlign.center,
               ),
             ],
