@@ -3,7 +3,6 @@ import 'package:student/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:fluentui_emoji_icon/fluentui_emoji_icon.dart';
 import 'package:intl/intl.dart';
 import 'package:student/components/app_colour.dart';
 import 'package:student/components/bottom_navigation.dart';
@@ -12,7 +11,7 @@ import 'package:student/Student/appoinment/appoinment_screen.dart';
 import 'package:student/Student/crisis_support.dart';
 import 'package:student/Student/self_help_tools.dart';
 import 'package:student/Student/unimasresources.dart';
-import 'package:student/Student/mood/mood_check_in.dart';
+import 'dart:math';
 
 class StudentDashboard extends StatefulWidget {
   const StudentDashboard({super.key});
@@ -32,136 +31,137 @@ class _StudentDashboardState extends State<StudentDashboard> {
   String? profilePicUrl = "";
   final AuthService _auth = AuthService(); // Initialize AuthService
 
-  final List<Map<String, dynamic>> moods = [
-    {"icon": Fluents.flSmilingFace, "label": "Great"},
-    {"icon": Fluents.flSlightlySmilingFace, "label": "Good"},
-    {"icon": Fluents.flNeutralFace, "label": "Okay"},
-    {"icon": Fluents.flSlightlyFrowningFace, "label": "Not Great"},
-    {"icon": Fluents.flFrowningFace, "label": "Bad"},
+  // List of motivational quotes
+  final List<String> positiveQuotes = [
+    // Academic Success
+    "Every study session brings you closer to your dreams. Keep going! 📚✨",
+    "You don't have to be perfect to be amazing. Progress over perfection! 💫",
+    "Small steps every day lead to big achievements. You've got this! 🎓",
+    "Today's effort is tomorrow's success. Make it count! 💪",
+    "Your potential is limitless. Embrace the challenge! 🌟",
+
+    // Mental Wellness & Balance
+    "Take breaks, stay focused, achieve more. You're doing great! 🌈",
+    "It's okay to go at your own pace. You're exactly where you need to be! 😊",
+    "Balance is key - make time for study, friends, and self-care. 🎯",
+    "Stress is temporary, but your determination is permanent. Keep going! ⭐",
+    "Your mental health matters. Take care of yourself today! 🌸",
+
+    // Motivation & Persistence
+    "Each assignment completed is a step toward your goals. Keep climbing! 📝",
+    "You've overcome challenges before, and you'll do it again! 💫",
+    "Your future self will thank you for not giving up today. 🌅",
+    "Every expert was once a beginner. Keep learning, keep growing! 🌱",
+    "Your dedication today shapes your success tomorrow! ⚡",
+
+    // Self-Confidence
+    "You are more capable than you know. Trust yourself! 💫",
+    "Your unique perspective matters. Share your voice! 🗣️",
+    "Confidence grows with every challenge you face. You're getting stronger! 💪",
+    "You belong here. Your dreams are valid! ✨",
+    "Your journey is your own. Be proud of your progress! 🌟",
+
+    // Resilience
+    "Mistakes are proof that you're trying. Keep going! 🚀",
+    "Every setback is a setup for a comeback. Rise up! 🌅",
+    "Your resilience is your superpower. Use it! ⚡",
+    "Tough times don't last, but tough students do! 💪",
+    "You've made it through 100% of your worst days. You're unstoppable! 🌈",
+
+    // Growth & Learning
+    "Each class is an opportunity to become better than yesterday! 📚",
+    "Your effort today is an investment in your future. Keep investing! 💎",
+    "Learning is a journey, not a race. Enjoy the process! 🌱",
+    "Your potential grows with every challenge you accept! 🎯",
+    "Today's curiosity leads to tomorrow's expertise! ✨",
+
+    // Community & Support
+    "You're not alone in this journey. Reach out when you need support! 🤝",
+    "Your university community believes in you! 🎓",
+    "Together we rise. Connect, collaborate, succeed! 🌟",
+    "Every great achievement starts with the decision to try! 💫",
+    "You're part of something bigger. Make your mark! ⭐"
   ];
+
+  // Method to get a random quote
+  String getRandomQuote() {
+    final random = Random();
+    return positiveQuotes[random.nextInt(positiveQuotes.length)];
+  }
 
   @override
   void initState() {
     super.initState();
-    _fetchNearestAppointment(); // Call the function here
-    _loadUserData(); // Load user data when screen initializes
+    _initializeData(); // Fetch all data together
   }
 
-  Future<void> _loadUserData() async {
+  Future<void> _initializeData() async {
+    // Temporary variables to hold state data
+    String tempUsername = "User";
+    String tempNearestDate = "No appointment scheduled";
+    String tempNearestTime = "-";
+    String tempNearestLocation = "-";
+    String tempNearestCounselor = "-";
+
     try {
+      // Fetch user data
       final userData = await _auth.getCurrentUserData();
       if (userData != null) {
-        setState(() {
-          // Fetch the username from the userData
-          username = userData['username'] ?? "User";
-        });
-      } else {
-        setState(() {
-          // Fallback value when userData is null
-          username = "User";
-        });
+        tempUsername = userData['username'] ?? "User";
       }
-    } catch (e) {
-      print("Error loading user data: $e");
-      setState(() {
-        // Fallback value on error
-        username = "User";
-      });
-    }
-  }
 
-  // Fetch the nearest appointment for the user
-  void _fetchNearestAppointment() async {
-    try {
-      // Get the current user's UID
+      // Fetch the nearest appointment
       final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        DateTime now = DateTime.now();
 
-      if (user == null) {
-        setState(() {
-          nearestDate = "Please login to view appointments";
-          nearestTime = "-";
-          nearestLocation = "-";
-          nearestCounselor = "-";
-        });
-        return;
-      }
+        final querySnapshot = await FirebaseFirestore.instance
+            .collection('scheduled_appointments')
+            .where('userId', isEqualTo: user.uid)
+            .orderBy('date')
+            .orderBy('time')
+            .get();
 
-      print("Fetching appointments for user: ${user.uid}");
+        if (querySnapshot.docs.isNotEmpty) {
+          for (var doc in querySnapshot.docs) {
+            final data = doc.data();
+            final dateStr = data['date'] as String?;
+            final timeStr = data['time'] as String?;
 
-      // Get current date for comparison
-      DateTime now = DateTime.now();
+            if (dateStr != null && timeStr != null) {
+              final appointmentDateTime =
+                  DateFormat("yyyy-MM-dd hh:mm a").parse("$dateStr $timeStr");
 
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('scheduled_appointments')
-          .where('userId', isEqualTo: user.uid)
-          .orderBy('date') // Order by date first
-          .orderBy('time') // Then by time
-          .get();
-
-      if (querySnapshot.docs.isEmpty) {
-        print("No appointments found");
-        setState(() {
-          nearestDate = "No appointment scheduled";
-          nearestTime = "-";
-          nearestLocation = "-";
-          nearestCounselor = "-";
-        });
-        return;
-      }
-
-      // Find the nearest future appointment
-      QueryDocumentSnapshot? nearestFutureAppointment;
-
-      for (var doc in querySnapshot.docs) {
-        final data = doc.data();
-
-        // Parse the appointment date and time
-        try {
-          final dateStr = data['date'] as String?;
-          final timeStr = data['time'] as String?;
-
-          if (dateStr == null || timeStr == null) continue;
-
-          final appointmentDateTime =
-              DateFormat("yyyy-MM-dd hh:mm a").parse("$dateStr $timeStr");
-
-          if (appointmentDateTime.isAfter(now)) {
-            nearestFutureAppointment = doc;
-            break;
+              if (appointmentDateTime.isAfter(now)) {
+                tempNearestDate = data['date'] ?? 'Date not specified';
+                tempNearestTime = data['time'] ?? 'Time not specified';
+                tempNearestLocation =
+                    data['location'] ?? 'Location not specified';
+                tempNearestCounselor =
+                    data['counselor'] ?? 'Counselor not specified';
+                break;
+              }
+            }
           }
-        } catch (e) {
-          print("Error parsing date/time for appointment: $e");
-          continue;
+        } else {
+          tempNearestDate = "No upcoming appointments";
         }
-      }
-
-      // Update the UI with the nearest appointment
-      if (nearestFutureAppointment != null) {
-        final data = nearestFutureAppointment.data() as Map<String, dynamic>;
-
-        setState(() {
-          nearestDate = data['date'] ?? 'Date not specified';
-          nearestTime = data['time'] ?? 'Time not specified';
-          nearestLocation = data['location'] ?? 'Location not specified';
-          nearestCounselor = data['counselor'] ?? 'Counselor not specified';
-        });
       } else {
-        setState(() {
-          nearestDate = "No upcoming appointments";
-          nearestTime = "-";
-          nearestLocation = "-";
-          nearestCounselor = "-";
-        });
+        tempNearestDate = "Please login to view appointments";
       }
     } catch (e) {
-      print("Error fetching appointments: $e");
-      setState(() {
-        nearestDate = "Error fetching appointments";
-        nearestTime = "-";
-        nearestLocation = "-";
-        nearestCounselor = "-";
-      });
+      print("Error initializing data: $e");
+      tempNearestDate = "Error fetching data";
     }
+
+    // Update the state once with all accumulated data
+    setState(() {
+      username = tempUsername;
+      nearestDate = tempNearestDate;
+      nearestTime = tempNearestTime;
+      nearestLocation = tempNearestLocation;
+      nearestCounselor = tempNearestCounselor;
+    });
   }
 
   Future<void> checkMoodStatus() async {
@@ -189,12 +189,6 @@ class _StudentDashboardState extends State<StudentDashboard> {
         Navigator.pushReplacementNamed(context, '/moodtracker');
       }
     }
-  }
-
-  void handleMoodSelection(String mood) {
-    setState(() {
-      selectedMood = mood;
-    });
   }
 
   void navigateTo(String page) {
@@ -279,7 +273,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Hi, $username",
+                                "Welcome back, $username",
                                 style: const TextStyle(
                                     fontSize: 20, fontWeight: FontWeight.w600),
                               ),
@@ -424,7 +418,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                                 Expanded(
                                   child: Text.rich(
                                     TextSpan(
-                                      text: "Counselor: ",
+                                      text: "Counsellor: ",
                                       style: const TextStyle(fontSize: 14),
                                       children: [
                                         TextSpan(
@@ -444,38 +438,61 @@ class _StudentDashboardState extends State<StudentDashboard> {
                       ),
                     ),
                   ),
-                  const Center(
-                    child: Text(
-                      'How was your day?',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  Center(
+                    child: Container(
+                      width: MediaQuery.of(context).size.width *
+                          0.85, // Responsive width
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 10),
+                      margin: const EdgeInsets.symmetric(vertical: 16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color:
+                            const Color(0xFFF5F3FF), // Light purple background
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                        border: Border.all(
+                          color: const Color(0xFF613EEA).withOpacity(0.1),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          const Icon(
+                            Icons.format_quote_rounded,
+                            size: 32,
+                            color: Color(0xFF613EEA),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            getRandomQuote(),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              height: 1.5,
+                              fontWeight: FontWeight.w400,
+                              color: Color(0xFF2D3748),
+                              letterSpacing: 0.3,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            width: 40,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF613EEA).withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  MoodSelectionSection(
-                    moods: moods,
-                    selectedMood: selectedMood,
-                    onMoodSelect: handleMoodSelection,
-                  ),
-                  const SizedBox(height: 10),
-                  CheckInButton(
-                    onPressed: selectedMood.isEmpty
-                        ? null
-                        : () {
-                            final selectedEmoji = moods.firstWhere(
-                              (mood) => mood['label'] == selectedMood,
-                            )['icon'];
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => MoodCheckInPage(
-                                  selectedMood: selectedMood,
-                                  selectedEmoji: selectedEmoji,
-                                ),
-                              ),
-                            );
-                          },
-                  ),
-
                   // Four card buttons displayed in a 2x2 grid
                   GridView.builder(
                     padding: const EdgeInsets.symmetric(vertical: 15),
@@ -588,108 +605,6 @@ class CardButton extends StatelessWidget {
             style: const TextStyle(
                 color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// Custom widget for mood selection
-class MoodSelectionSection extends StatelessWidget {
-  final List<Map<String, dynamic>> moods;
-  final String selectedMood;
-  final Function(String) onMoodSelect;
-
-  const MoodSelectionSection({
-    super.key,
-    required this.moods,
-    required this.selectedMood,
-    required this.onMoodSelect,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SizedBox(
-        width: 300,
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 0),
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: const Color(0xfffafafa),
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(.1),
-                blurRadius: 4,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: moods.map((mood) {
-              bool isSelected = selectedMood == mood['label'];
-              return Column(
-                children: [
-                  GestureDetector(
-                      onTap: () => onMoodSelect(mood['label']),
-                      child: CircleAvatar(
-                        radius: 26,
-                        backgroundColor: isSelected
-                            ? const Color(0xFFE5E5E5)
-                            : const Color(0xfffafafa),
-                        child: FluentUiEmojiIcon(
-                          fl: mood['icon'],
-                          w: 34,
-                          h: 34,
-                        ),
-                      )),
-                  const SizedBox(height: 4),
-                  Text(
-                    mood['label'],
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: selectedMood == mood['label']
-                          ? Colors.deepPurple
-                          : Colors.black,
-                    ),
-                  ),
-                ],
-              );
-            }).toList(),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// Custom widget for Check-in button
-class CheckInButton extends StatelessWidget {
-  final VoidCallback? onPressed;
-
-  const CheckInButton({super.key, required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SizedBox(
-        width: 106,
-        height: 41,
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF613EEA),
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
-          onPressed: onPressed,
-          child: const Text(
-            'Check in',
-            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
           ),
         ),
       ),

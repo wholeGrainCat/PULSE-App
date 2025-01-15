@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:student/Student/appoinment/appointment_new.dart';
 import 'package:student/components/bottom_navigation.dart';
 
@@ -15,7 +16,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
   List<Map<String, dynamic>> appointments = [];
   bool isLoading = true;
   String errorMessage = '';
-  int _currentIndex = 3;
+  int _currentIndex = 2;
 
   @override
   void initState() {
@@ -93,11 +94,45 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
     }
   }
 
-  // Handle navigation bar tap
-  void _onNavBarTap(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+  void navigateTo(String page) {
+    print("Navigating to $page");
+    // Handle other navigation cases
+    if (page == 'Resource') {
+      Navigator.pushNamed(context, '/resource');
+    } else if (page == 'Dashboard') {
+      Navigator.pushNamed(context, '/studentdashboard');
+    } else if (page == 'Chat') {
+      Navigator.pushNamed(context, '/chat');
+    } else if (page == 'Profile') {
+      Navigator.pushNamed(context, '/profile');
+    }
+  }
+
+  Future<void> checkMoodStatus() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      // Retrieve the last logged date and mood status
+      String? lastLoggedDate = prefs.getString('lastLoggedDate_$userId');
+      DateTime today = DateTime.now();
+      String todayString = "${today.year}-${today.month}-${today.day}";
+
+      // Check if the last logged date matches today's date
+      bool hasLoggedMood = (lastLoggedDate == todayString);
+      print("User ID: $userId");
+      print("Last Logged Date: $lastLoggedDate");
+      print("Has logged mood today: $hasLoggedMood");
+
+      if (hasLoggedMood) {
+        // Navigate to the mood done page (only once)
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pushReplacementNamed(context, '/mooddonecheckin');
+        });
+      } else {
+        // Navigate to the mood tracker page if not logged
+        Navigator.pushReplacementNamed(context, '/moodtracker');
+      }
+    }
   }
 
   // Empty State Widget
@@ -280,6 +315,32 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
         elevation: 1,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
+      bottomNavigationBar: BottomNavigation(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+
+          switch (index) {
+            case 0:
+              navigateTo('Resource');
+              break;
+            case 1:
+              checkMoodStatus();
+              break;
+            case 2:
+              navigateTo('Dashboard');
+              break;
+            case 3:
+              navigateTo('Chat');
+              break;
+            case 4:
+              navigateTo('Profile');
+              break;
+          }
+        },
+      ),
       body: Column(
         children: [
           // Header Section with plain text
@@ -342,11 +403,6 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
             ),
           ),
         ],
-      ),
-      // Add BottomNavigation bar here
-      bottomNavigationBar: BottomNavigation(
-        currentIndex: _currentIndex,
-        onTap: _onNavBarTap,
       ),
     );
   }
