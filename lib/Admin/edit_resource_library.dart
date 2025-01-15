@@ -57,7 +57,14 @@ class _EditResourceLibraryPageState extends State<EditResourceLibraryPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
-        title: const Text('Resources'),
+        title: const Text(
+          'Resources',
+          style: TextStyle(
+            color: Colors.black, 
+            fontSize: 24,
+            fontWeight: FontWeight.bold
+          ),
+        ),
         backgroundColor: Colors.white,
       ),
       bottomNavigationBar: AdminBottomNavigation(
@@ -116,7 +123,7 @@ class _EditResourceLibraryPageState extends State<EditResourceLibraryPage> {
                 const Center(
                   child: Text(
                     '-Recommended For You-',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w300),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
                   ),
                 ),
                 const Divider(
@@ -447,7 +454,7 @@ class _EditResourceLibraryPageState extends State<EditResourceLibraryPage> {
                         MaterialPageRoute(
                           builder: (context) => const Articles(),
                         ),
-                      );
+                      );                    
                     } else if (type == "Videos") {
                       Navigator.push(
                         context,

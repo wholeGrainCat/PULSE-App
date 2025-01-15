@@ -55,21 +55,24 @@ class _DashboardState extends State<AdminDashboard> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text('Admin Dashboard'),
+        title: const Text(
+          'Admin Dashboard',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         centerTitle: true,
         backgroundColor: Colors.white,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.black),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.only(
+                left: 10,
+                right: 10,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -80,8 +83,7 @@ class _DashboardState extends State<AdminDashboard> {
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  const SizedBox(height: 20),
-
+                  const SizedBox(height: 15),
                   // 2x2 Grid of Cards
                   GridView.builder(
                     shrinkWrap: true,
@@ -89,8 +91,8 @@ class _DashboardState extends State<AdminDashboard> {
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
                     ),
                     itemCount: 4,
                     itemBuilder: (context, index) {
@@ -120,11 +122,11 @@ class _DashboardState extends State<AdminDashboard> {
                         child: Card(
                           elevation: 4,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24),
+                            borderRadius: BorderRadius.circular(20),
                           ),
                           color: colors[index],
                           child: Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.all(20.0),
                             child: Column(
                               children: [
                                 Row(
@@ -156,18 +158,22 @@ class _DashboardState extends State<AdminDashboard> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  const Column(
                     children: [
-                      Text(
-                        'Appointment Statistics',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                      Padding(
+                        padding: EdgeInsets.only(left: 10),
+                        child: Text(
+                          'Appointment Statistics',
+                          style: TextStyle(
+                            fontSize: 18, 
+                            fontWeight: FontWeight.bold
+                          ),
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(
-                    height: 300,
+                    height: 350,
                     child: AppointmentBarChart(),
                   ),
                   const SizedBox(height: 20),

@@ -116,10 +116,14 @@ class _AdminHomePageState extends State<AdminHomePage> {
               children: [
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    padding: const EdgeInsets.only(left: 10),
                     child: TextButton(
                       style: TextButton.styleFrom(
-                        textStyle: const TextStyle(fontSize: 16),
+                        textStyle: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                         backgroundColor: showUnread
                             ? const Color.fromRGBO(97, 62, 234, 1.0)
                             : const Color.fromRGBO(97, 62, 234, 0.5),
@@ -135,12 +139,17 @@ class _AdminHomePageState extends State<AdminHomePage> {
                     ),
                   ),
                 ),
+                const SizedBox(width: 0),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    padding: const EdgeInsets.only(right: 10),
                     child: TextButton(
                       style: TextButton.styleFrom(
-                        textStyle: const TextStyle(fontSize: 16),
+                        textStyle: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                         backgroundColor: !showUnread
                             ? const Color.fromRGBO(97, 62, 234, 1.0)
                             : const Color.fromRGBO(97, 62, 234, 0.5),
@@ -162,13 +171,13 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
             // Edit Counsellors Information Button
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromRGBO(0, 203, 199, 1.0),
-                    padding: const EdgeInsets.symmetric(vertical: 35),
+                    padding: const EdgeInsets.symmetric(vertical: 25),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(40),
                     ),
@@ -185,7 +194,11 @@ class _AdminHomePageState extends State<AdminHomePage> {
                     children: [
                       Text(
                         'Edit Counsellors Information',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+                        style: TextStyle(
+                          color: Colors.white, 
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       SizedBox(width: 10),
                       FaIcon(
