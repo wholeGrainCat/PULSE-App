@@ -130,7 +130,7 @@ class MentalHealthHotline extends StatelessWidget {
                   textColor: Colors.black,
                   phoneNumber: hotline['number'],
                 );
-              }).toList(),
+              }),
             ],
           ),
         );
@@ -188,7 +188,7 @@ class EmergencyHotline extends StatelessWidget {
                   textColor: Colors.white,
                   phoneNumber: hotline['number'],
                 );
-              }).toList(),
+              }),
             ],
           ),
         );
@@ -237,7 +237,7 @@ class HotlineButton extends StatelessWidget {
                 fontSize: 16,
               ),
             ),
-            SizedBox(
+            const SizedBox(
               width: 10,
             ),
             Text(

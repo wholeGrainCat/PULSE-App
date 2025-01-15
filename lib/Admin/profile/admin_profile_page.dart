@@ -66,16 +66,19 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
   }
 
   Future<void> _handleLogout() async {
-    try {
-      await _authService.signout();
-      if (mounted) {
-        Navigator.pushReplacementNamed(context, '/login');
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Log out failed: $e")),
-        );
+    final shouldLogout = await _showLogoutConfirmationDialog(context);
+    if (shouldLogout) {
+      try {
+        await _authService.signout();
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/logout');
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Log out failed: $e")),
+          );
+        }
       }
     }
   }
@@ -336,5 +339,29 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
         },
       ),
     );
+  }
+
+  Future<bool> _showLogoutConfirmationDialog(BuildContext context) async {
+    return await showDialog(
+          context: context,
+          barrierDismissible: false, // Prevent dismissing by tapping outside
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Confirm Logout"),
+              content: const Text("Are you sure you want to log out?"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false), // Cancel
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true), // Confirm
+                  child: const Text("Log Out"),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false; // Return false if dialog is dismissed
   }
 }
