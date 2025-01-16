@@ -1,36 +1,104 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class Appointment {
-  final String id;
-  final String name;
-  final String date;
-  final String time;
-  final String location;
-  final String counselor;
-  final String status;
-  final String createdAt;
+  String counsellingType;
+  String appointmentDate;
+  String time;
+  String location;
+  String description;
+  String email;
+  String? id;
+  String issue;
+  String matricNumber;
+  String name;
+  String phoneNumber;
+  String status;
 
-  Appointment({
-    required this.id,
-    required this.name,
-    required this.date,
-    required this.time,
-    required this.location,
-    required this.counselor,
-    required this.status,
-    required this.createdAt,
-  });
+  Appointment(
+      {required this.counsellingType,
+      required this.appointmentDate,
+      required this.time,
+      required this.location,
+      required this.description,
+      required this.email,
+      this.id,
+      required this.issue,
+      required this.matricNumber,
+      required this.name,
+      required this.phoneNumber,
+      required this.status});
 
-  factory Appointment.fromJson(Map<String, dynamic> json) {
+  Appointment.fromJson(Map<String, dynamic> json)
+      : this(
+          counsellingType: json['counsellingType'] as String,
+          appointmentDate: json['appointmentDate'] as String,
+          time: json['time'] as String,
+          location: json['location'] as String,
+          description: json['description'] as String,
+          email: json['email'] as String,
+          issue: json['issue'] as String,
+          matricNumber: json['matricNumber'] as String,
+          name: json['fullName'] as String,
+          phoneNumber: json['phoneNumber'] as String,
+          status: json['status'] as String,
+        );
+
+  Appointment.fromFirestore(Map<String, dynamic> json, String id)
+      : this(
+          counsellingType: json['counsellingType'] as String,
+          appointmentDate: json['appointmentDate'] as String,
+          time: json['time'] as String,
+          location: json['location'] as String,
+          description: json['description'] as String,
+          email: json['email'] as String,
+          id: id,
+          issue: json['issue'] as String,
+          matricNumber: json['matricNumber'] as String,
+          name: json['fullName'] as String,
+          phoneNumber: json['phoneNumber'] as String,
+          status: json['status'] as String,
+        );
+
+  Appointment copyWith(
+      {String? counsellingType,
+      String? appointmentDate,
+      String? time,
+      String? location,
+      String? description,
+      String? email,
+      String? id,
+      String? issue,
+      String? matricsNumber,
+      String? name,
+      String? phoneNumber,
+      String? status}) {
     return Appointment(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      date: json['appointmentDate'] as String,
-      time: json['time'] as String,
-      location: json['location'] as String,
-      counselor: json['counselor'] as String,
-      status: json['status'] as String,
-      createdAt: (json['createdAt'] as Timestamp).toDate().toIso8601String(),
+      counsellingType: counsellingType ?? this.counsellingType,
+      appointmentDate: appointmentDate ?? this.appointmentDate,
+      time: time ?? this.time,
+      location: location ?? this.location,
+      description: description ?? this.description,
+      email: email ?? this.email,
+      id: id ?? this.id,
+      issue: issue ?? this.issue,
+      matricNumber: matricsNumber ?? this.matricNumber,
+      name: name ?? this.name,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      status: status ?? this.status,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'counsellingType': counsellingType,
+      'appointmentDate': appointmentDate,
+      'time': time,
+      'location': location,
+      'description': description,
+      'email': email,
+      'issue': issue,
+      'matricNumber': matricNumber,
+      'fullName': name,
+      'phoneNumber': phoneNumber,
+      'status': status
+    };
   }
 }

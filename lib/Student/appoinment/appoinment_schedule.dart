@@ -4,7 +4,9 @@ import 'package:student/Student/appoinment/appoinment_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class ScheduleAppointment extends StatefulWidget {
-  const ScheduleAppointment({super.key});
+  final String documentId; // Add documentId as a parameter
+
+  const ScheduleAppointment({super.key, required this.documentId});
 
   @override
   _ScheduleAppointmentState createState() => _ScheduleAppointmentState();
@@ -14,7 +16,7 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
   DateTime selectedDate = DateTime.now();
   String selectedTime = "";
   String selectedLocation = "";
-  String selectedCounselor = "";
+  String selectedCounsellor = "";
   bool isLoading = false;
 
   final List<String> availableLocations = [
@@ -24,7 +26,7 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
     'Counseling Room 4',
   ];
 
-  final List<String> counselors = [
+  final List<String> counsellors = [
     'Madam Fauziah Bee binti Mohd Salleh',
     'Madam Saptuyah binti Barahim',
     'Madam Debra Adrian',
@@ -59,8 +61,8 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
       String formattedDate = selectedDate.toLocal().toString().split(' ')[0];
 
       QuerySnapshot snapshot = await FirebaseFirestore.instance
-          .collection('scheduled_appointments')
-          .where('date', isEqualTo: formattedDate)
+          .collection('appointments')
+          .where('appointmentDate', isEqualTo: formattedDate)
           .where('time', isEqualTo: selectedTime)
           .get();
 
@@ -72,9 +74,9 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
         });
 
         QuerySnapshot timeSnapshot = await FirebaseFirestore.instance
-            .collection('scheduled_appointments')
-            .where('date', isEqualTo: formattedDate)
-            .where('counselor', isEqualTo: selectedCounselor)
+            .collection('appointments')
+            .where('appointmentDate', isEqualTo: formattedDate)
+            .where('counsellor', isEqualTo: selectedCounsellor)
             .get();
 
         if (mounted) {
@@ -102,26 +104,26 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
     try {
       String formattedDate = selectedDate.toLocal().toString().split(' ')[0];
 
-      // Check counselor availability
-      QuerySnapshot counselorCheck = await FirebaseFirestore.instance
-          .collection('scheduled_appointments')
-          .where('date', isEqualTo: formattedDate)
+      // Check counsellor availability
+      QuerySnapshot counsellorCheck = await FirebaseFirestore.instance
+          .collection('appointments')
+          .where('appointmentDate', isEqualTo: formattedDate)
           .where('time', isEqualTo: selectedTime)
-          .where('counselor', isEqualTo: selectedCounselor)
+          .where('counsellor', isEqualTo: selectedCounsellor)
           .get();
 
-      if (counselorCheck.docs.isNotEmpty) {
+      if (counsellorCheck.docs.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Counselor is not available at this time')),
+              content: Text('Counsellor is not available at this time')),
         );
         return false;
       }
 
       // Check location availability
       QuerySnapshot locationCheck = await FirebaseFirestore.instance
-          .collection('scheduled_appointments')
-          .where('date', isEqualTo: formattedDate)
+          .collection('appointments')
+          .where('appointmentDate', isEqualTo: formattedDate)
           .where('time', isEqualTo: selectedTime)
           .where('location', isEqualTo: selectedLocation)
           .get();
@@ -142,7 +144,7 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
   }
 
   Future<void> _saveAppointment() async {
-    if (selectedCounselor.isEmpty ||
+    if (selectedCounsellor.isEmpty ||
         selectedTime.isEmpty ||
         selectedLocation.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -169,15 +171,15 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
       String formattedDate = selectedDate.toLocal().toString().split(' ')[0];
 
       await FirebaseFirestore.instance
-          .collection('scheduled_appointments')
-          .add({
-        'date': formattedDate,
+          .collection('appointments')
+          .doc(widget.documentId)
+          .update({
+        'appointmentDate': formattedDate,
         'time': selectedTime,
         'location': selectedLocation,
-        'counselor': selectedCounselor,
+        'counsellor': selectedCounsellor,
         'userId': FirebaseAuth.instance.currentUser?.uid,
-        'createdAt': FieldValue.serverTimestamp(),
-        'status': 'pending', // Adding a status field
+        'status': 'Pending', // Adding a status field
       });
 
       if (mounted) {
@@ -225,27 +227,27 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Counselor Selection
+            // Counsellor Selection
             const SizedBox(height: 20),
             const Text(
-              "Select Counselor",
+              "Select Counsellor",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             DropdownButton<String>(
               isExpanded: true,
-              value: selectedCounselor.isEmpty ? null : selectedCounselor,
-              hint: const Text("Select a Counselor"),
-              onChanged: (String? newCounselor) {
+              value: selectedCounsellor.isEmpty ? null : selectedCounsellor,
+              hint: const Text("Select a Counsellor"),
+              onChanged: (String? newCounsellor) {
                 setState(() {
-                  selectedCounselor = newCounselor ?? '';
-                  _loadBookedTimesAndLocations(); // Load available times when counselor changes
+                  selectedCounsellor = newCounsellor ?? '';
+                  _loadBookedTimesAndLocations(); // Load available times when counsellor changes
                 });
               },
-              items: counselors
-                  .map((counselor) => DropdownMenuItem<String>(
-                        value: counselor,
-                        child: Text(counselor),
+              items: counsellors
+                  .map((counsellor) => DropdownMenuItem<String>(
+                        value: counsellor,
+                        child: Text(counsellor),
                       ))
                   .toList(),
             ),
@@ -408,7 +410,7 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
                 child: ElevatedButton(
                   onPressed: isLoading
                       ? null
-                      : selectedCounselor.isEmpty ||
+                      : selectedCounsellor.isEmpty ||
                               selectedTime.isEmpty ||
                               selectedLocation.isEmpty
                           ? null // Disable button if fields are empty

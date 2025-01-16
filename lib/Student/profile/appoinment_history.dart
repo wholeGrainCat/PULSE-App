@@ -20,7 +20,7 @@ class AppointmentHistory extends StatelessWidget {
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
-            .collection('scheduled_appointments')
+            .collection('appointments')
             .where('userId', isEqualTo: userId) // Filter appointments by userId
             .orderBy('createdAt', descending: true) // Order by creation date
             .snapshots(),
@@ -88,7 +88,7 @@ class AppointmentHistory extends StatelessWidget {
                             const Icon(Icons.person, color: Colors.orange),
                             const SizedBox(width: 8),
                             Text(
-                              'Counselor: ${appointment.counselor}',
+                              'Counsellor: ${appointment.counsellor}',
                               style: const TextStyle(
                                   fontSize: 14,
                                   color: Colors.black), // Black text color

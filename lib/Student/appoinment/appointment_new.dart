@@ -20,7 +20,7 @@ class _NewAppointmentScreenState extends State<NewAppointmentScreen> {
   final TextEditingController issueDescriptionController =
       TextEditingController();
 
-  String counselingType = 'Individual';
+  String counsellingType = 'Individual';
   String selectedIssue = 'Academic Stress';
 
   final List<String> issues = [
@@ -42,21 +42,24 @@ class _NewAppointmentScreenState extends State<NewAppointmentScreen> {
       }
 
       final appointmentData = {
-        'name': nameController.text.trim(),
+        'fullName': nameController.text.trim(),
         'matricNumber': matricController.text.trim(),
         'email': emailController.text.trim(),
-        'contactNumber': contactController.text.trim(),
+        'phoneNumber': contactController.text.trim(),
         'issue': selectedIssue,
-        'counselingType': counselingType,
+        'counsellingType': counsellingType,
         'description': issueDescriptionController.text.trim(),
         'createdAt': FieldValue.serverTimestamp(),
         'userId': currentUser.uid, // Using currentUser.uid directly
       };
 
       // Save the appointment data to Firestore
-      await FirebaseFirestore.instance
-          .collection('appointment_info')
+      DocumentReference docRef = await FirebaseFirestore.instance
+          .collection('appointments')
           .add(appointmentData);
+
+      String documentId = docRef.id; // Save this ID for later
+      print('New Document ID: $documentId');
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Appoinment details saved successfully!')),
@@ -65,7 +68,7 @@ class _NewAppointmentScreenState extends State<NewAppointmentScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const ScheduleAppointment(),
+          builder: (context) => ScheduleAppointment(documentId: documentId),
         ),
       );
     } catch (e) {
@@ -102,10 +105,10 @@ class _NewAppointmentScreenState extends State<NewAppointmentScreen> {
                     children: [
                       _buildInputField(
                         controller: nameController,
-                        labelText: 'Name',
+                        labelText: 'Full Name',
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Name is required';
+                            return 'Full name is required';
                           }
                           if (!RegExp(r"^[a-zA-Z\s]{2,}$").hasMatch(value)) {
                             return 'Enter a valid name';
@@ -145,14 +148,14 @@ class _NewAppointmentScreenState extends State<NewAppointmentScreen> {
                       const SizedBox(height: 12),
                       _buildInputField(
                         controller: contactController,
-                        labelText: 'Contact Number',
+                        labelText: 'Phone Number',
                         keyboardType: TextInputType.phone,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Contact Number is required';
+                            return 'Phone Number is required';
                           }
                           if (!RegExp(r'^\d{10,11}$').hasMatch(value)) {
-                            return 'Enter a valid phone number';
+                            return 'Enter a valid phone number (0112223456)';
                           }
                           return null;
                         },
@@ -176,10 +179,10 @@ class _NewAppointmentScreenState extends State<NewAppointmentScreen> {
                             child: RadioListTile(
                               title: const Text('Individual'),
                               value: 'Individual',
-                              groupValue: counselingType,
+                              groupValue: counsellingType,
                               onChanged: (value) {
                                 setState(() {
-                                  counselingType = value.toString();
+                                  counsellingType = value.toString();
                                 });
                               },
                             ),
@@ -188,10 +191,10 @@ class _NewAppointmentScreenState extends State<NewAppointmentScreen> {
                             child: RadioListTile(
                               title: const Text('Group'),
                               value: 'Group',
-                              groupValue: counselingType,
+                              groupValue: counsellingType,
                               onChanged: (value) {
                                 setState(() {
-                                  counselingType = value.toString();
+                                  counsellingType = value.toString();
                                 });
                               },
                             ),

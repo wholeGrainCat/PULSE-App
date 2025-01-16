@@ -1,73 +1,62 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:student/Admin/counselling_appointment/appointment.dart';
 import 'package:student/Admin/counselling_appointment/appointment_service.dart';
+import 'package:student/Admin/counselling_appointment/update_appointment_page.dart';
 import 'package:student/components/admin_bottom_navigation.dart';
 
 class AdminAppointmentPage extends StatefulWidget {
   const AdminAppointmentPage({super.key});
 
   @override
-  State<AdminAppointmentPage> createState() => _AppointmentPageState();
+  State<AdminAppointmentPage> createState() => _AdminAppointmentPageState();
 }
 
-class _AppointmentPageState extends State<AdminAppointmentPage> {
+class _AdminAppointmentPageState extends State<AdminAppointmentPage> {
   final AppointmentService _appointmentService = AppointmentService();
   bool isPendingSelected = true;
   int _currentIndex = 1;
-  String? counselorName;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadCounselorInfo();
-  }
-
-  Future<void> _loadCounselorInfo() async {
-    print('Loading counselor info...');
-    final name = await _appointmentService.getCurrentCounselorName();
-    print('Retrieved counselor name: $name');
-    if (mounted) {
-      setState(() {
-        counselorName = name;
-      });
-      print('Set counselor name in state: $counselorName');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar(context),
-      backgroundColor: Colors.white,
-      body: buildUI(),
-      bottomNavigationBar: AdminBottomNavigation(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          switch (index) {
-            case 0:
-              Navigator.pushNamed(context, '/adminresource');
-              break;
-            case 1:
-              Navigator.pushNamed(context, '/adminappointment');
-              break;
-            case 2:
-              Navigator.pushNamed(context, '/admindashboard');
-              break;
-            case 3:
-              Navigator.pushNamed(context, '/adminchat');
-              break;
-            case 4:
-              Navigator.pushNamed(context, '/adminprofile');
-              break;
-          }
-        },
-      ),
-    );
+        appBar: appBar(context),
+        backgroundColor: Colors.white,
+        body: buildUI(),
+        bottomNavigationBar: AdminBottomNavigation(
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+            // Navigate based on the tab index
+            switch (index) {
+              case 0:
+                // Navigate to Resources page
+                Navigator.pushNamed(context, '/adminresource');
+                break;
+              case 1:
+                // Navigate to Appointment page
+                Navigator.pushNamed(context, '/adminappointment');
+                break;
+              case 2:
+                // Navigate to Chat page
+                Navigator.pushNamed(
+                    context, '/admindashboard'); // Use named route for chat
+                break;
+              case 3:
+                // Navigate to Profile page
+                Navigator.pushNamed(context, '/adminchat');
+                break;
+              case 4:
+                // Navigate to Profile page
+                Navigator.pushNamed(context, '/adminprofile');
+                break;
+              default:
+                break;
+            }
+          },
+        ));
   }
 
   Widget buildUI() {
@@ -75,80 +64,27 @@ class _AppointmentPageState extends State<AdminAppointmentPage> {
       children: [
         buildToggleBar(),
         Expanded(
-          child: isPendingSelected ? buildPendingList() : buildReservedList(),
-        ),
+            child:
+                isPendingSelected ? buildPendingList() : buildReservedList()),
       ],
     );
   }
 
-  Widget buildPendingList() {
-    if (counselorName == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    return StreamBuilder<List<Appointment>>(
-      stream: FirebaseFirestore.instance
-          .collection('scheduled_appointments')
-          .where('counselor', isEqualTo: counselorName)
-          .where('status', isEqualTo: 'pending')
-          .snapshots()
-          .map((snapshot) => snapshot.docs
-              .map((doc) => Appointment.fromJson({...doc.data(), 'id': doc.id}))
-              .toList()),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(
-            child: Text(
-              "No Pending Appointments Found",
-              style: TextStyle(fontSize: 16),
-            ),
-          );
-        }
-
-        final appointments = snapshot.data!;
-        return ListView.builder(
-          itemCount: appointments.length,
-          itemBuilder: (context, index) {
-            final appointment = appointments[index];
-            return buildPendingAppointmentCard(appointment);
-          },
-        );
-      },
-    );
-  }
-
   Widget buildReservedList() {
-    if (counselorName == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     return StreamBuilder<List<Appointment>>(
-      stream: FirebaseFirestore.instance
-          .collection('scheduled_appointments')
-          .where('counselor', isEqualTo: counselorName)
-          .where('status', isEqualTo: 'approved')
-          .snapshots()
-          .map((snapshot) => snapshot.docs
-              .map((doc) => Appointment.fromJson({...doc.data(), 'id': doc.id}))
-              .toList()),
+      stream: _appointmentService.getAppointmentsByStatus("Approved"),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(
             child: Text(
-              "No Approved Appointments Found",
+              "No Approved Appointments Found.",
               style: TextStyle(fontSize: 16),
             ),
           );
         }
-
         final appointments = snapshot.data!;
         return ListView.builder(
           itemCount: appointments.length,
@@ -161,135 +97,293 @@ class _AppointmentPageState extends State<AdminAppointmentPage> {
     );
   }
 
-  Widget buildPendingAppointmentCard(Appointment appointment) {
-    return Card(
-      margin: const EdgeInsets.all(8),
-      child: ListTile(
-        title: Text(appointment.name),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Date: ${appointment.date}'),
-            Text('Time: ${appointment.time}'),
-            Text('Location: ${appointment.location}'),
-            Text('Counselor: ${appointment.counselor}'),
-          ],
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.check, color: Colors.green),
-              onPressed: () => _showConfirmDialog(appointment),
-            ),
-            IconButton(
-              icon: const Icon(Icons.close, color: Colors.red),
-              onPressed: () => _showRejectDialog(appointment),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget buildReservedAppointmentCard(Appointment appointment) {
     return Card(
-      margin: const EdgeInsets.all(8),
-      child: ListTile(
-        title: Text(appointment.name),
-        subtitle: Column(
+      margin: const EdgeInsets.symmetric(
+        horizontal: 10.0,
+        vertical: 5.0,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Date: ${appointment.date}'),
-            Text('Time: ${appointment.time}'),
-            Text('Location: ${appointment.location}'),
-            Text('Counselor: ${appointment.counselor}'),
-          ],
-        ),
-        trailing: IconButton(
-          icon: const Icon(Icons.edit, color: Colors.blue),
-          onPressed: () => _showUpdateDialog(appointment),
-        ),
-      ),
-    );
-  }
-
-  void _showUpdateDialog(Appointment appointment) {
-    final TextEditingController dateController =
-        TextEditingController(text: appointment.date);
-    final TextEditingController timeController =
-        TextEditingController(text: appointment.time);
-    final TextEditingController locationController =
-        TextEditingController(text: appointment.location);
-    final TextEditingController counselorController =
-        TextEditingController(text: appointment.counselor);
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Update Appointment'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+            Row(
               children: [
-                TextField(
-                  controller: dateController,
-                  decoration: const InputDecoration(labelText: 'Date'),
+                CircleAvatar(
+                  radius: 30,
+                  child: Text(
+                    appointment.name[0].toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-                TextField(
-                  controller: timeController,
-                  decoration: const InputDecoration(labelText: 'Time'),
-                ),
-                TextField(
-                  controller: locationController,
-                  decoration: const InputDecoration(labelText: 'Location'),
-                ),
-                TextField(
-                  controller: counselorController,
-                  decoration: const InputDecoration(labelText: 'Counselor'),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        //Display name
+                        appointment.name,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.access_time,
+                            color: Colors.grey[600],
+                            size: 18,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            //Display Appointment Time
+                            appointment.time,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Icon(
+                            Icons.calendar_today,
+                            color: Colors.grey[600],
+                            size: 18,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            //Display Appointment date
+                            appointment.appointmentDate,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                try {
-                  await FirebaseFirestore.instance
-                      .collection('scheduled_appointments')
-                      .doc(appointment.id)
-                      .update({
-                    'appointmentDate': dateController.text,
-                    'time': timeController.text,
-                    'location': locationController.text,
-                    'counselor': counselorController.text,
-                  });
-                  if (mounted) {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Appointment updated successfully')),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            UpdateAppointmentPage(appointment: appointment),
+                      ),
                     );
-                  }
-                } catch (e) {
-                  if (mounted) {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error updating appointment: $e')),
-                    );
-                  }
-                }
-              },
-              child: const Text('Update'),
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    "Manage Booking",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildPendingList() {
+    return StreamBuilder<List<Appointment>>(
+      stream: _appointmentService.getAppointmentsByStatus("Pending"),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(
+            child: Text(
+              "No Pending Appointments Found.",
+              style: TextStyle(fontSize: 16),
+            ),
+          );
+        }
+        final appointments = snapshot.data!;
+        return ListView.builder(
+          itemCount: appointments.length,
+          itemBuilder: (context, index) {
+            final appointment = appointments[index];
+            return buildPendingAppointmentCard(appointment);
+          },
         );
       },
+    );
+  }
+
+  Widget buildPendingAppointmentCard(Appointment appointment) {
+    return Card(
+      margin: const EdgeInsets.symmetric(
+        horizontal: 10.0,
+        vertical: 5.0,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 30,
+                  child: Text(
+                    appointment.name[0].toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        appointment.name,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.access_time,
+                            color: Colors.grey[600],
+                            size: 18,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            appointment.time,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Icon(
+                            Icons.calendar_today,
+                            color: Colors.grey[600],
+                            size: 18,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            appointment.appointmentDate,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    _showConfirmDialog(appointment);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    "Confirm",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    _showRejectDialog(appointment);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    "Reject",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -298,39 +392,84 @@ class _AppointmentPageState extends State<AdminAppointmentPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Appointment'),
-          content:
-              const Text('Are you sure you want to approve this appointment?'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.check_circle,
+                size: 80,
+                color: Colors.green,
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                "Are you sure you want to confirm this appointment?",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                  fontWeight: FontWeight.normal,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          actionsAlignment: MainAxisAlignment.spaceEvenly,
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                try {
-                  // Update the status using AppointmentService
-                  await _appointmentService.updateAppointmentStatus(
-                      appointment.id, 'approved');
-
-                  if (mounted) {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Appointment approved successfully')),
-                    );
-                  }
-                } catch (e) {
-                  if (mounted) {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content: Text('Error approving appointment: $e')),
-                    );
-                  }
-                }
-              },
-              child: const Text('Approve'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    FirebaseFirestore.instance
+                        .collection('appointments')
+                        .doc(appointment.id)
+                        .update({'status': 'Approved'}).then((_) {
+                      Navigator.of(context).pop();
+                      _showApprovedDialog(context);
+                    }).catchError((error) {
+                      Navigator.of(context).pop();
+                      _showErrorDialog(context, error);
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    "Confirm",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         );
@@ -346,7 +485,7 @@ class _AppointmentPageState extends State<AdminAppointmentPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          content: const Column(
+          content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
@@ -354,8 +493,8 @@ class _AppointmentPageState extends State<AdminAppointmentPage> {
                 size: 80,
                 color: Colors.red,
               ),
-              SizedBox(height: 10),
-              Text(
+              const SizedBox(height: 10),
+              const Text(
                 "Are you sure you want to reject this appointment?",
                 style: TextStyle(
                   color: Colors.black,
@@ -394,13 +533,9 @@ class _AppointmentPageState extends State<AdminAppointmentPage> {
                 ElevatedButton(
                   onPressed: () {
                     FirebaseFirestore.instance
-                        .collection(
-                            'scheduled_appointments') // Correct collection name
+                        .collection('appointments')
                         .doc(appointment.id)
-                        .update({
-                      'status': 'rejected', // Use lowercase to match
-                      'updatedAt': FieldValue.serverTimestamp()
-                    }).then((_) {
+                        .update({'status': 'Rejected'}).then((_) {
                       Navigator.of(context).pop();
                       _showRejectedDialog(context);
                     }).catchError((error) {
@@ -444,7 +579,7 @@ class _AppointmentPageState extends State<AdminAppointmentPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          content: const Column(
+          content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
@@ -452,8 +587,8 @@ class _AppointmentPageState extends State<AdminAppointmentPage> {
                 size: 80,
                 color: Colors.green,
               ),
-              SizedBox(height: 10),
-              Text(
+              const SizedBox(height: 10),
+              const Text(
                 "Appointment approved successfully.",
                 style: TextStyle(
                   color: Colors.black,
@@ -506,7 +641,7 @@ class _AppointmentPageState extends State<AdminAppointmentPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          content: const Column(
+          content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
@@ -514,8 +649,8 @@ class _AppointmentPageState extends State<AdminAppointmentPage> {
                 size: 80,
                 color: Colors.green,
               ),
-              SizedBox(height: 10),
-              Text(
+              const SizedBox(height: 10),
+              const Text(
                 "Appointment rejected successfully.",
                 style: TextStyle(
                   color: Colors.black,
@@ -566,7 +701,7 @@ class _AppointmentPageState extends State<AdminAppointmentPage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
+              Icon(
                 Icons.error,
                 size: 80,
                 color: Colors.red,
@@ -697,25 +832,6 @@ class _AppointmentPageState extends State<AdminAppointmentPage> {
       backgroundColor: Colors.white,
       elevation: 0.0,
       centerTitle: true,
-      actions: [
-        GestureDetector(
-          onTap: () {},
-          child: Container(
-            margin: const EdgeInsets.all(10),
-            alignment: Alignment.center,
-            width: 37,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: SvgPicture.asset(
-              'assets/icons/Bell.svg',
-              height: 20,
-              width: 20,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

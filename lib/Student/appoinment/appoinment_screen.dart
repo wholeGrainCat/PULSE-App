@@ -32,7 +32,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         final querySnapshot = await FirebaseFirestore.instance
-            .collection('scheduled_appointments')
+            .collection('appointments')
             .where('userId', isEqualTo: user.uid)
             .orderBy('createdAt', descending: true)
             .get();
@@ -50,11 +50,11 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
               querySnapshot.docs
                   .map((doc) => {
                         'id': doc.id,
-                        'counselor': doc['counselor'] ?? 'N/A',
-                        'date': doc['date'] ?? 'N/A',
+                        'counsellor': doc['counsellor'] ?? 'N/A',
+                        'appointmentDate': doc['appointmentDate'] ?? 'N/A',
                         'location': doc['location'] ?? 'N/A',
                         'time': doc['time'] ?? 'N/A',
-                        'status': doc['status'] ?? 'pending',
+                        'status': doc['status'] ?? 'Pending',
                         'createdAt': doc['createdAt'] ?? '',
                       })
                   .toList();
@@ -179,7 +179,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                 const Icon(Icons.date_range, color: Colors.blue),
                 const SizedBox(width: 8),
                 Text(
-                  "Date: ${appointment['date']}",
+                  "Date: ${appointment['appointmentDate']}",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -211,21 +211,30 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
               children: [
                 const Icon(Icons.location_on, color: Colors.green),
                 const SizedBox(width: 8),
-                Text(
-                  "Location: ${appointment['location']}",
-                  style: const TextStyle(color: Colors.black),
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      "Location: ${appointment['location']}",
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 6),
-            // Counselor
+            // Counsellor
             Row(
               children: [
                 const Icon(Icons.person, color: Colors.orange),
                 const SizedBox(width: 8),
-                Text(
-                  "Counselor: ${appointment['counselor']}",
-                  style: const TextStyle(color: Colors.black),
+                Flexible(
+                  child: FittedBox(
+                    child: Text(
+                      "Counsellor: ${appointment['counsellor']}",
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -241,9 +250,9 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    appointment['status'].toLowerCase() == 'approved'
+                    appointment['status'].toLowerCase() == 'Approved'
                         ? Icons.check_circle
-                        : appointment['status'].toLowerCase() == 'cancelled'
+                        : appointment['status'].toLowerCase() == 'Cancelled'
                             ? Icons.cancel
                             : Icons.pending,
                     color: getStatusColor(appointment['status']),
@@ -260,42 +269,6 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                 ],
               ),
             ),
-            // Show counselor notes if they exist
-            /*if (appointment['counselorNotes'].isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey[300]!),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Row(
-                      children: [
-                        Icon(Icons.note, color: Colors.grey),
-                        SizedBox(width: 8),
-                        Text(
-                          "Counselor Notes:",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      appointment['counselorNotes'],
-                      style: const TextStyle(color: Colors.black54),
-                    ),
-                  ],
-                ),
-              ),
-            ],*/
           ],
         ),
       ),

@@ -165,9 +165,7 @@ class _DashboardState extends State<AdminDashboard> {
                         child: Text(
                           'Appointment Statistics',
                           style: TextStyle(
-                            fontSize: 18, 
-                            fontWeight: FontWeight.bold
-                          ),
+                              fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
