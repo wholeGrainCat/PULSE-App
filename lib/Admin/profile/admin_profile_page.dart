@@ -3,10 +3,8 @@ import 'package:student/Admin/counselling_appointment/appointment_page.dart';
 import 'package:student/Admin/profile/change_password_page.dart';
 import 'package:student/Admin/profile/edit_admin_profile_page.dart';
 import 'package:student/Admin/profile/help_center_page.dart';
-
 import 'package:student/Admin/profile/privacy_policy_page.dart';
 import 'package:student/Admin/profile/settings_page.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:student/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:student/components/admin_bottom_navigation.dart';
@@ -21,10 +19,10 @@ class AdminProfilePage extends StatefulWidget {
 class _AdminProfilePageState extends State<AdminProfilePage> {
   String username = "";
   String email = "";
-  String profilePictureUrl = "";
+  String profileImageUrl = "";
   bool isLoading = true;
   int _currentIndex = 4;
-  final AuthService _authService = AuthService();
+  final AuthService _auth = AuthService();
 
   @override
   void initState() {
@@ -34,13 +32,13 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
 
   Future<void> fetchUserData() async {
     try {
-      final userData = await _authService.getCurrentUserData();
+      final userData = await _auth.getCurrentUserData();
 
       if (userData != null) {
         setState(() {
           username = userData['username'] ?? 'N/A';
           email = userData['email'] ?? 'N/A';
-          profilePictureUrl = userData['profileImageUrl'] ?? '';
+          profileImageUrl = userData['profileImageUrl'] ?? '';
           isLoading = false;
         });
       } else {
@@ -69,7 +67,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
     final shouldLogout = await _showLogoutConfirmationDialog(context);
     if (shouldLogout) {
       try {
-        await _authService.signout();
+        await _auth.signout();
         if (mounted) {
           Navigator.pushReplacementNamed(context, '/logout');
         }
@@ -148,11 +146,10 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                         children: [
                           CircleAvatar(
                             radius: 40,
-                            backgroundImage: profilePictureUrl.isNotEmpty
-                                ? NetworkImage(profilePictureUrl)
+                            backgroundImage: profileImageUrl.isNotEmpty
+                                ? AssetImage(profileImageUrl)
                                 : const AssetImage(
-                                        'assets/images/placeholder.png')
-                                    as ImageProvider,
+                                    'assets/images/placeholder.png'),
                           ),
                           const SizedBox(width: 15),
                           Expanded(
@@ -162,7 +159,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                                 Text(
                                   username.isNotEmpty ? username : 'Loading...',
                                   style: const TextStyle(
-                                    fontSize: 18,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -177,24 +174,33 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                               ],
                             ),
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => EditProfilePage(
-                                    initialUsername: username,
-                                    userId: FirebaseAuth
-                                            .instance.currentUser?.uid ??
-                                        '',
+                          Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: IconButton(
+                              icon: const Icon(Icons.edit,
+                                  color: Colors.black), // Material Edit Icon
+                              iconSize: 30,
+                              onPressed: () async {
+                                 final bool? updated = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => EditProfilePage(
+                                      initialUsername: username, // Pass username from profile page
+                                      initialEmail: email,       // Pass email from profile page
+                                      userId: FirebaseAuth.instance.currentUser!.uid,
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                            child: SvgPicture.asset(
-                              'assets/icons/Edit.svg',
-                              height: 40,
-                              width: 40,
+                                );
+                                // If the profile was updated, refresh the profile data
+                                if (updated == true) {
+                                  await fetchUserData();
+                                }
+                              },
                             ),
                           ),
                         ],
@@ -234,7 +240,6 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                       ),
                     ),
                     const SizedBox(height: 30),
-                    // Log Out Button
                     Center(
                       child: Container(
                         width: 300,
@@ -301,27 +306,20 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
           setState(() {
             _currentIndex = index;
           });
-          // Navigate based on the tab index
           switch (index) {
             case 0:
-              // Navigate to Resources page
               Navigator.pushNamed(context, '/adminresource');
               break;
             case 1:
-              // Navigate to Appointment page
               Navigator.pushNamed(context, '/adminappointment');
               break;
             case 2:
-              // Navigate to Chat page
-              Navigator.pushNamed(
-                  context, '/admindashboard'); // Use named route for chat
+              Navigator.pushNamed(context, '/admindashboard');
               break;
             case 3:
-              // Navigate to Profile page
               Navigator.pushNamed(context, '/adminchat');
               break;
             case 4:
-              // Navigate to Profile page
               Navigator.pushNamed(context, '/adminprofile');
               break;
             default:
@@ -335,24 +333,24 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
   Future<bool> _showLogoutConfirmationDialog(BuildContext context) async {
     return await showDialog(
           context: context,
-          barrierDismissible: false, // Prevent dismissing by tapping outside
+          barrierDismissible: false,
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text("Confirm Logout"),
               content: const Text("Are you sure you want to log out?"),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(false), // Cancel
+                  onPressed: () => Navigator.of(context).pop(false),
                   child: const Text("Cancel"),
                 ),
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(true), // Confirm
+                  onPressed: () => Navigator.of(context).pop(true),
                   child: const Text("Log Out"),
                 ),
               ],
             );
           },
         ) ??
-        false; // Return false if dialog is dismissed
+        false;
   }
 }
