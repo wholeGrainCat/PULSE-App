@@ -116,29 +116,31 @@ class _StudentDashboardState extends State<StudentDashboard> {
         DateTime now = DateTime.now();
 
         final querySnapshot = await FirebaseFirestore.instance
-            .collection('scheduled_appointments')
+            .collection('appointments')
             .where('userId', isEqualTo: user.uid)
-            .orderBy('date')
+            .orderBy('appointmentDate')
             .orderBy('time')
             .get();
 
         if (querySnapshot.docs.isNotEmpty) {
           for (var doc in querySnapshot.docs) {
             final data = doc.data();
-            final dateStr = data['date'] as String?;
+            final dateStr = data['appointmentDate'] as String?;
             final timeStr = data['time'] as String?;
 
             if (dateStr != null && timeStr != null) {
               final appointmentDateTime =
                   DateFormat("yyyy-MM-dd hh:mm a").parse("$dateStr $timeStr");
+              print("Parsing: $dateStr $timeStr");
 
               if (appointmentDateTime.isAfter(now)) {
-                tempNearestDate = data['date'] ?? 'Date not specified';
+                tempNearestDate =
+                    data['appointmentDate'] ?? 'Date not specified';
                 tempNearestTime = data['time'] ?? 'Time not specified';
                 tempNearestLocation =
                     data['location'] ?? 'Location not specified';
                 tempNearestCounselor =
-                    data['counselor'] ?? 'Counselor not specified';
+                    data['counsellor'] ?? 'Counsellor not specified';
                 break;
               }
             }

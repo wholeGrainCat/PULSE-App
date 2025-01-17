@@ -11,6 +11,7 @@ class Appointment {
   String name;
   String phoneNumber;
   String status;
+  String counsellor;
 
   Appointment(
       {required this.counsellingType,
@@ -24,7 +25,8 @@ class Appointment {
       required this.matricNumber,
       required this.name,
       required this.phoneNumber,
-      required this.status});
+      required this.status,
+      required this.counsellor});
 
   Appointment.fromJson(Map<String, dynamic> json)
       : this(
@@ -39,6 +41,7 @@ class Appointment {
           name: json['fullName'] as String,
           phoneNumber: json['phoneNumber'] as String,
           status: json['status'] as String,
+          counsellor: json['counsellor'] as String,
         );
 
   Appointment.fromFirestore(Map<String, dynamic> json, String id)
@@ -55,21 +58,24 @@ class Appointment {
           name: json['fullName'] as String,
           phoneNumber: json['phoneNumber'] as String,
           status: json['status'] as String,
+          counsellor: json['counsellor'] as String,
         );
 
-  Appointment copyWith(
-      {String? counsellingType,
-      String? appointmentDate,
-      String? time,
-      String? location,
-      String? description,
-      String? email,
-      String? id,
-      String? issue,
-      String? matricsNumber,
-      String? name,
-      String? phoneNumber,
-      String? status}) {
+  Appointment copyWith({
+    String? counsellingType,
+    String? appointmentDate,
+    String? time,
+    String? location,
+    String? description,
+    String? email,
+    String? id,
+    String? issue,
+    String? matricsNumber,
+    String? name,
+    String? phoneNumber,
+    String? status,
+    String? counsellor,
+  }) {
     return Appointment(
       counsellingType: counsellingType ?? this.counsellingType,
       appointmentDate: appointmentDate ?? this.appointmentDate,
@@ -83,6 +89,7 @@ class Appointment {
       name: name ?? this.name,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       status: status ?? this.status,
+      counsellor: counsellor ?? this.counsellor,
     );
   }
 
@@ -98,7 +105,8 @@ class Appointment {
       'matricNumber': matricNumber,
       'fullName': name,
       'phoneNumber': phoneNumber,
-      'status': status
+      'status': status,
+      'counsellor': counsellor,
     };
   }
 }

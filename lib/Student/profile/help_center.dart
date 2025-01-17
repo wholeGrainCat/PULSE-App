@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:student/components/app_colour.dart';
 
 class HelpCenterPage extends StatefulWidget {
   const HelpCenterPage({super.key});
@@ -31,6 +32,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
           'Help Center',
@@ -47,7 +49,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
         iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
           children: [
             const SizedBox(height: 20),
@@ -78,10 +80,24 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                     color: Color(0xFF00CBC7)), // Cyan icon
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+                  borderSide: BorderSide(
+                    width: 2.0,
+                  ),
                 ),
-                filled: true,
-                fillColor: const Color(0xFFA4E3E8), // Light blue background
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: AppColors.pri_cyan, // Border color when focused
+                    width: 3.0,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: AppColors.pri_cyan, // Border color when enabled
+                    width: 2.0,
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 30),

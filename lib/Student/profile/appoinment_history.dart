@@ -14,7 +14,9 @@ class AppointmentHistory extends StatelessWidget {
     String userId = FirebaseAuth.instance.currentUser!.uid;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: const Text('Appointment History'),
         centerTitle: true,
       ),
@@ -46,6 +48,7 @@ class AppointmentHistory extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                 child: Card(
+                  color: Colors.white,
                   elevation: 4,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -87,11 +90,15 @@ class AppointmentHistory extends StatelessWidget {
                           children: [
                             const Icon(Icons.person, color: Colors.orange),
                             const SizedBox(width: 8),
-                            Text(
-                              'Counsellor: ${appointment.counsellor}',
-                              style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.black), // Black text color
+                            Flexible(
+                              child: FittedBox(
+                                child: Text(
+                                  'Counsellor: ${appointment.counsellor}',
+                                  style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black), // Black text color
+                                ),
+                              ),
                             ),
                           ],
                         ),

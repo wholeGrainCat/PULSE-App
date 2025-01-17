@@ -20,9 +20,11 @@ class AppointmentService {
         .snapshots();
   }
 
-  Stream<List<Appointment>> getAppointmentsByStatus(String status) {
+  Stream<List<Appointment>> getAppointmentsByStatus(
+      String status, String counsellor) {
     return _appointmentRef
         .where('status', isEqualTo: status)
+        .where('counsellor', isEqualTo: counsellor)
         .orderBy('appointmentDate', descending: true)
         .snapshots()
         .map((snapshot) {

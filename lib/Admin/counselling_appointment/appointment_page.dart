@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:student/Admin/counselling_appointment/appointment.dart';
 import 'package:student/Admin/counselling_appointment/appointment_service.dart';
 import 'package:student/Admin/counselling_appointment/update_appointment_page.dart';
+import 'package:student/auth_service.dart';
 import 'package:student/components/admin_bottom_navigation.dart';
 
 class AdminAppointmentPage extends StatefulWidget {
@@ -14,8 +15,17 @@ class AdminAppointmentPage extends StatefulWidget {
 
 class _AdminAppointmentPageState extends State<AdminAppointmentPage> {
   final AppointmentService _appointmentService = AppointmentService();
+  final AuthService _auth = AuthService();
   bool isPendingSelected = true;
+  bool isLoading = true;
   int _currentIndex = 1;
+  String counsellor = "";
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +69,37 @@ class _AdminAppointmentPageState extends State<AdminAppointmentPage> {
         ));
   }
 
+  Future<void> fetchUserData() async {
+    try {
+      final userData = await _auth.getCurrentUserData();
+
+      if (userData != null) {
+        setState(() {
+          counsellor = userData['name'] ?? 'N/A';
+          isLoading = false;
+        });
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Admin profile not found.")),
+          );
+          setState(() {
+            isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to fetch admin data: $e")),
+        );
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
   Widget buildUI() {
     return Column(
       children: [
@@ -72,7 +113,8 @@ class _AdminAppointmentPageState extends State<AdminAppointmentPage> {
 
   Widget buildReservedList() {
     return StreamBuilder<List<Appointment>>(
-      stream: _appointmentService.getAppointmentsByStatus("Approved"),
+      stream:
+          _appointmentService.getAppointmentsByStatus("Approved", counsellor),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -222,13 +264,25 @@ class _AdminAppointmentPageState extends State<AdminAppointmentPage> {
   }
 
   Widget buildPendingList() {
+    print('Building pending list for counsellor: $counsellor'); // Debug print
+
     return StreamBuilder<List<Appointment>>(
-      stream: _appointmentService.getAppointmentsByStatus("Pending"),
+      stream:
+          _appointmentService.getAppointmentsByStatus("Pending", counsellor),
       builder: (context, snapshot) {
+        print(
+            'Stream snapshot state: ${snapshot.connectionState}'); // Debug print
+        if (snapshot.hasError) {
+          print('Stream error: ${snapshot.error}'); // Debug error
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
+
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          print('No appointments found'); // Debug print
           return const Center(
             child: Text(
               "No Pending Appointments Found.",
@@ -236,7 +290,11 @@ class _AdminAppointmentPageState extends State<AdminAppointmentPage> {
             ),
           );
         }
+
         final appointments = snapshot.data!;
+        print(
+            'Found ${appointments.length} pending appointments'); // Debug print
+
         return ListView.builder(
           itemCount: appointments.length,
           itemBuilder: (context, index) {

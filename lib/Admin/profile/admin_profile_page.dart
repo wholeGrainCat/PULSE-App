@@ -186,13 +186,16 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                                   color: Colors.black), // Material Edit Icon
                               iconSize: 30,
                               onPressed: () async {
-                                 final bool? updated = await Navigator.push(
+                                final bool? updated = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => EditProfilePage(
-                                      initialUsername: username, // Pass username from profile page
-                                      initialEmail: email,       // Pass email from profile page
-                                      userId: FirebaseAuth.instance.currentUser!.uid,
+                                      initialUsername:
+                                          username, // Pass username from profile page
+                                      initialEmail:
+                                          email, // Pass email from profile page
+                                      userId: FirebaseAuth
+                                          .instance.currentUser!.uid,
                                     ),
                                   ),
                                 );
