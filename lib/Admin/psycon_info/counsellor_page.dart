@@ -155,7 +155,7 @@ class AdminCounsellorPage extends StatelessWidget {
           children: [
             CircleAvatar(
               backgroundColor: Colors.grey[200],
-              backgroundImage: NetworkImage(counsellor.imageUrl),
+              backgroundImage: AssetImage(counsellor.imageUrl),
               onBackgroundImageError: (e, _) {
                 print('Error loading image: $e');
               },

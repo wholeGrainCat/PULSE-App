@@ -282,7 +282,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
       appBar: AppBar(
         title: const Text(
           "Appointments",
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 24),
         ),
         backgroundColor: Colors.white,
         elevation: 1,

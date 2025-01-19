@@ -36,12 +36,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
       appBar: AppBar(
         title: const Text(
           'Help Center',
-          style: TextStyle(
-            fontSize: 25,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Roboto',
-            color: Colors.black,
-          ),
+          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 24),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,

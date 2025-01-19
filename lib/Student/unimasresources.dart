@@ -37,7 +37,10 @@ class CounsellorInfoScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text('Psycon Counsellor'),
+        title: const Text(
+          'Psycon Counsellor',
+          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 24),
+        ),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _fetchCounsellorData(),

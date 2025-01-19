@@ -17,7 +17,10 @@ class AppointmentHistory extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text('Appointment History'),
+        title: const Text(
+          'Appointment History',
+          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 24),
+        ),
         centerTitle: true,
       ),
       body: StreamBuilder<QuerySnapshot>(

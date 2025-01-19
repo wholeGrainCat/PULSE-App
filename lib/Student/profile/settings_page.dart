@@ -12,12 +12,7 @@ class SettingsPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'Settings',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 25,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Roboto',
-          ),
+          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 24),
         ),
         backgroundColor: Colors.white,
         elevation: 0,

@@ -174,52 +174,54 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.chat['name'] ?? 'Unknown User',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.chat['name'] ?? 'Unknown User',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 5),
-                      StreamBuilder<DocumentSnapshot>(
-                        stream: FirebaseFirestore.instance
-                            .collection('chats')
-                            .doc(getChatRoomId())
-                            .snapshots(),
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData || !snapshot.data!.exists) {
-                            return const Text(
-                              'Hello',
-                              style: TextStyle(
+                        const SizedBox(height: 5),
+                        StreamBuilder<DocumentSnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('chats')
+                              .doc(getChatRoomId())
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData || !snapshot.data!.exists) {
+                              return const Text(
+                                'Hello',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                              );
+                            }
+
+                            final data =
+                                snapshot.data!.data() as Map<String, dynamic>;
+                            final typing =
+                                data['typing'] as Map<String, dynamic>?;
+
+                            final isReceiverTyping =
+                                typing?[widget.receiverId] ?? false;
+
+                            return Text(
+                              isReceiverTyping ? 'Typing...' : '',
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
                               ),
                             );
-                          }
-
-                          final data =
-                              snapshot.data!.data() as Map<String, dynamic>;
-                          final typing =
-                              data['typing'] as Map<String, dynamic>?;
-
-                          final isReceiverTyping =
-                              typing?[widget.receiverId] ?? false;
-
-                          return Text(
-                            isReceiverTyping ? 'Typing...' : '',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

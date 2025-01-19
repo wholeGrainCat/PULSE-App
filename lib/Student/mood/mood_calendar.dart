@@ -141,6 +141,7 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
             fontWeight: FontWeight.w500,
           ),
         ),
+        centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
       ),

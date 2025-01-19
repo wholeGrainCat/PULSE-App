@@ -15,7 +15,10 @@ class _CrisisSupportPageState extends State<CrisisSupportPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Crisis Support'),
+        title: const Text(
+          'Crisis Support',
+          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 24),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(

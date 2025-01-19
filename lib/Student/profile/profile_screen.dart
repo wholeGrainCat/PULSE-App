@@ -238,12 +238,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(height: 30),
                         _buildMenuItem(
                           context,
-                          icon: Icons.notifications,
-                          title: "Notification",
-                          page: const NotificationPage(),
-                        ),
-                        _buildMenuItem(
-                          context,
                           icon: Icons.history,
                           title: "Appointment History",
                           page: const AppointmentHistory(),

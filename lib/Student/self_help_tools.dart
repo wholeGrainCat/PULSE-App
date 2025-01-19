@@ -26,7 +26,10 @@ class _SelfHelpToolsState extends State<SelfHelpTools> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text('Self-Help Tools'),
+        title: const Text(
+          'Self-Help Tools',
+          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 24),
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
