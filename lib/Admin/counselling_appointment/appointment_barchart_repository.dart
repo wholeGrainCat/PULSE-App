@@ -2,33 +2,35 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AppointmentBarChartRepository {
   final CollectionReference appointment =
-      FirebaseFirestore.instance.collection('appointment');
+      FirebaseFirestore.instance.collection('appointments');
 
-  Future<Map<String, dynamic>> getAppointmentStats() async {
+  Future<Map<String, dynamic>> getAppointmentStats(String counsellor) async {
     try {
-      QuerySnapshot querySnapshot = await appointment.get();
+      // Filter appointments based on the current counsellor
+      QuerySnapshot querySnapshot =
+          await appointment.where('counsellor', isEqualTo: counsellor).get();
 
-      int completedCount = 0;
+      int pendingCount = 0;
       int cancelledCount = 0;
-      int upcomingCount = 0;
+      int approvedCount = 0;
 
       for (var doc in querySnapshot.docs) {
-        String status = doc['Status'];
-        if (status == 'Completed') {
-          completedCount++;
-        } else if (status == 'Cancelled') {
+        String status = doc['status'];
+        if (status == 'Pending') {
+          pendingCount++;
+        } else if (status == 'Rejected') {
           cancelledCount++;
-        } else if (status == 'Upcoming') {
-          upcomingCount++;
+        } else if (status == 'Approved') {
+          approvedCount++;
         }
       }
 
-      int total = completedCount + cancelledCount + upcomingCount;
+      int total = pendingCount + cancelledCount + approvedCount;
 
       return {
-        'Completed': completedCount,
-        'Cancelled': cancelledCount,
-        'Upcoming': upcomingCount,
+        'Pending': pendingCount,
+        'Rejected': cancelledCount,
+        'Approved': approvedCount,
         'Total': total,
       };
     } catch (e) {

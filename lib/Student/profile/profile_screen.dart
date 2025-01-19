@@ -3,7 +3,6 @@ import 'package:student/auth_service.dart';
 import 'package:student/Student/profile/appoinment_history.dart';
 import 'package:student/Student/profile/change_password.dart';
 import 'package:student/Student/profile/help_center.dart';
-import 'package:student/Student/profile/notifications.dart';
 import 'package:student/Student/profile/edit_profile.dart';
 import 'package:student/Student/profile/settings_page.dart';
 import 'package:student/components/background_style_two.dart';

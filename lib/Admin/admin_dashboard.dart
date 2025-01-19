@@ -5,6 +5,7 @@ import 'package:student/Admin/counselling_appointment/appointment_barchart_repos
 import 'package:student/Admin/counselling_appointment/appointment_barchart.dart';
 import 'package:student/Admin/crisis_support/crisis_support_viewmodel.dart';
 import 'package:student/Admin/self-help_tools/selfhelp_tools.dart';
+import 'package:student/auth_service.dart';
 import 'package:student/components/admin_bottom_navigation.dart';
 
 class AdminDashboard extends StatefulWidget {
@@ -17,12 +18,14 @@ class AdminDashboard extends StatefulWidget {
 class _DashboardState extends State<AdminDashboard> {
   int _currentIndex = 2; // Default to "Home" tab
   Map<String, int> stats = {
-    'Upcoming': 0,
-    'Completed': 0,
-    'Cancelled': 0,
+    'Approved': 0,
+    'Pending': 0,
+    'Rejected': 0,
     'Total': 0
   };
   bool isLoading = true;
+  String counsellor = "";
+  final AuthService _auth = AuthService();
 
   @override
   void initState() {
@@ -37,13 +40,44 @@ class _DashboardState extends State<AdminDashboard> {
   }
 
   Future<void> fetchAppointmentStats() async {
+    try {
+      final userData = await _auth.getCurrentUserData();
+
+      if (userData != null) {
+        setState(() {
+          counsellor = userData['name'] ?? 'N/A';
+          isLoading = false;
+        });
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Admin profile not found.")),
+          );
+          setState(() {
+            isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to fetch admin data: $e")),
+        );
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+
     AppointmentBarChartRepository repository = AppointmentBarChartRepository();
-    Map<String, dynamic> fetchedStats = await repository.getAppointmentStats();
+    print("The counsellor is {$counsellor}");
+    Map<String, dynamic> fetchedStats =
+        await repository.getAppointmentStats(counsellor);
 
     setState(() {
-      stats['Upcoming'] = fetchedStats['Upcoming'] ?? 0;
-      stats['Completed'] = fetchedStats['Completed'] ?? 0;
-      stats['Cancelled'] = fetchedStats['Cancelled'] ?? 0;
+      stats['Approved'] = fetchedStats['Approved'] ?? 0;
+      stats['Pending'] = fetchedStats['Pending'] ?? 0;
+      stats['Rejected'] = fetchedStats['Rejected'] ?? 0;
       stats['Total'] = fetchedStats['Total'] ?? 0;
       isLoading = false;
     });
@@ -97,9 +131,9 @@ class _DashboardState extends State<AdminDashboard> {
                     itemCount: 4,
                     itemBuilder: (context, index) {
                       final titles = [
-                        'Upcoming',
-                        'Completed',
-                        'Cancelled',
+                        'Approved',
+                        'Pending',
+                        'Rejected',
                         'Total'
                       ];
                       final colors = [
