@@ -111,6 +111,50 @@ class _AdminAppointmentPageState extends State<AdminAppointmentPage> {
     );
   }
 
+  // Helper method for detail rows
+  Widget _buildDetailRow(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '$label: ',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(fontSize: 14),
+          ),
+        ),
+      ],
+    );
+  }
+
+// Helper method for contact info rows
+  Widget _buildContactRow(IconData icon, String value, {Color? iconColor}) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 16,
+          color: iconColor ??
+              Colors.blue.shade700, // Default to blue if no color provided
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(fontSize: 14),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget buildReservedList() {
     return StreamBuilder<List<Appointment>>(
       stream:
@@ -142,91 +186,156 @@ class _AdminAppointmentPageState extends State<AdminAppointmentPage> {
   Widget buildReservedAppointmentCard(Appointment appointment) {
     return Card(
       margin: const EdgeInsets.symmetric(
-        horizontal: 10.0,
-        vertical: 5.0,
+        horizontal: 16.0,
+        vertical: 8.0,
       ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: Colors.grey.shade200),
       ),
-      elevation: 4,
+      elevation: 2,
       child: Padding(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Header with Avatar and Name
             Row(
               children: [
                 CircleAvatar(
                   radius: 30,
+                  backgroundColor: Colors.blue.shade100,
                   child: Text(
                     appointment.name[0].toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
+                    style: TextStyle(
+                      color: Colors.blue.shade700,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                const SizedBox(width: 15),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        //Display name
                         appointment.name,
                         style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const SizedBox(height: 3),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.access_time,
-                            color: Colors.grey[600],
-                            size: 18,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            //Display Appointment Time
-                            appointment.time,
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 16,
-                              fontWeight: FontWeight.normal,
+                      const SizedBox(height: 4),
+                      // Time and Date in a container
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.access_time,
+                              color: Colors.blue.shade700,
+                              size: 16,
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Icon(
-                            Icons.calendar_today,
-                            color: Colors.grey[600],
-                            size: 18,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            //Display Appointment date
-                            appointment.appointmentDate,
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 16,
-                              fontWeight: FontWeight.normal,
+                            const SizedBox(width: 4),
+                            Text(
+                              appointment.time,
+                              style: TextStyle(
+                                color: Colors.blue.shade700,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 8),
+                            Icon(
+                              Icons.calendar_today,
+                              color: Colors.blue.shade700,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              appointment.appointmentDate,
+                              style: TextStyle(
+                                color: Colors.blue.shade700,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 16),
+
+            // Appointment Details Section
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildDetailRow(
+                      'Counselling Type', appointment.counsellingType),
+                  const SizedBox(height: 8),
+                  _buildDetailRow('Issue', appointment.issue),
+                  const SizedBox(height: 8),
+                  _buildDetailRow('Description', appointment.description),
+                  const SizedBox(height: 8),
+                  _buildDetailRow('Location', appointment.location),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Student Details Section
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Student Details',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildContactRow(Icons.badge, appointment.matricNumber),
+                  const SizedBox(height: 4),
+                  _buildContactRow(Icons.email, appointment.email),
+                  const SizedBox(height: 4),
+                  _buildContactRow(Icons.phone, appointment.phoneNumber),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Manage Booking Button
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                ElevatedButton(
+                ElevatedButton.icon(
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -236,22 +345,17 @@ class _AdminAppointmentPageState extends State<AdminAppointmentPage> {
                       ),
                     );
                   },
+                  icon: const Icon(Icons.edit_calendar, size: 20),
+                  label: const Text("Manage Booking"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.blue.shade600,
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
+                      horizontal: 20,
+                      vertical: 12,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text(
-                    "Manage Booking",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                 ),
@@ -309,131 +413,195 @@ class _AdminAppointmentPageState extends State<AdminAppointmentPage> {
   Widget buildPendingAppointmentCard(Appointment appointment) {
     return Card(
       margin: const EdgeInsets.symmetric(
-        horizontal: 10.0,
-        vertical: 5.0,
+        horizontal: 16.0,
+        vertical: 8.0,
       ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: Colors.grey.shade200),
       ),
-      elevation: 4,
+      elevation: 2,
       child: Padding(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            // Header with Avatar and Badge
+            Stack(
               children: [
-                CircleAvatar(
-                  radius: 30,
-                  child: Text(
-                    appointment.name[0].toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 15),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        appointment.name,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundColor: Colors.orange.shade100,
+                      child: Text(
+                        appointment.name[0].toUpperCase(),
+                        style: TextStyle(
+                          color: Colors.orange.shade700,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 3),
-                      Row(
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            Icons.access_time,
-                            color: Colors.grey[600],
-                            size: 18,
-                          ),
-                          const SizedBox(width: 4),
                           Text(
-                            appointment.time,
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 16,
-                              fontWeight: FontWeight.normal,
+                            appointment.name,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const SizedBox(width: 16),
-                          Icon(
-                            Icons.calendar_today,
-                            color: Colors.grey[600],
-                            size: 18,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            appointment.appointmentDate,
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 16,
-                              fontWeight: FontWeight.normal,
+                          const SizedBox(height: 4),
+                          // Time and Date in a container
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.shade50,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.access_time,
+                                  color: Colors.orange.shade700,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  appointment.time,
+                                  style: TextStyle(
+                                    color: Colors.orange.shade700,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Icon(
+                                  Icons.calendar_today,
+                                  color: Colors.orange.shade700,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  appointment.appointmentDate,
+                                  style: TextStyle(
+                                    color: Colors.orange.shade700,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+
+            const SizedBox(height: 16),
+
+            // Appointment Details Section
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildDetailRow(
+                    'Counselling Type',
+                    appointment.counsellingType,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildDetailRow('Issue', appointment.issue),
+                  const SizedBox(height: 8),
+                  _buildDetailRow('Description', appointment.description),
+                  const SizedBox(height: 8),
+                  _buildDetailRow('Location', appointment.location),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Student Details Section
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange.shade50,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Student Details',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildContactRow(Icons.badge, appointment.matricNumber,
+                      iconColor: Colors.orange.shade700),
+                  const SizedBox(height: 4),
+                  _buildContactRow(Icons.email, appointment.email,
+                      iconColor: Colors.orange.shade700),
+                  const SizedBox(height: 4),
+                  _buildContactRow(Icons.phone, appointment.phoneNumber,
+                      iconColor: Colors.orange.shade700),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Action Buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                ElevatedButton(
-                  onPressed: () {
-                    _showConfirmDialog(appointment);
-                  },
+                ElevatedButton.icon(
+                  onPressed: () => _showConfirmDialog(appointment),
+                  icon: const Icon(Icons.check_circle_outline, size: 20),
+                  label: const Text("Confirm"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
+                      horizontal: 20,
+                      vertical: 12,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text(
-                    "Confirm",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    _showRejectDialog(appointment);
-                  },
+                const SizedBox(width: 12),
+                ElevatedButton.icon(
+                  onPressed: () => _showRejectDialog(appointment),
+                  icon: const Icon(Icons.cancel_outlined, size: 20),
+                  label: const Text("Reject"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
+                      horizontal: 20,
+                      vertical: 12,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text(
-                    "Reject",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                 ),

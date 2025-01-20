@@ -390,18 +390,13 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Widget _buildTitle() {
-    return const Positioned(
-      left: 0,
-      top: 90,
-      right: 0,
-      child: Center(
-        child: Text(
-          "Student Sign Up",
-          style: TextStyle(
-            fontSize: 26,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+    return Center(
+      child: Text(
+        "Student Sign Up",
+        style: TextStyle(
+          fontSize: 26,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
         ),
       ),
     );
