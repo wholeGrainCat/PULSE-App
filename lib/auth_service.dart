@@ -115,8 +115,8 @@ class AuthService {
     }
   }
 
-  // Google Sign In
-  Future<UserCredential?> loginWithGoogle(String expectedRole) async {
+//Google Sign In
+  Future<UserCredential?> loginWithGoogle() async {
     try {
       final googleUser = await GoogleSignIn().signIn();
       if (googleUser == null) return null;
@@ -130,38 +130,53 @@ class AuthService {
       final userCredential = await _auth.signInWithCredential(credential);
 
       if (userCredential.user != null) {
-        // Check if user exists with the correct role
-        final hasRole =
-            await verifyUserRole(userCredential.user!.uid, expectedRole);
+        // Check if user already exists
+        final userDoc = await _firestore
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .get();
 
-        // If user doesn't exist or doesn't have the role, create new profile
-        if (!hasRole) {
-          final subcollection =
-              expectedRole == 'counsellor' ? 'counsellors' : 'students';
-
+        // If user doesn't exist, create new profile (sign up case)
+        if (!userDoc.exists) {
           // Create main user document
           await _firestore
               .collection('users')
               .doc(userCredential.user!.uid)
               .set({
             'email': userCredential.user!.email,
+            'createdAt': FieldValue.serverTimestamp(),
           });
 
-          // Create profile in appropriate subcollection
+          // Create profile in students subcollection
           await _firestore
               .collection('users')
               .doc(userCredential.user!.uid)
-              .collection(subcollection)
+              .collection('students')
               .doc('profile')
               .set({
             'uid': userCredential.user!.uid,
             'username': userCredential.user!.displayName ??
                 'User${userCredential.user!.uid.substring(0, 5)}',
             'email': userCredential.user!.email,
-            'role': expectedRole,
+            'role': 'student',
             'profileImageUrl': userCredential.user!.photoURL,
             'createdAt': FieldValue.serverTimestamp(),
           });
+        }
+        // For existing users (sign in case), verify they are a student
+        else {
+          final studentProfileDoc = await _firestore
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .collection('students')
+              .doc('profile')
+              .get();
+
+          if (!studentProfileDoc.exists) {
+            await _auth.signOut();
+            throw Exception(
+                'This Google account is not registered as a student.');
+          }
         }
         return userCredential;
       }

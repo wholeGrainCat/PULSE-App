@@ -231,8 +231,8 @@ class _LoginPageState extends State<LoginPage> {
       child: GestureDetector(
         onTap: () async {
           try {
-            final user = await _auth
-                .loginWithGoogle('student'); // Add 'student' parameter
+            final user =
+                await _auth.loginWithGoogle(); // Add 'student' parameter
             if (user != null) {
               Navigator.pushNamed(context, '/studentdashboard');
             }

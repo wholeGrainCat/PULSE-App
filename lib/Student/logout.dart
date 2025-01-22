@@ -59,7 +59,11 @@ class _LogoutPageState extends State<LogoutPage> {
                   // Student Button with style
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/onboarding');
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        '/home',
+                        (Route<dynamic> route) => false,
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.pri_purple,

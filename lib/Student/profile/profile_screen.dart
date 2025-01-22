@@ -267,8 +267,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             if (confirmLogout) {
                               try {
                                 await AuthService().signout();
-                                Navigator.pushReplacementNamed(
-                                    context, '/logout');
+                                Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  '/home',
+                                  (Route<dynamic> route) => false,
+                                );
                               } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(

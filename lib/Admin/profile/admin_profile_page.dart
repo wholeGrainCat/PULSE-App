@@ -69,7 +69,11 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
       try {
         await _auth.signout();
         if (mounted) {
-          Navigator.pushReplacementNamed(context, '/logout');
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/home',
+            (Route<dynamic> route) => false,
+          );
         }
       } catch (e) {
         if (mounted) {

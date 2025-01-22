@@ -190,22 +190,20 @@ class _RegisterPageState extends State<RegisterPage> {
         child: Stack(
           children: [
             const BackgroundWithEmojis(),
-            Positioned.fill(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 100), // Adjust for title spacing
-                    _buildTitle(), // Add the title at the top
-                    const SizedBox(height: 20),
-                    _buildRegistrationForm(context),
-                  ],
-                ),
+            SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 100), // Adjust for title spacing
+                  _buildTitle(), // Add the title at the top
+                  const SizedBox(height: 20),
+                  _buildRegistrationForm(context),
+                ],
               ),
             ),
             Positioned(
-              top: 20, // Adjust this for your design
-              left: 10, // Adjust this for your design
+              top: 20,
+              left: 10,
               child: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.black),
                 onPressed: () {
@@ -221,67 +219,67 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Widget _buildRegistrationForm(BuildContext context) {
     return Center(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xffD9D9D9).withOpacity(.7),
-              blurRadius: 20,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildTextField("Username", usernameController),
-            if (usernameError != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 5, bottom: 10),
-                child: Text(
-                  usernameError!,
-                  style: const TextStyle(color: Colors.red),
-                ),
+      child: SizedBox(
+        height: 600,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xffD9D9D9).withOpacity(.7),
+                blurRadius: 20,
+                offset: const Offset(0, 4),
               ),
-            _buildTextField("Email", emailController),
-            if (emailError != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 5, bottom: 10),
-                child: Text(
-                  emailError!,
-                  style: const TextStyle(color: Colors.red),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildTextField("Username", usernameController),
+              if (usernameError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 5, bottom: 10),
+                  child: Text(
+                    usernameError!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
                 ),
-              ),
-            _buildTextField("Password", passwordController, obscureText: true),
-            _buildTextField("Confirm Password", confirmPasswordController,
-                obscureText: true),
-            if (passwordErrors.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 5, bottom: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: passwordErrors
-                      .map((error) => Text(
-                            error,
-                            style: const TextStyle(color: Colors.red),
-                          ))
-                      .toList(),
+              _buildTextField("Email", emailController),
+              if (emailError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 5, bottom: 10),
+                  child: Text(
+                    emailError!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
                 ),
-              ),
-            const SizedBox(height: 30),
-            _buildSignUpButton(context),
-            const SizedBox(height: 40),
-            _buildContinueWithText(),
-            const SizedBox(height: 14),
-            _buildGoogleSignInButton(),
-            const SizedBox(height: 28),
-            _buildLoginRedirect(context),
-          ],
+              _buildTextField("Password", passwordController,
+                  obscureText: true),
+              _buildTextField("Confirm Password", confirmPasswordController,
+                  obscureText: true),
+              if (passwordErrors.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 5, bottom: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: passwordErrors
+                        .map((error) => Text(
+                              error,
+                              style: const TextStyle(color: Colors.red),
+                            ))
+                        .toList(),
+                  ),
+                ),
+              const SizedBox(height: 30),
+              _buildSignUpButton(context),
+              const SizedBox(height: 40),
+              _buildLoginRedirect(context),
+            ],
+          ),
         ),
       ),
     );
@@ -317,40 +315,6 @@ class _RegisterPageState extends State<RegisterPage> {
         child: const Text(
           "SIGN UP",
           style: TextStyle(color: Colors.white, fontSize: 16),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildContinueWithText() {
-    return const Center(
-      child: Text(
-        "or sign up with",
-        style: TextStyle(color: Colors.black),
-      ),
-    );
-  }
-
-  Widget _buildGoogleSignInButton() {
-    return Center(
-      child: GestureDetector(
-        onTap: () {
-          // Handle Google Sign-In
-        },
-        child: Container(
-          padding: const EdgeInsets.all(10.0),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: const Color(0xFF613EEA),
-              width: 1.0,
-            ),
-          ),
-          child: const CircleAvatar(
-            backgroundColor: Colors.white,
-            radius: 14,
-            backgroundImage: AssetImage('assets/images/google.png'),
-          ),
         ),
       ),
     );

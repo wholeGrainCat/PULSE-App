@@ -64,20 +64,16 @@ class _SelfhelpToolsPageState extends State<SelfhelpToolsPage> {
   }
 
   Widget buildFloatingActionButton() {
-    return Positioned(
-      bottom: 200,
-      right: 16,
-      child: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AdvertisementPage()),
-          );
-        },
-        backgroundColor: const Color(0XFFD9F65C),
-        shape: const CircleBorder(),
-        child: const Icon(Icons.arrow_forward),
-      ),
+    return FloatingActionButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const AdvertisementPage()),
+        );
+      },
+      backgroundColor: const Color(0XFFD9F65C),
+      shape: const CircleBorder(),
+      child: const Icon(Icons.arrow_forward),
     );
   }
 

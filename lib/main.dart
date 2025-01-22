@@ -75,6 +75,7 @@ class MyApp extends StatelessWidget {
       ),
       home: const OnboardingScreen(), // Set OnboardingPage as the first page
       routes: {
+        '/home': (context) => const OnboardingScreen(),
         '/onboarding': (context) => const Onboarding(),
         '/login': (context) => const LoginPage(),
         '/forgotpassword': (context) => const ForgotPasswordPage(),
