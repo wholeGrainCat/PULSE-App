@@ -1,6 +1,6 @@
 # PULSE: Student Mental Health Support App
 
-PULSE is an academic prototype designed to provide mental health and wellness support for students. Developed by Team **Appitude**, the app focuses on addressing mental health challenges in a user-friendly and engaging way. This project is part of the **TMA3084 - Software Engineering Laboratory** course at UNIMAS.
+PULSE is an academic prototype designed to provide mental health and wellness support for students. Developed by Team **Appitude**, the app focuses on addressing mental health challenges in a user-friendly and engaging way. This project is part of the **TMA3084 - Software Engineering Laboratory** course and **TMA4093 – Software Maintenance and Configuration Management** at UNIMAS.
 
 ---
 
