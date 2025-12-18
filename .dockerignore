@@ -1,0 +1,18 @@
+# Ignore git history (Huge!)
+.git/
+.gitignore
+
+# Ignore build artifacts (Huge!)
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+
+# Ignore IDE settings
+.idea/
+.vscode/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db

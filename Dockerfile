@@ -1,32 +1,26 @@
-# ===============================
-# Stage 1: Build Flutter Web App
-# ===============================
-FROM ghcr.io/cirruslabs/flutter:stable AS build
+# ==========================================
+# STAGE 1: The Build Factory
+# ==========================================
+# Use the official Flutter Docker image (includes Dart, Java, Android SDK)
+FROM ghcr.io/cirruslabs/flutter:stable
 
-# Set working directory inside container
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy dependency configuration first (better caching)
-COPY pubspec.yaml pubspec.lock ./
+# 1. Copy dependency definitions first (Optimization)
+# This allows Docker to cache dependencies if files haven't changed
+COPY pubspec.* ./
 RUN flutter pub get
 
-# Copy the rest of the project
+# 2. Copy the rest of the application source code
 COPY . .
 
-# Build Flutter web release
-RUN flutter build web --release
+# 3. Build the Release APK
+# We limit Gradle memory to 1.5GB so it doesn't crash Docker
+ENV GRADLE_OPTS="-Dorg.gradle.jvmargs=-Xmx1536m"
+RUN flutter build apk --release
 
-
-# ===============================
-# Stage 2: Serve with Nginx
-# ===============================
-FROM nginx:alpine
-
-# Copy built web files to Nginx public directory
-COPY --from=build /app/build/web /usr/share/nginx/html
-
-# Expose HTTP port
-EXPOSE 80
-
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# 4. PROOF OF SUCCESS 
+# This command lists the generated APK file size in the terminal log
+# showing that the build actually worked.
+RUN ls -lh build/app/outputs/flutter-apk/app-release.apk
