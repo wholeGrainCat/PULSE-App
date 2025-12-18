@@ -102,7 +102,7 @@ flutter:
     - assets/images/pulse_logo.png
     - assets/images/psycon_logo.png
     - assets/images/background.png
-    - assets/icons/Edit.svg
+    - assets/icons/edit.svg
     - assets/icons/Add.svg
     - assets/icons/AddRing.svg
     - assets/icons/appointment.png
